@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMPROTECH Intranet</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:#f5f4f0;color:#1a1a1a;min-height:100vh}
+:root{
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#3C3489;
+  --amber:#BA7517;--green:#1D9E75;--blue:#185FA5;--red:#D85A30;
+  --border:#e0dfd8;--bg:#f5f4f0;--card:#ffffff;--text:#1a1a1a;--muted:#6b6a65;
+  --radius:10px;--radius-lg:14px
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1a1918;--card:#252422;--text:#f0ede8;--muted:#888780;
+  --border:#333230;--purple-l:#26215C
+}}
+
+/* ====== LOGIN ====== */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg)}
+.login-box{width:100%;max-width:400px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px}
+.login-logo{font-size:26px;font-weight:700;color:var(--text);letter-spacing:-0.8px;margin-bottom:6px}
+.login-logo b{color:var(--purple)}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.login-lbl{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:0.4px}
+.login-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:14px;font-family:inherit;outline:none;margin-bottom:14px}
+.login-input:focus{border-color:var(--purple)}
+.login-btn{width:100%;padding:13px;border:none;border-radius:var(--radius);background:var(--purple);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px}
+.login-btn:hover{background:var(--purple-d)}
+.login-btn:disabled{opacity:0.6;cursor:not-allowed}
+.login-err{background:#FCEBEB;color:#501313;border:1px solid #F7C1C1;border-radius:var(--radius);padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+.login-ver{font-size:12px;color:var(--muted);text-align:center;margin-top:14px}
+
+/* ====== APP ====== */
+#app-screen{display:none;flex-direction:column;min-height:100vh;max-width:960px;margin:0 auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.4px}
+.logo b{color:var(--purple)}
+.logo-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.user-pill{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--bg);border:1px solid var(--border);border-radius:20px;cursor:pointer}
+.user-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.user-nm{font-size:12px;font-weight:600;color:var(--text)}
+.user-role{font-size:10px;color:var(--muted)}
+.menu-btn{width:38px;height:38px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center}
+.nav-drawer{display:none;background:var(--card);border-bottom:1px solid var(--border);padding:12px}
+.nav-drawer.open{display:block}
+.nav-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.ni{display:flex;flex-direction:column;align-items:center;gap:4px;padding:11px 6px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-size:11px;text-align:center;font-family:inherit;transition:all 0.15s;line-height:1.3}
+.ni:hover{background:var(--card);color:var(--text)}
+.ni.active{background:var(--purple-l);color:#26215C;border-color:var(--purple);font-weight:600}
+@media(prefers-color-scheme:dark){.ni.active{background:#26215C;color:#CECBF6}}
+.ni-ic{font-size:19px;line-height:1}
+.mn{flex:1;padding:16px}
+
+/* ====== COMMON UI ====== */
+h1{font-size:19px;font-weight:700;color:var(--text);margin-bottom:4px}
+.ph{margin-bottom:14px}
+.ph p{font-size:12px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px}
+.gkpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:13px}
+.kpi-v{font-size:22px;font-weight:700;color:var(--text)}
+.kpi-l{font-size:11px;color:var(--muted);margin-top:3px}
+.kpi-s{font-size:11px;margin-top:2px;font-weight:600}
+/* badges */
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.bp{background:#EEEDFE;color:#26215C}.ba{background:#FAEEDA;color:#633806}.bt{background:#E1F5EE;color:#085041}
+.bc{background:#FAECE7;color:#4A1B0C}.bg{background:#f0efe8;color:#5F5E5A}.bgr{background:#EAF3DE;color:#173404}
+.bbl{background:#E6F1FB;color:#042C53}.bred{background:#FCEBEB;color:#501313}
+@media(prefers-color-scheme:dark){.bp{background:#26215C;color:#CECBF6}.ba{background:#412402;color:#FAC775}.bt{background:#04342C;color:#9FE1CB}.bc{background:#4A1B0C;color:#F5C4B3}.bgr{background:#173404;color:#C0DD97}.bbl{background:#042C53;color:#B5D4F4}.bred{background:#501313;color:#F7C1C1}.bg{background:#2c2c2a;color:#B4B2A9}}
+/* buttons */
+.btn-p{font-size:13px;padding:9px 16px;border:none;border-radius:var(--radius);background:var(--purple);color:#fff;cursor:pointer;font-weight:600;font-family:inherit}
+.btn-p:hover{background:var(--purple-d)}.btn-p:disabled{opacity:0.5;cursor:not-allowed}
+.btn-s{font-size:13px;padding:8px 13px;border:1px solid var(--border);border-radius:var(--radius);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit}
+/* forms */
+input,select,textarea{font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--text);font-family:inherit;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--purple)}
+textarea{resize:vertical;min-height:80px}
+.frm-r{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.frm-lbl{font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:500}
+/* filters */
+.sf{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.sf-btn{font-size:12px;padding:5px 12px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
+.sf-btn.active{background:var(--purple-l);color:#26215C;border-color:var(--purple);font-weight:600}
+@media(prefers-color-scheme:dark){.sf-btn.active{background:#26215C;color:#CECBF6}}
+/* tasks */
+.kb-col{background:var(--bg);border-radius:var(--radius);padding:12px;margin-bottom:10px;border:1px solid var(--border)}
+.kbh{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;color:var(--muted)}
+.kbn{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:1px 8px;font-size:10px}
+.tk{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:7px}
+.tk-a{display:flex;gap:5px;margin-top:8px}
+.tk-btn{flex:1;font-size:11px;padding:6px 4px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-family:inherit}
+/* announcements */
+.ann{display:flex;gap:11px;padding:13px 0;border-bottom:1px solid var(--border)}
+.ann-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;color:#fff}
+/* tickets */
+.tkt{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:8px}
+.tkt-btn{font-size:12px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;font-family:inherit}
+.tkt-btn.go{background:#E1F5EE;color:#085041;border-color:#9FE1CB}
+.tkt-btn.res{background:#E6F1FB;color:#042C53;border-color:#B5D4F4}
+/* org chart */
+.oc-scroll{overflow:auto;-webkit-overflow-scrolling:touch;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);padding:16px;margin-bottom:12px}
+.oc-node{display:flex;flex-direction:column;align-items:center}
+.oc-box{min-width:90px;max-width:115px;padding:9px 10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);text-align:center;transition:all 0.15s}
+.oc-box.clickable{cursor:pointer}
+.oc-box.clickable:hover{background:var(--bg)}
+.oc-box.sel{border-color:var(--purple);box-shadow:0 0 0 3px rgba(83,74,183,0.15)}
+.oc-nm{font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oc-rl{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+/* onboarding */
+.ob-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;cursor:pointer}
+.ob-card:active{opacity:0.85}
+.chk-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.chk-box{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--card);transition:all 0.15s}
+.chk-box.done{background:var(--green);border-color:var(--green)}
+.chk-lbl{font-size:13px;color:var(--text);line-height:1.4}
+.chk-lbl.done{color:var(--muted);text-decoration:line-through}
+/* chat / AI */
+.chat-m{min-height:280px;max-height:360px;overflow-y:auto;padding:13px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.mu{align-self:flex-end;background:var(--purple);color:#fff;border-radius:16px 16px 3px 16px;padding:10px 14px;max-width:85%;font-size:13px;line-height:1.5;word-break:break-word}
+.ma{align-self:flex-start;background:var(--card);border:1px solid var(--border);border-radius:16px 16px 16px 3px;padding:10px 14px;max-width:85%;font-size:13px;line-height:1.5;color:var(--text);word-break:break-word;white-space:pre-wrap}
+.chat-ir{display:flex;gap:8px}
+.chat-ir input{flex:1}
+/* role badge */
+.role-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid}
+/* access denied */
+.no-access{text-align:center;padding:50px 20px;color:var(--muted)}
+.no-access-ic{font-size:40px;margin-bottom:12px}
+/* progress */
+.prog-wrap{height:7px;background:var(--bg);border-radius:4px}
+.prog-fill{height:100%;border-radius:4px}
+/* loading */
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:var(--muted);font-size:13px}
+.urgr{display:flex;align-items:flex-start;justify-content:space-between;padding:9px 11px;background:var(--bg);border-radius:var(--radius);margin-bottom:6px;gap:8px}
+.dbar{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loading-screen">
+  <div class="spinner"></div>
+  Chargement...
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen" style="display:none">
+  <div class="login-box">
+    <div class="login-logo"><b>IMPRO</b>TECH</div>
+    <div class="login-sub">Intranet · Connexion sécurisée</div>
+    <div class="login-err" id="login-err"></div>
+    <label class="login-lbl">Adresse email</label>
+    <input class="login-input" type="email" id="login-email" placeholder="prenom.nom@improtechsystems.com" autocomplete="email">
+    <label class="login-lbl">Mot de passe</label>
+    <input class="login-input" type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Se connecter →</button>
+    <div class="login-ver" id="login-ver"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen" style="display:none;flex-direction:column;min-height:100vh">
+  <div class="topbar">
+    <div>
+      <div class="logo"><b>IMPRO</b>TECH</div>
+      <div class="logo-sub" id="tb-dept">Intranet · Accra HQ</div>
+    </div>
+    <div class="tb-right">
+      <div class="user-pill" onclick="showProfile()">
+        <div class="user-av" id="user-av" style="background:#534AB7">?</div>
+        <div>
+          <div class="user-nm" id="user-nm">—</div>
+          <div class="user-role" id="user-role">—</div>
+        </div>
+      </div>
+      <button class="menu-btn" onclick="toggleNav()" id="mb">☰</button>
+    </div>
+  </div>
+  <div class="nav-drawer" id="nav">
+    <div class="nav-grid" id="nav-grid"></div>
+  </div>
+  <div class="mn" id="mn"></div>
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ============================================================
+// 🔧 CONFIGURATION — Remplace par tes valeurs Supabase
+// ============================================================
+var SUPABASE_URL = 'https://VOTRE_PROJECT_ID.supabase.co';
+var SUPABASE_ANON_KEY = 'VOTRE_ANON_KEY';
+// ============================================================
+
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var currentUser = null;
+var currentProfile = null;
+var navOpen = false;
+var chts = {};
+
+// ============================================================
+// ROLE CONFIG
+// ============================================================
+var ROLE_COLORS = {
+  Technical: '#534AB7', 'Sales & Marketing': '#BA7517', HR: '#1D9E75',
+  Finance: '#185FA5', Support: '#D85A30', Admin: '#1a1a1a'
+};
+var ROLE_BADGE = {
+  Technical: 'bp', 'Sales & Marketing': 'ba', HR: 'bt',
+  Finance: 'bbl', Support: 'bc', Admin: 'bg'
+};
+// Qui voit tout ?
+var ADMIN_ROLES = ['Admin', 'CEO', 'CTO', 'MD'];
+
+// Navigation par rôle
+var NAV_CONFIG = {
+  Admin:           [{id:'dash',ic:'◈',l:'Dashboard'},{id:'tasks',ic:'☑',l:'Tâches'},{id:'comm',ic:'◎',l:'Communication'},{id:'crm',ic:'◇',l:'CRM'},{id:'sup',ic:'◉',l:'Support'},{id:'org',ic:'⊞',l:'Organigramme'},{id:'ob',ic:'✦',l:'Onboarding'},{id:'rep',ic:'▦',l:'Rapports'},{id:'ai',ic:'✧',l:'Assistant IA'}],
+  Technical:       [{id:'dash',ic:'◈',l:'Dashboard'},{id:'tasks',ic:'☑',l:'Mes Tâches'},{id:'sup',ic:'◉',l:'Tickets'},{id:'org',ic:'⊞',l:'Organigramme'},{id:'comm',ic:'◎',l:'Annonces'},{id:'ai',ic:'✧',l:'Assistant IA'}],
+  'Sales & Marketing': [{id:'dash',ic:'◈',l:'Dashboard'},{id:'crm',ic:'◇',l:'CRM / Leads'},{id:'tasks',ic:'☑',l:'Mes Tâches'},{id:'org',ic:'⊞',l:'Organigramme'},{id:'comm',ic:'◎',l:'Annonces'},{id:'ai',ic:'✧',l:'Assistant IA'}],
+  HR:              [{id:'dash',ic:'◈',l:'Dashboard'},{id:'ob',ic:'✦',l:'Onboarding'},{id:'tasks',ic:'☑',l:'Mes Tâches'},{id:'org',ic:'⊞',l:'Organigramme'},{id:'comm',ic:'◎',l:'Communication'},{id:'ai',ic:'✧',l:'Assistant IA'}],
+  Finance:         [{id:'dash',ic:'◈',l:'Dashboard'},{id:'rep',ic:'▦',l:'Rapports'},{id:'tasks',ic:'☑',l:'Mes Tâches'},{id:'org',ic:'⊞',l:'Organigramme'},{id:'comm',ic:'◎',l:'Annonces'},{id:'ai',ic:'✧',l:'Assistant IA'}],
+  Support:         [{id:'dash',ic:'◈',l:'Dashboard'},{id:'sup',ic:'◉',l:'Help Desk'},{id:'tasks',ic:'☑',l:'Mes Tâches'},{id:'org',ic:'⊞',l:'Organigramme'},{id:'comm',ic:'◎',l:'Annonces'},{id:'ai',ic:'✧',l:'Assistant IA'}],
+};
+
+// ============================================================
+// DATA (sera remplacé par des requêtes Supabase)
+// ============================================================
+var tasks=[
+  {id:1,title:"Déploiement pare-feu Ecobank",dept:"Technical",p:"high",st:"todo",who:"Othniel",due:"28 Avr"},
+  {id:2,title:"Proposition SEMLEX Group",dept:"Sales & Marketing",p:"high",st:"inprog",who:"Tariq",due:"25 Avr"},
+  {id:3,title:"Onboarding Kwame Asare",dept:"HR",p:"medium",st:"inprog",who:"Kassum",due:"30 Avr"},
+  {id:4,title:"Clôture comptable Mars",dept:"Finance",p:"high",st:"inprog",who:"Unclebert",due:"22 Avr"},
+  {id:5,title:"Audit réseau MTN Ghana",dept:"Technical",p:"high",st:"todo",who:"Othniel",due:"5 Mai"},
+  {id:6,title:"Campagne LinkedIn Q2",dept:"Sales & Marketing",p:"medium",st:"done",who:"Mkt Team",due:"20 Avr"},
+  {id:7,title:"Révision grille salariale",dept:"HR",p:"low",st:"todo",who:"Kassum",due:"15 Mai"},
+  {id:8,title:"Rapport de paie Avril",dept:"Finance",p:"medium",st:"done",who:"Unclebert",due:"15 Avr"},
+  {id:9,title:"SLA Review Stanbic",dept:"Support",p:"high",st:"todo",who:"Help Desk",due:"26 Avr"},
+];
+var leads=[
+  {id:1,co:"MTN Ghana",ct:"K. Asante",svc:"Managed Services",val:"$120k",stage:"Négociation",prob:75},
+  {id:2,co:"Société Générale",ct:"M. Diallo",svc:"Security Audit",val:"$35k",stage:"Proposition",prob:55},
+  {id:3,co:"GRIDCO",ct:"A. Tetteh",svc:"Infrastructure",val:"$80k",stage:"Qualification",prob:40},
+  {id:4,co:"Fidelity Bank",ct:"A. Mensah",svc:"Formation",val:"$28k",stage:"Gagné",prob:100},
+  {id:5,co:"Orange CI",ct:"P. Kouassi",svc:"SD-WAN",val:"$95k",stage:"Prospection",prob:20},
+  {id:6,co:"SEMLEX Group",ct:"B. Koffi",svc:"Zero Trust",val:"$60k",stage:"Proposition",prob:60},
+];
+var anns=[
+  {id:1,au:"Tariq (MD)",dept:"Sales & Marketing",bd:"SEMLEX qualifié. RFP Zero Trust $60k reçu. Réunion stratégie lundi 10h.",tm:"2h"},
+  {id:2,au:"Kassum (HR)",dept:"HR",bd:"Feuilles de présence avril à soumettre avant vendredi 18h. Merci.",tm:"4h"},
+  {id:3,au:"Othniel (CTO)",dept:"Technical",bd:"Lab CCIE maintenance sam-dim. Déploiement Fortinet Ecobank lundi 6h.",tm:"1j"},
+  {id:4,au:"Unclebert (Finance)",dept:"Finance",bd:"Budget Q2 approuvé. Rapport disponible sur le Drive partagé.",tm:"2j"},
+];
+var tickets=[
+  {id:101,title:"VPN Stanbic — déconnexions",desc:"Coupures fréquentes depuis MAJ firmware vendredi.",dept:"Technical",p:"high",st:"open",req:"IT Stanbic",date:"21 Avr"},
+  {id:102,title:"Email direction non livré",desc:"Email direction@improtechsystems.com non reçu côté client.",dept:"Technical",p:"medium",st:"inprog",req:"Verlein",date:"20 Avr"},
+  {id:103,title:"Accès portail formation bloqué",desc:"Étudiant CCNA #12 ne peut pas se connecter depuis son laptop.",dept:"Support",p:"low",st:"open",req:"Étudiant",date:"20 Avr"},
+  {id:104,title:"Facture #INV-2024-089",desc:"CalBank réclame une copie.",dept:"Finance",p:"medium",st:"resolved",req:"CalBank",date:"18 Avr"},
+  {id:105,title:"Projecteur salle A HS",desc:"Projecteur principal HS. Formation CCNP impactée.",dept:"Technical",p:"high",st:"inprog",req:"Gilles",date:"21 Avr"},
+];
+var revD=[{m:"Oct",s:68,t:22},{m:"Nov",s:72,t:28},{m:"Déc",s:55,t:18},{m:"Jan",s:88,t:35},{m:"Fév",s:76,t:31},{m:"Mar",s:95,t:42},{m:"Avr",s:102,t:38}];
+var DTASKS={
+  Technical:["Créer compte email professionnel","Accès VPN configuré","Remettre ordinateur & matériel","Activer licences logicielles","Accès lab technique","Briefing sécurité & politique IT","Présentation à l'équipe Technical","Session shadow ingénieur senior","Premier projet assigné"],
+  'Sales & Marketing':["Créer compte email","Accès CRM configuré","Formation catalogue produits","Guide de tarification remis","Présentation clients clés","Shadow appel commercial","Premier rendez-vous prospect","Profil LinkedIn mis à jour"],
+  HR:["Créer compte email","Accès outils RH configuré","Handbook employé remis","Mise en place paie","Révision politiques RH","Présentation à l'équipe","Accès portail employés"],
+  Finance:["Créer compte email","Accès systèmes financiers","Formation procédures comptables","Révision plan comptable","Accès outils reporting","Présentation équipe Finance","Première clôture accompagnée"],
+  Support:["Créer compte email","Accès système tickets","Formation procédures SLA","Révision procédures escalade","Formation outils support","Présentation équipe Support","Premier ticket en shadow","Accès base de connaissances"],
+};
+var orgData={id:1,name:"Verlein",role:"CEO",dept:"Admin",children:[{id:2,name:"Tariq",role:"MD / GM",dept:"Admin",children:[
+  {id:3,name:"Othniel",role:"CTO",dept:"Technical",children:[{id:7,name:"Pre-sales Eng.",role:"Pre-sales",dept:"Technical",children:[]},{id:8,name:"IT Engineer",role:"IT & Cyber",dept:"Technical",children:[]}]},
+  {id:4,name:"Sales Manager",role:"Sales Manager",dept:"Sales & Marketing",children:[{id:9,name:"Account Exec.",role:"Account Exec.",dept:"Sales & Marketing",children:[]},{id:10,name:"Marketer",role:"Digital Mkt",dept:"Sales & Marketing",children:[]}]},
+  {id:5,name:"Kassum",role:"HR Manager",dept:"HR",children:[{id:11,name:"HR Generalist",role:"HR Generalist",dept:"HR",children:[]},{id:12,name:"Admin. Officer",role:"Admin. Officer",dept:"HR",children:[]}]},
+  {id:6,name:"Unclebert",role:"Finance Mgr",dept:"Finance",children:[{id:13,name:"Finance Officer",role:"Finance Officer",dept:"Finance",children:[]}]},
+  {id:14,name:"Support Lead",role:"Help Desk Lead",dept:"Support",children:[{id:15,name:"Support Agent",role:"Support Agent",dept:"Support",children:[]}]},
+]}]};
+var nextOCId=20;
+var selOCId=null;
+var onboardings=[{id:1,name:"Kwame Asare",dept:"Technical",start:"15 Avr 2026",mgr:"Othniel",email:"k.asare@improtechsystems.com",checklist:[
+  {id:1,t:"Créer compte email professionnel",done:true},{id:2,t:"Accès VPN configuré",done:true},
+  {id:3,t:"Remettre ordinateur & matériel",done:true},{id:4,t:"Activer licences logicielles",done:true},
+  {id:5,t:"Accès lab technique",done:true},{id:6,t:"Briefing sécurité & politique IT",done:false},
+  {id:7,t:"Présentation à l'équipe Technical",done:false},{id:8,t:"Session shadow ingénieur senior",done:false},
+  {id:9,t:"Premier projet assigné",done:false}
+]}];
+var nextObId=2;
+var viewObId=null;
+var showOBForm=false;
+var obFilter='Tous';
+var aiMsgs=[];
+var lf='Tous',tf='Tous',_sf='Tous';
+
+// ============================================================
+// HELPERS
+// ============================================================
+function b(t,c){return '<span class="badge '+c+'">'+t+'</span>';}
+function dbadge(d){return b(d,ROLE_BADGE[d]||'bg');}
+function pbadge(p){var m={high:['Urgent','bc'],medium:['Moyen','ba'],low:['Faible','bg']};return b(m[p]?m[p][0]:p,m[p]?m[p][1]:'bg');}
+function calcPct(ob){var d=ob.checklist.filter(function(t){return t.done;}).length;return ob.checklist.length?Math.round(d/ob.checklist.length*100):0;}
+function pctColor(p){return p>=80?'#1D9E75':p>=40?'#BA7517':'#D85A30';}
+function progBar(p,h){h=h||7;return '<div class="prog-wrap" style="height:'+h+'px"><div class="prog-fill" style="width:'+p+'%;background:'+pctColor(p)+'"></div></div>';}
+function isAdmin(){return currentProfile&&ADMIN_ROLES.includes(currentProfile.role);}
+function getDept(){return currentProfile?currentProfile.department:'Technical';}
+function myInitials(){if(!currentProfile)return '?';var n=currentProfile.full_name||'';var p=n.split(' ');return p.length>1?p[0][0]+p[p.length-1][0]:n.substring(0,2).toUpperCase();}
+
+// ============================================================
+// AUTH
+// ============================================================
+async function initAuth(){
+  document.getElementById('loading-screen').style.display='flex';
+  var {data:{session}}=await sb.auth.getSession();
+  if(session){
+    currentUser=session.user;
+    await loadProfile();
+    showApp();
+  } else {
+    showLogin();
+  }
+  document.getElementById('loading-screen').style.display='none';
+  sb.auth.onAuthStateChange(async function(event,session){
+    if(event==='SIGNED_IN'){currentUser=session.user;await loadProfile();showApp();}
+    if(event==='SIGNED_OUT'){currentUser=null;currentProfile=null;showLogin();}
+  });
+}
+
+async function loadProfile(){
+  var {data,error}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(data)currentProfile=data;
+  else {
+    // Profil pas encore créé — on prend les métadonnées
+    currentProfile={
+      id:currentUser.id,
+      full_name:currentUser.user_metadata?.full_name||currentUser.email.split('@')[0],
+      department:currentUser.user_metadata?.department||'Technical',
+      role:currentUser.user_metadata?.role||'Technical',
+      email:currentUser.email
+    };
+  }
+}
+
+async function doLogin(){
+  var email=document.getElementById('login-email').value.trim();
+  var pwd=document.getElementById('login-pwd').value;
+  var err=document.getElementById('login-err');
+  var btn=document.getElementById('login-btn');
+  err.style.display='none';
+  if(!email||!pwd){err.textContent='Veuillez remplir tous les champs.';err.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Connexion en cours...';
+  var {data,error}=await sb.auth.signInWithPassword({email,password:pwd});
+  if(error){err.textContent='Email ou mot de passe incorrect.';err.style.display='block';btn.disabled=false;btn.textContent='Se connecter →';}
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+}
+
+function showLogin(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app-screen').style.display='none';
+  document.getElementById('login-btn').disabled=false;
+  document.getElementById('login-btn').textContent='Se connecter →';
+}
+
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-screen').style.display='flex';
+  // Set user info in topbar
+  var dept=getDept();
+  var rc=ROLE_COLORS[dept]||'#534AB7';
+  document.getElementById('user-av').style.background=rc;
+  document.getElementById('user-av').textContent=myInitials();
+  document.getElementById('user-nm').textContent=currentProfile?.full_name||'—';
+  document.getElementById('user-role').textContent=dept;
+  document.getElementById('tb-dept').textContent='Intranet · '+dept;
+  // Build nav
+  buildNav();
+  // Load dashboard
+  go('dash',document.querySelector('.ni'));
+}
+
+function showProfile(){
+  if(!currentProfile)return;
+  var dept=getDept();var rc=ROLE_COLORS[dept]||'#534AB7';
+  var html='<div class="card"><div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">'+
+    '<div style="width:52px;height:52px;border-radius:50%;background:'+rc+';display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff">'+myInitials()+'</div>'+
+    '<div><div style="font-size:17px;font-weight:700">'+currentProfile.full_name+'</div>'+
+    '<div style="font-size:13px;color:var(--muted)">'+currentProfile.email+'</div>'+
+    '<div style="margin-top:5px">'+dbadge(dept)+'</div></div></div>'+
+    '<button class="btn-p" onclick="doLogout()" style="background:#D85A30;width:100%">Se déconnecter</button></div>';
+  document.getElementById('mn').innerHTML='<div class="ph"><h1>Mon Profil</h1></div>'+html;
+}
+
+function buildNav(){
+  var dept=isAdmin()?'Admin':(getDept()||'Technical');
+  var items=NAV_CONFIG[dept]||NAV_CONFIG['Technical'];
+  var grid=document.getElementById('nav-grid');
+  grid.innerHTML=items.map(function(n,i){
+    return '<button class="ni'+(i===0?' active':'')+'" onclick="go(\''+n.id+'\',this)">'+
+      '<span class="ni-ic">'+n.ic+'</span>'+n.l+'</button>';
+  }).join('');
+}
+
+function toggleNav(){navOpen=!navOpen;document.getElementById('nav').className='nav-drawer'+(navOpen?' open':'');document.getElementById('mb').textContent=navOpen?'✕':'☰';}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function go(id,btn){
+  document.querySelectorAll('.ni').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  navOpen=false;
+  document.getElementById('nav').className='nav-drawer';
+  document.getElementById('mb').textContent='☰';
+  var rf={dash:rDash,tasks:rTasks,comm:rComm,crm:rCRM,sup:rSup,org:rOrg,ob:rOnboarding,rep:rRep,ai:rAI};
+  var fn=rf[id];
+  if(!fn){document.getElementById('mn').innerHTML='<div class="no-access"><div class="no-access-ic">🔒</div><div>Module non disponible pour votre rôle.</div></div>';return;}
+  document.getElementById('mn').innerHTML=fn();
+  var ifs={dash:iDash,rep:iRep};
+  if(ifs[id])setTimeout(ifs[id],80);
+  if(id==='ai'){var cm=document.getElementById('cm');if(cm&&aiMsgs.length)cm.scrollTop=cm.scrollHeight;}
+}
+
+// ============================================================
+// DASHBOARD — Commun à tous + extras pour Admin
+// ============================================================
+function rDash(){
+  var dept=getDept();
+  var isAdm=isAdmin();
+  var myTasks=isAdm?tasks:tasks.filter(function(t){return t.dept===dept;});
+  var todo=myTasks.filter(function(t){return t.st==='todo';}).length;
+  var openT=tickets.filter(function(t){return t.st!=='resolved';}).length;
+  var obA=onboardings.filter(function(o){return calcPct(o)<100;}).length;
+
+  var kpis='<div class="gkpi">';
+  kpis+='<div class="kpi"><div class="kpi-v">'+todo+'</div><div class="kpi-l">'+(isAdm?'Tâches à faire':'Mes tâches à faire')+'</div><div class="kpi-s" style="color:var(--purple)">ce département</div></div>';
+  if(isAdm){
+    var al=leads.filter(function(l){return l.stage!=='Gagné';}).length;
+    kpis+='<div class="kpi"><div class="kpi-v">'+al+'</div><div class="kpi-l">Leads actifs</div><div class="kpi-s" style="color:var(--amber)">pipeline</div></div>';
+  }
+  kpis+='<div class="kpi"><div class="kpi-v">'+openT+'</div><div class="kpi-l">Tickets ouverts</div><div class="kpi-s" style="color:var(--red)">support</div></div>';
+  if(isAdm||dept==='HR')kpis+='<div class="kpi"><div class="kpi-v">'+obA+'</div><div class="kpi-l">Onboardings actifs</div><div class="kpi-s" style="color:var(--green)">en cours</div></div>';
+  if(isAdm)kpis+='<div class="kpi"><div class="kpi-v">$140k</div><div class="kpi-l">CA Avril</div><div class="kpi-s" style="color:var(--green)">+12%</div></div>';
+  kpis+='</div>';
+
+  // Annonces RH — VISIBLES PAR TOUS
+  var annHtml='<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:10px">📢 Annonces de l\'équipe</div>'+
+    anns.slice(0,3).map(function(a){
+      var rc=ROLE_COLORS[a.dept]||'#888780';
+      return '<div class="ann"><div class="ann-av" style="background:'+rc+'">'+a.au[0]+'</div>'+
+        '<div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap">'+
+        '<span style="font-size:13px;font-weight:600">'+a.au+'</span>'+dbadge(a.dept)+
+        '<span style="font-size:11px;color:var(--muted)">Il y a '+a.tm+'</span></div>'+
+        '<div style="font-size:13px;color:var(--text);line-height:1.5">'+a.bd+'</div></div></div>';
+    }).join('')+'</div>';
+
+  // Mes tâches urgentes
+  var urgHtml='<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:10px">🔴 Tâches urgentes — '+dept+'</div>'+
+    (myTasks.filter(function(t){return t.p==='high'&&t.st!=='done';}).length?
+    myTasks.filter(function(t){return t.p==='high'&&t.st!=='done';}).map(function(t){
+      return '<div class="urgr"><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:5px">'+t.title+'</div>'+
+        '<div style="display:flex;gap:5px;flex-wrap:wrap">'+pbadge(t.p)+dbadge(t.dept)+'<span style="font-size:11px;color:var(--muted)">'+t.who+'</span></div></div>'+
+        '<span style="font-size:12px;font-weight:700;color:var(--amber);flex-shrink:0">'+t.due+'</span></div>';}).join(''):
+    '<div style="color:var(--muted);font-size:13px;padding:10px 0">Aucune tâche urgente. 🎉</div>')+'</div>';
+
+  var extra='';
+  if(isAdm){extra='<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:10px">📈 Revenus — 7 mois</div><canvas id="rv" height="150"></canvas></div>';}
+
+  return '<div class="ph"><h1>Bonjour, '+(currentProfile?.full_name?.split(' ')[0]||'')+'</h1>'+
+    '<p>'+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+' · '+dept+'</p></div>'+
+    kpis+annHtml+urgHtml+extra;
+}
+function iDash(){var c=document.getElementById('rv');if(!c||!window.Chart)return;if(chts.rv)chts.rv.destroy();chts.rv=new Chart(c,{type:'bar',data:{labels:revD.map(function(d){return d.m;}),datasets:[{label:'Services',data:revD.map(function(d){return d.s;}),backgroundColor:'#534AB7',borderRadius:4},{label:'Formation',data:revD.map(function(d){return d.t;}),backgroundColor:'#BA7517',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.raw+'k';}}}},scales:{x:{grid:{display:false},ticks:{font:{size:12}}},y:{grid:{color:'rgba(128,128,128,0.1)'},ticks:{font:{size:12},callback:function(v){return '$'+v+'k';}}}}}})}
+
+// ============================================================
+// TASKS — Filtrées par département (sauf Admin voit tout)
+// ============================================================
+function rTasks(){
+  var dept=getDept();var isAdm=isAdmin();
+  var cols=[{id:'todo',l:'À faire',c:'#888780'},{id:'inprog',l:'En cours',c:'#BA7517'},{id:'done',l:'Terminé',c:'#1D9E75'}];
+  var base=isAdm?tasks:tasks.filter(function(t){return t.dept===dept;});
+  var ft=tf==='Tous'?base:(isAdm?tasks.filter(function(t){return t.dept===tf;}):base.filter(function(t){return t.dept===tf;}));
+  return '<div class="ph"><h1>'+(isAdm?'Toutes les tâches':'Tâches — '+dept)+'</h1><p>'+base.length+' tâches dans votre département</p></div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn-p" onclick="showTF()">+ Nouvelle tâche</button></div>'+
+    (isAdm?'<div class="sf">'+['Tous','Technical','Sales & Marketing','HR','Finance','Support'].map(function(d){return '<button class="sf-btn'+(tf===d?' active':'')+'" onclick="tf=\''+d+'\';go(\'tasks\',document.querySelector(\'.ni.active\'))">'+d+'</button>';}).join('')+'</div>':'')+
+    '<div id="tf-form" style="display:none"><div class="card">'+
+    '<div class="frm-r">'+
+    '<input id="nt" placeholder="Titre de la tâche">'+
+    '<select id="nd">'+(isAdm?['Technical','Sales & Marketing','HR','Finance','Support']:[[dept]]).flat().map(function(d){return '<option>'+d+'</option>';}).join('')+'</select>'+
+    '<select id="np"><option value="high">Urgent</option><option value="medium">Moyen</option><option value="low">Faible</option></select>'+
+    '<input id="nw" placeholder="Assigné à"><input id="ndue" placeholder="Échéance">'+
+    '</div><button class="btn-p" onclick="addTask()">Ajouter</button></div></div>'+
+    cols.map(function(col){
+      var ct=ft.filter(function(t){return t.st===col.id;});
+      return '<div class="kb-col"><div class="kbh"><span style="color:'+col.c+'">'+col.l+'</span><span class="kbn">'+ct.length+'</span></div>'+
+        ct.map(function(t){return '<div class="tk">'+
+          '<div style="font-size:13px;font-weight:500;margin-bottom:7px;line-height:1.4">'+t.title+'</div>'+
+          '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px">'+pbadge(t.p)+dbadge(t.dept)+'</div>'+
+          '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:7px"><span>'+t.who+'</span><span style="color:var(--amber);font-weight:600">'+t.due+'</span></div>'+
+          '<div class="tk-a">'+cols.filter(function(c){return c.id!==col.id;}).map(function(c){return '<button class="tk-btn" onclick="mv('+t.id+',\''+c.id+'\')">&rarr; '+c.l+'</button>';}).join('')+'</div></div>';}).join('')+'</div>';
+    }).join('');
+}
+
+// ============================================================
+// COMMUNICATION — Visible par tous, publication selon rôle
+// ============================================================
+function renderAnns(){return anns.map(function(a){var rc=ROLE_COLORS[a.dept]||'#888780';return '<div class="ann"><div class="ann-av" style="background:'+rc+'">'+a.au[0]+'</div><div style="flex:1"><div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap"><span style="font-size:13px;font-weight:600">'+a.au+'</span>'+dbadge(a.dept)+'<span style="font-size:11px;color:var(--muted)">Il y a '+a.tm+'</span></div><div style="font-size:13px;color:var(--text);line-height:1.5">'+a.bd+'</div></div></div>';}).join('');}
+function rComm(){
+  var dept=getDept();
+  return '<div class="ph"><h1>Communication Interne</h1><p>Annonces de toute l\'équipe IMPROTECH</p></div>'+
+    '<div class="card">'+
+    '<div style="font-size:14px;font-weight:700;margin-bottom:10px">Publier une annonce</div>'+
+    '<div class="frm-r">'+
+    '<input id="aa" placeholder="Votre nom et rôle" value="'+(currentProfile?.full_name||'')+' ('+dept+')">'+
+    '<select id="ad">'+['Technical','Sales & Marketing','HR','Finance','Support'].map(function(d){return '<option'+(d===dept?' selected':'')+'>'+d+'</option>';}).join('')+'</select>'+
+    '</div><textarea id="ab" placeholder="Votre message pour toute l\'équipe..."></textarea>'+
+    '<button class="btn-p" style="margin-top:10px" onclick="postAnn()">Publier</button></div>'+
+    '<div id="af" style="margin-top:4px">'+renderAnns()+'</div>';
+}
+
+// ============================================================
+// CRM — Sales & Admin seulement
+// ============================================================
+function rCRM(){
+  var dept=getDept();
+  if(!isAdmin()&&dept!=='Sales & Marketing')return '<div class="no-access"><div class="no-access-ic">🔒</div><div style="font-size:15px;font-weight:600;margin-bottom:6px">Accès restreint</div><div>Ce module est réservé à l\'équipe Sales & Marketing.</div></div>';
+  var stages=['Tous','Prospection','Qualification','Proposition','Négociation','Gagné'];
+  var fl=lf==='Tous'?leads:leads.filter(function(l){return l.stage===lf;});
+  return '<div class="ph"><h1>CRM — Pipeline Commercial</h1></div>'+
+    '<div class="sf">'+stages.map(function(s){return '<button class="sf-btn'+(lf===s?' active':'')+'" onclick="lf=\''+s+'\';go(\'crm\',document.querySelector(\'.ni.active\'))">'+s+'</button>';}).join('')+'</div>'+
+    fl.map(function(l){var pc=l.prob>=80?'#1D9E75':l.prob>=50?'#BA7517':'#888780';var sm={'Négociation':'ba','Proposition':'bp','Qualification':'bt','Gagné':'bgr','Prospection':'bg'};
+      return '<div class="tkt"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-size:15px;font-weight:700">'+l.co+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">'+l.ct+' · '+l.svc+'</div></div>'+b(l.stage,sm[l.stage]||'bg')+'</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:700;color:var(--amber)">'+l.val+'</span><div style="display:flex;align-items:center;gap:8px"><div class="prog-wrap" style="width:70px;height:6px"><div class="prog-fill" style="width:'+l.prob+'%;background:'+pc+'"></div></div><span style="font-size:12px;color:var(--muted)">'+l.prob+'%</span></div></div></div>';
+    }).join('');
+}
+
+// ============================================================
+// SUPPORT — Support dept + Admin + Technical
+// ============================================================
+function rSup(){
+  var dept=getDept();
+  var allowed=isAdmin()||dept==='Support'||dept==='Technical';
+  if(!allowed)return '<div class="no-access"><div class="no-access-ic">🔒</div><div style="font-size:15px;font-weight:600;margin-bottom:6px">Accès restreint</div><div>Ce module est réservé aux équipes Support et Technical.</div></div>';
+  var sc={open:'bred',inprog:'ba',resolved:'bgr'};var sl={open:'Ouvert',inprog:'En cours',resolved:'Résolu'};
+  var all=isAdmin()?tickets:tickets.filter(function(t){return t.dept===dept;});
+  var ft=_sf==='Tous'?all:_sf==='Ouverts'?all.filter(function(t){return t.st==='open';}):_sf==='En cours'?all.filter(function(t){return t.st==='inprog';}):all.filter(function(t){return t.st==='resolved';});
+  return '<div class="ph"><h1>Support / Help Desk</h1></div>'+
+    '<div class="gkpi" style="margin-bottom:12px">'+
+    [[''+all.filter(function(t){return t.st==='open';}).length,'Ouverts','#D85A30'],[''+all.filter(function(t){return t.st==='inprog';}).length,'En cours','#BA7517'],[''+all.filter(function(t){return t.st==='resolved';}).length,'Résolus','#1D9E75']].map(function(k){return '<div class="kpi"><div class="kpi-v" style="color:'+k[2]+'">'+k[0]+'</div><div class="kpi-l">'+k[1]+'</div></div>';}).join('')+'</div>'+
+    '<div class="sf">'+['Tous','Ouverts','En cours','Résolus'].map(function(s){return '<button class="sf-btn"+(_sf===s?" active":"")+'" onclick="_sf=\''+s+'\';go(\'sup\',document.querySelector(\'.ni.active\'))">'+s+'</button>';}).join('')+'</div>'+
+    ft.map(function(t){return '<div class="tkt"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px"><div style="font-size:14px;font-weight:600;padding-right:8px;line-height:1.4">'+t.title+'</div><div style="display:flex;gap:5px;flex-shrink:0">'+b(sl[t.st],sc[t.st])+pbadge(t.p)+'</div></div>'+
+      '<div style="font-size:13px;color:var(--muted);margin-bottom:9px;line-height:1.5">'+t.desc+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
+      '<div style="display:flex;gap:5px;align-items:center">'+dbadge(t.dept)+'<span style="font-size:11px;color:var(--muted)">'+t.req+' · '+t.date+'</span></div>'+
+      (t.st!=='resolved'?'<div style="display:flex;gap:8px">'+(t.st==='open'?'<button class="tkt-btn go" onclick="updTkt('+t.id+',\'inprog\')">Prendre en charge</button>':'')+
+      '<button class="tkt-btn res" onclick="updTkt('+t.id+',\'resolved\')">✓ Résoudre</button></div>':'<span style="font-size:12px;font-weight:600;color:#1D9E75">✓ Résolu</span>')+
+      '</div></div>';}).join('');
+}
+
+// ============================================================
+// ORG CHART — Lecture pour tous, édition pour Admin/HR
+// ============================================================
+function findOCN(n,id){if(n.id===id)return n;for(var i=0;i<(n.children||[]).length;i++){var f=findOCN(n.children[i],id);if(f)return f;}return null;}
+function findOCP(n,id){for(var i=0;i<(n.children||[]).length;i++){if(n.children[i].id===id)return n;var f=findOCP(n.children[i],id);if(f)return f;}return null;}
+function countOCN(n){return 1+(n.children||[]).reduce(function(a,c){return a+countOCN(c);},0);}
+function renderOCN(n){
+  var c=ROLE_COLORS[n.dept]||'#888780';
+  var canEdit=isAdmin()||getDept()==='HR';
+  var box='<div class="oc-box'+(canEdit?' clickable':'')+' '+(n.id===selOCId?'sel':'')+'" style="border-top:3px solid '+c+'" '+(canEdit?'onclick="selOC('+n.id+')"':'')+'>'+
+    '<div class="oc-nm">'+n.name+'</div><div class="oc-rl">'+n.role+'</div></div>';
+  var ch=n.children||[];
+  if(!ch.length)return '<div class="oc-node">'+box+'</div>';
+  var vl='<div style="width:1px;height:14px;background:var(--border);margin:0 auto"></div>';
+  var row=ch.map(function(c){return '<div style="display:inline-flex;flex-direction:column;align-items:center;padding:0 4px"><div style="width:1px;height:14px;background:var(--border);margin:0 auto"></div>'+renderOCN(c)+'</div>';}).join('');
+  return '<div class="oc-node">'+box+vl+'<div style="display:inline-flex;align-items:flex-start">'+row+'</div></div>';
+}
+function rOrg(){
+  var canEdit=isAdmin()||getDept()==='HR';
+  var sel=selOCId?findOCN(orgData,selOCId):null;
+  var ep='';
+  if(sel&&canEdit){ep='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:15px;font-weight:700">Modifier : '+sel.name+'</span><button class="btn-s" onclick="selOCId=null;go(\'org\',document.querySelector(\'.ni.active\'))">✕</button></div>'+
+    '<div class="frm-r"><div><div class="frm-lbl">Nom</div><input id="oc-nm" value="'+sel.name+'"></div><div><div class="frm-lbl">Rôle</div><input id="oc-rl" value="'+sel.role+'"></div><div><div class="frm-lbl">Département</div><select id="oc-dp">'+['Admin','Technical','Sales & Marketing','HR','Finance','Support'].map(function(d){return '<option'+(sel.dept===d?' selected':'')+'>'+d+'</option>';}).join('')+'</select></div></div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-p" onclick="saveOC()">✓ Enregistrer</button><button class="btn-s" onclick="addOCChild()">+ Subordonné</button>'+(sel.id>2?'<button class="btn-s" style="color:var(--red)" onclick="delOC()">Supprimer</button>':'')+'</div></div>';}
+  return '<div class="ph"><h1>Organigramme IMPROTECH</h1><p>'+(canEdit?'Touchez un poste pour le modifier · ':'Lecture seule · ')+countOCN(orgData)+' postes</p></div>'+
+    '<div class="oc-scroll"><div style="min-width:max-content;padding:8px">'+renderOCN(orgData)+'</div></div>'+ep;
+}
+function selOC(id){if(!isAdmin()&&getDept()!=='HR')return;selOCId=id;go('org',document.querySelector('.ni.active'));}
+function saveOC(){var n=findOCN(orgData,selOCId);if(!n)return;n.name=document.getElementById('oc-nm').value;n.role=document.getElementById('oc-rl').value;n.dept=document.getElementById('oc-dp').value;selOCId=null;go('org',document.querySelector('.ni.active'));}
+function addOCChild(){var n=findOCN(orgData,selOCId);if(!n)return;if(!n.children)n.children=[];n.children.push({id:nextOCId++,name:"Nouveau poste",role:"Rôle",dept:n.dept,children:[]});go('org',document.querySelector('.ni.active'));}
+function delOC(){if(!confirm('Supprimer ce poste ?'))return;var p=findOCP(orgData,selOCId);if(!p)return;p.children=p.children.filter(function(c){return c.id!==selOCId;});selOCId=null;go('org',document.querySelector('.ni.active'));}
+
+// ============================================================
+// ONBOARDING — HR + Admin
+// ============================================================
+function rNewOBForm(){return '<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:12px">Nouveau dossier d\'onboarding</div><div class="frm-r"><div><div class="frm-lbl">Nom complet *</div><input id="ob-nm" placeholder="Ex: Ama Owusu"></div><div><div class="frm-lbl">Département *</div><select id="ob-dp">'+['Technical','Sales & Marketing','HR','Finance','Support'].map(function(d){return '<option>'+d+'</option>';}).join('')+'</select></div><div><div class="frm-lbl">Date de début</div><input id="ob-st" placeholder="Ex: 5 Mai 2026"></div><div><div class="frm-lbl">Manager direct</div><input id="ob-mg"></div><div><div class="frm-lbl">Email professionnel</div><input id="ob-em" placeholder="prenom.nom@improtechsystems.com"></div><div style="display:flex;align-items:flex-end"><button class="btn-p" onclick="createOB()" style="width:100%;margin-top:8px">Créer le dossier →</button></div></div></div>';}
+function rObDetail(){
+  var ob=onboardings.find(function(o){return o.id===viewObId;});
+  if(!ob){viewObId=null;return rOnboarding();}
+  var pct=calcPct(ob);
+  return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><button class="btn-s" onclick="viewObId=null;go(\'ob\',document.querySelector(\'.ni.active\'))">&larr; Retour</button><h1>'+ob.name+'</h1>'+dbadge(ob.dept)+'</div>'+
+    '<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:12px">Informations</div>'+
+    [['Département',ob.dept],['Début',ob.start],['Manager',ob.mgr],['Email',ob.email]].map(function(r){return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--muted)">'+r[0]+'</span><span style="font-weight:600">'+r[1]+'</span></div>';}).join('')+
+    '<div style="padding:12px 0"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="font-weight:700">Progression</span><span style="font-weight:700;color:'+pctColor(pct)+'">'+pct+'%</span></div>'+progBar(pct,10)+'</div></div>'+
+    '<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:12px">Checklist — '+ob.dept+' <span style="font-size:12px;font-weight:400;color:var(--muted)">'+ob.checklist.filter(function(t){return t.done;}).length+'/'+ob.checklist.length+'</span></div>'+
+    ob.checklist.map(function(t){return '<div class="chk-row" onclick="toggleOBTask('+ob.id+','+t.id+')"><div class="chk-box'+(t.done?' done':'')+'">'+
+      (t.done?'<svg width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>':'')+
+      '</div><span class="chk-lbl'+(t.done?' done':'')+'">'+t.t+'</span></div>';}).join('')+'</div>';
+}
+function rOnboarding(){
+  if(!isAdmin()&&getDept()!=='HR')return '<div class="no-access"><div class="no-access-ic">🔒</div><div style="font-size:15px;font-weight:600;margin-bottom:6px">Accès restreint</div><div>Ce module est réservé à l\'équipe RH.</div></div>';
+  if(viewObId!==null)return rObDetail();
+  var flist=obFilter==='Tous'?onboardings:onboardings.filter(function(o){return o.dept===obFilter;});
+  return '<div class="ph"><h1>Onboarding</h1><p>Gestion de l\'intégration des nouveaux employés</p></div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">'+
+    '<div class="sf" style="margin:0">'+['Tous','Technical','Sales & Marketing','HR','Finance','Support'].map(function(d){return '<button class="sf-btn'+(obFilter===d?' active':'')+'" onclick="obFilter=\''+d+'\';go(\'ob\',document.querySelector(\'.ni.active\'))">'+d+'</button>';}).join('')+'</div>'+
+    '<button class="btn-p" onclick="showOBForm=!showOBForm;go(\'ob\',document.querySelector(\'.ni.active\'))">'+(showOBForm?'✕ Annuler':'+ Nouvel onboarding')+'</button></div>'+
+    (showOBForm?rNewOBForm():'')+
+    (flist.length?flist.map(function(ob){var pct=calcPct(ob);var dc=ROLE_COLORS[ob.dept]||'#534AB7';
+      return '<div class="ob-card" onclick="viewObId='+ob.id+';go(\'ob\',document.querySelector(\'.ni.active\'))">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">'+
+        '<div><div style="font-size:15px;font-weight:700">'+ob.name+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">'+ob.dept+' · '+ob.start+'</div></div>'+
+        '<div style="width:40px;height:40px;border-radius:50%;background:'+dc+'22;color:'+dc+';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">'+ob.name[0]+'</div></div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px"><span>Progression</span><span style="font-weight:700;color:'+pctColor(pct)+'">'+pct+'%</span></div>'+
+        progBar(pct,7)+
+        '<div style="display:flex;justify-content:space-between;margin-top:9px;font-size:12px;color:var(--muted)"><span>Manager : <b style="color:var(--text)">'+ob.mgr+'</b></span><span>'+ob.checklist.filter(function(t){return t.done;}).length+'/'+ob.checklist.length+' tâches ›</span></div></div>';}).join(''):
+    '<div style="text-align:center;padding:40px 0;color:var(--muted)">Aucun onboarding actif.</div>');
+}
+function createOB(){var name=document.getElementById('ob-nm')?.value.trim();if(!name)return;var dept=document.getElementById('ob-dp').value;var cl=(DTASKS[dept]||[]).map(function(t,i){return {id:i+1,t:t,done:false};});onboardings.push({id:nextObId++,name,dept,start:document.getElementById('ob-st').value||'—',mgr:document.getElementById('ob-mg').value||'—',email:document.getElementById('ob-em').value||'—',checklist:cl});showOBForm=false;go('ob',document.querySelector('.ni.active'));}
+function toggleOBTask(obId,tid){var ob=onboardings.find(function(o){return o.id===obId;});if(!ob)return;var t=ob.checklist.find(function(x){return x.id===tid;});if(t)t.done=!t.done;go('ob',document.querySelector('.ni.active'));}
+
+// ============================================================
+// REPORTS — Admin + Finance
+// ============================================================
+function rRep(){
+  var dept=getDept();
+  if(!isAdmin()&&dept!=='Finance')return '<div class="no-access"><div class="no-access-ic">🔒</div><div style="font-size:15px;font-weight:600;margin-bottom:6px">Accès restreint</div><div>Ce module est réservé à l\'équipe Finance et aux administrateurs.</div></div>';
+  var byDept=['Technical','Sales & Marketing','HR','Finance','Support'].map(function(d){var tot=tasks.filter(function(t){return t.dept===d;}).length;var done=tasks.filter(function(t){return t.dept===d&&t.st==='done';}).length;return {d:d,tot:tot,done:done};});
+  var mx=Math.max.apply(null,byDept.map(function(x){return x.tot;}));
+  return '<div class="ph"><h1>Rapports & Analytics</h1><p>Vue financière — Avril 2026</p></div>'+
+    '<div class="gkpi">'+[['$140k','CA Avril'],['34%','Taux clôture'],['29','Étudiants actifs'],['95%','Uptime']].map(function(k){return '<div class="kpi"><div class="kpi-v">'+k[0]+'</div><div class="kpi-l">'+k[1]+'</div></div>';}).join('')+'</div>'+
+    '<div class="card" style="margin-bottom:10px"><div style="font-size:14px;font-weight:700;margin-bottom:12px">Tâches par département</div>'+
+    byDept.map(function(x){return '<div class="dbar"><div style="font-size:12px;color:var(--muted);width:130px;flex-shrink:0">'+x.d+'</div><div style="flex:1;height:9px;background:var(--bg);border-radius:5px;margin:0 8px"><div style="height:100%;border-radius:5px;background:'+(ROLE_COLORS[x.d]||'#534AB7')+';width:'+(mx?Math.round(x.tot/mx*100):0)+'%"></div></div><span style="font-size:13px;font-weight:700;width:18px">'+x.tot+'</span><span style="font-size:11px;color:var(--green);width:65px;text-align:right">'+x.done+' faites</span></div>';}).join('')+'</div>'+
+    '<div class="card"><div style="font-size:14px;font-weight:700;margin-bottom:10px">Revenus mensuels</div><canvas id="rv2" height="170"></canvas></div>';
+}
+function iRep(){var c=document.getElementById('rv2');if(!c||!window.Chart)return;if(chts.rv2)chts.rv2.destroy();chts.rv2=new Chart(c,{type:'line',data:{labels:revD.map(function(d){return d.m;}),datasets:[{label:'Services',data:revD.map(function(d){return d.s;}),borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,0.1)',tension:0.4,fill:true,pointRadius:4},{label:'Formation',data:revD.map(function(d){return d.t;}),borderColor:'#BA7517',backgroundColor:'rgba(186,117,23,0.1)',tension:0.4,fill:true,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:12}}},y:{grid:{color:'rgba(128,128,128,0.1)'},ticks:{font:{size:12},callback:function(v){return '$'+v+'k';}}}}}})}
+
+// ============================================================
+// AI ASSISTANT
+// ============================================================
+function rAI(){
+  var dept=getDept();
+  var empty=!aiMsgs.length;
+  return '<div class="ph"><h1>Assistant IA</h1><p>Propulsé par Claude · Contexte '+dept+' activé</p></div>'+
+    '<div class="chat-m" id="cm">'+
+    (empty?'<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;text-align:center;padding:20px">'+
+    '<div style="width:48px;height:48px;border-radius:50%;background:var(--purple-l);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--purple)">✧</div>'+
+    '<div style="font-size:15px;font-weight:700">Comment puis-je vous aider ?</div>'+
+    '<div style="font-size:13px;color:var(--muted)">Contexte '+dept+' activé — je connais vos processus.</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;max-width:420px">'+
+    ['Rédige un email de suivi client','Aide-moi à préparer une réunion','Quelles sont les bonnes pratiques '+dept+' ?','Résume les priorités de cette semaine'].map(function(s){return '<button style="padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);font-size:12px;color:var(--text);cursor:pointer;text-align:left;font-family:inherit;line-height:1.4" onclick="pf(\''+s.replace(/'/g,"\\'")+'\')">'+s+'</button>';}).join('')+
+    '</div></div>':aiMsgs.map(function(m){return '<div class="'+(m.r==='u'?'mu':'ma')+'">'+m.c.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>';}).join(''))+
+    '</div>'+
+    '<div class="chat-ir"><input id="ci" placeholder="Posez votre question..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendAI()}"><button class="btn-p" id="cb" onclick="sendAI()">Envoyer</button></div>';
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function showTF(){var f=document.getElementById('tf-form');if(f)f.style.display=f.style.display==='none'?'block':'none';}
+function addTask(){var t=document.getElementById('nt')?.value.trim();if(!t)return;var dept=document.getElementById('nd')?.value||getDept();tasks.push({id:Date.now(),title:t,dept:dept,p:document.getElementById('np').value,st:'todo',who:currentProfile?.full_name||'—',due:document.getElementById('ndue').value||'—'});go('tasks',document.querySelector('.ni.active'));}
+function mv(id,st){var t=tasks.find(function(x){return x.id===id;});if(t){t.st=st;go('tasks',document.querySelector('.ni.active'));}}
+function postAnn(){var au=document.getElementById('aa')?.value.trim(),bd=document.getElementById('ab')?.value.trim();if(!au||!bd)return;var dept=document.getElementById('ad').value;anns.unshift({id:Date.now(),au,dept,bd,tm:"l'instant"});var af=document.getElementById('af');if(af)af.innerHTML=renderAnns();document.getElementById('ab').value='';}
+function updTkt(id,st){var t=tickets.find(function(x){return x.id===id;});if(t){t.st=st;go('sup',document.querySelector('.ni.active'));}}
+function pf(t){var i=document.getElementById('ci');if(i){i.value=t;i.focus();}}
+
+async function sendAI(){
+  var inp=document.getElementById('ci'),btn=document.getElementById('cb');
+  var txt=inp?.value.trim();if(!txt||!inp)return;
+  var dept=getDept();
+  aiMsgs.push({r:'u',c:txt});inp.value='';btn.disabled=true;btn.textContent='...';
+  var cm=document.getElementById('cm');
+  if(cm){cm.innerHTML=aiMsgs.map(function(m){return '<div class="'+(m.r==='u'?'mu':'ma')+'">'+m.c.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>';}).join('');cm.scrollTop=cm.scrollHeight;}
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:1000,
+      system:'Tu es l\'assistant IA interne d\'IMPROTECH, Accra Ghana. Tu parles à '+currentProfile?.full_name+', du département '+dept+'. Départements : Technical (CTO: Othniel), Sales & Marketing (MD: Tariq), HR (Kassum), Finance (Unclebert), Support/Help Desk. CEO: Verlein. Partenaires: Cisco, IBM, VMware, Palo Alto, Fortinet. Clients: MTN, Ecobank, GTBank, GRIDCO, SEMLEX. Adapte tes réponses au contexte '+dept+'. Réponds en français, professionnel et concis.',
+      messages:aiMsgs.map(function(m){return {role:m.r==='u'?'user':'assistant',content:m.c};}),
+    })});
+    var data=await res.json();aiMsgs.push({r:'a',c:data.content?.[0]?.text||'Erreur.'});
+  }catch(e){aiMsgs.push({r:'a',c:'Erreur de connexion.'});}
+  btn.disabled=false;btn.textContent='Envoyer';
+  var cm2=document.getElementById('cm');
+  if(cm2){cm2.innerHTML=aiMsgs.map(function(m){return '<div class="'+(m.r==='u'?'mu':'ma')+'">'+m.c.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</div>';}).join('');cm2.scrollTop=cm2.scrollHeight;}
+}
+
+// ============================================================
+// START
+// ============================================================
+initAuth();
+</script>
+</body>
+</html>
