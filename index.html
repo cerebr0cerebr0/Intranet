@@ -644,28 +644,125 @@ async function createNotification({title, body, deptScope='company', userUid=nul
 // VIEWS
 // ------------------------------------------------------------
 function renderDashboard(){
-  setPage('Dashboard', `Vue d’ensemble · ${profile.department}`);
-  const myTasks = scopedTasks();
-  const openTickets = scopedTickets().filter(t => t.status !== 'resolved');
-  const activeOnboarding = scopedOnboarding().filter(o => o.status !== 'completed');
-  const leads = scopedLeads();
+  const dept = profile.department;
+  const role = String(profile.role || '').toUpperCase();
+  const isMD = role.includes('MD');
+  const isCTO = role.includes('CTO');
+  const executiveView = isAdmin() || isMD || isCTO;
 
-  $('view').innerHTML = `
+  const companyTasks = cache.tasks;
+  const companyTickets = cache.tickets;
+  const companyLeads = cache.leads;
+  const companyAnnouncements = cache.announcements;
+  const companyDocs = cache.docs;
+  const companyOnboarding = cache.onboarding;
+  const myTasks = scopedTasks();
+  const myTickets = scopedTickets();
+  const myLeads = scopedLeads();
+  const myDocs = scopedDocs();
+  const myAnnouncements = scopedAnnouncements();
+  const myOnboarding = scopedOnboarding();
+
+  const deptUsers = cache.users.filter(u => u.department === dept).length;
+  const deptTasks = companyTasks.filter(t => t.dept === dept);
+  const deptTickets = companyTickets.filter(t => t.dept === dept || (dept === 'Technical' && t.dept === 'Support'));
+  const deptDocs = companyDocs.filter(d => d.ownerDept === dept || (Array.isArray(d.access) && d.access.includes(dept)));
+  const deptOnboarding = companyOnboarding.filter(o => o.dept === dept);
+  const deptLeads = dept === 'Sales & Marketing' ? companyLeads : [];
+
+  const totalPipeline = companyLeads.reduce((a,b)=>a + Number(b.value || 0), 0);
+  const wonDeals = companyLeads.filter(l => l.stage === 'Gagné').length;
+  const openCompanyTickets = companyTickets.filter(t => t.status !== 'resolved').length;
+  const urgentCompanyTasks = companyTasks.filter(t => t.priority === 'high' && t.status !== 'done').length;
+  const resolvedTickets = companyTickets.filter(t => t.status === 'resolved').length;
+  const resolutionRate = companyTickets.length ? Math.round((resolvedTickets / companyTickets.length) * 100) : 0;
+  const completedTasks = companyTasks.filter(t => t.status === 'done').length;
+  const taskCompletionRate = companyTasks.length ? Math.round((completedTasks / companyTasks.length) * 100) : 0;
+  const onboardingInProgress = companyOnboarding.filter(o => o.status !== 'completed').length;
+  const salesOpen = companyLeads.filter(l => !['Gagné','Perdu'].includes(l.stage)).length;
+  const technicalOpen = companyTasks.filter(t => t.dept === 'Technical' && t.status !== 'done').length;
+  const supportOpen = companyTickets.filter(t => t.status !== 'resolved').length;
+  const financeOpen = companyTasks.filter(t => t.dept === 'Finance' && t.status !== 'done').length;
+  const hrOpen = companyOnboarding.filter(o => o.status !== 'completed').length;
+
+  const deptSummary = DEPTS.filter(d => d !== 'Admin').map(d => {
+    const tasks = companyTasks.filter(t => t.dept === d);
+    const tickets = companyTickets.filter(t => t.dept === d || (d === 'Technical' && t.dept === 'Support'));
+    const leads = d === 'Sales & Marketing' ? companyLeads : [];
+    const onboarding = companyOnboarding.filter(o => o.dept === d);
+    return {
+      dept: d,
+      openTasks: tasks.filter(t => t.status !== 'done').length,
+      urgentTasks: tasks.filter(t => t.priority === 'high' && t.status !== 'done').length,
+      tickets: tickets.filter(t => t.status !== 'resolved').length,
+      pipeline: leads.reduce((a,b)=>a + Number(b.value || 0), 0),
+      onboarding: onboarding.filter(o => o.status !== 'completed').length
+    };
+  });
+
+  const executiveTitle = isMD ? 'Dashboard Exécutif — MD' : isCTO ? 'Dashboard Exécutif — CTO' : 'Dashboard Exécutif';
+  const executiveSubtitle = isMD
+    ? 'Vue complète de l’entreprise : direction, opérations, revenus, RH et service.'
+    : isCTO
+      ? 'Vue complète orientée delivery, infrastructure, support, projets critiques et charge opérationnelle.'
+      : `Vue complète de l’entreprise · ${profile.department}`;
+
+  const departmentTitles = {
+    'Technical': ['Dashboard Technical', 'Pilotage des projets techniques, delivery, incidents et charge ingénierie.'],
+    'Sales & Marketing': ['Dashboard Sales & Marketing', 'Suivi du pipeline, des offres, des campagnes et des relances commerciales.'],
+    'HR': ['Dashboard RH', 'Suivi de l’onboarding, de l’effectif, des actions RH et de la communication interne.'],
+    'Finance': ['Dashboard Finance', 'Suivi des priorités financières, clôtures, demandes et reporting opérationnel.'],
+    'Support': ['Dashboard Support', 'Suivi du help desk, des tickets ouverts, des SLA et des résolutions.']
+  };
+
+  const [deptTitle, deptSubtitle] = departmentTitles[dept] || ['Dashboard Département', `Vue d’ensemble · ${dept}`];
+  setPage(executiveView ? executiveTitle : deptTitle, executiveView ? executiveSubtitle : deptSubtitle);
+
+  const executiveTop = `
     <div class="grid grid-4">
-      <div class="kpi"><div class="kpi-value">${myTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Tâches ouvertes</div><div class="kpi-sub" style="color:var(--purple)">à suivre</div></div>
-      <div class="kpi"><div class="kpi-value">${openTickets.length}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">support</div></div>
-      <div class="kpi"><div class="kpi-value">${unreadNotifications().length}</div><div class="kpi-label">Notifications non lues</div><div class="kpi-sub" style="color:var(--blue)">in-app</div></div>
-      <div class="kpi"><div class="kpi-value">${leads.length ? money(leads.reduce((a,b)=>a+Number(b.value||0),0)) : '—'}</div><div class="kpi-label">Pipeline commercial</div><div class="kpi-sub" style="color:var(--amber)">si autorisé</div></div>
+      <div class="kpi"><div class="kpi-value">${companyTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Tâches ouvertes</div><div class="kpi-sub" style="color:var(--purple)">${urgentCompanyTasks} urgentes</div></div>
+      <div class="kpi"><div class="kpi-value">${openCompanyTickets}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">${resolutionRate}% taux de résolution</div></div>
+      <div class="kpi"><div class="kpi-value">${money(totalPipeline)}</div><div class="kpi-label">Pipeline global</div><div class="kpi-sub" style="color:var(--amber)">${salesOpen} opportunités actives</div></div>
+      <div class="kpi"><div class="kpi-value">${unreadNotifications().length}</div><div class="kpi-label">Notifications</div><div class="kpi-sub" style="color:var(--blue)">${onboardingInProgress} onboardings actifs</div></div>
     </div>
 
     <div class="grid grid-2" style="margin-top:12px">
       <div class="card">
-        <div class="toolbar"><h3>Priorités de la semaine</h3><button class="btn-link" id="go-tasks">Voir tout</button></div>
+        <div class="toolbar"><h3>Vue consolidée par département</h3><button class="btn-link" id="go-reports">Rapports</button></div>
         <div class="list">
-          ${myTasks.filter(t=>t.status!=='done').slice(0,5).map(t => `
+          ${deptSummary.map(row => `
             <div class="item">
               <div class="item-top">
-                <div><div><b>${esc(t.title)}</b></div><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div>
+                <div><b>${esc(row.dept)}</b><div class="meta">${row.openTasks} tâches ouvertes · ${row.tickets} tickets · ${row.onboarding} onboarding</div></div>
+                ${deptBadge(row.dept)}
+              </div>
+              <div class="row" style="margin-top:8px;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                <span class="meta">Urgent: <b>${row.urgentTasks}</b></span>
+                <span class="meta">Pipeline: <b>${row.pipeline ? money(row.pipeline) : '—'}</b></span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar"><h3>${isCTO ? 'Focus Delivery & Support' : 'Indicateurs stratégiques'}</h3><button class="btn-link" id="go-support">Support</button></div>
+        <div class="list">
+          <div class="item"><div class="item-top"><div><b>Direction générale</b><div class="meta">Taux de complétion tâches global</div></div><span class="meta"><b>${taskCompletionRate}%</b></span></div></div>
+          <div class="item"><div class="item-top"><div><b>Technical</b><div class="meta">Charge delivery et projets critiques</div></div><span class="meta"><b>${technicalOpen}</b> ouverts</span></div></div>
+          <div class="item"><div class="item-top"><div><b>Support</b><div class="meta">Backlog incidents et demandes</div></div><span class="meta"><b>${supportOpen}</b> ouverts</span></div></div>
+          <div class="item"><div class="item-top"><div><b>Sales & Marketing</b><div class="meta">Deals gagnés et pipeline actif</div></div><span class="meta"><b>${wonDeals}</b> gagnés</span></div></div>
+          <div class="item"><div class="item-top"><div><b>Finance / RH</b><div class="meta">Clôtures, validations et onboarding</div></div><span class="meta"><b>${financeOpen + hrOpen}</b> actions</span></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar"><h3>Priorités cross-départements</h3><button class="btn-link" id="go-tasks">Tâches</button></div>
+        <div class="list">
+          ${companyTasks.filter(t=>t.status!=='done').sort((a,b)=> (a.priority==='high'?0:1) - (b.priority==='high'?0:1)).slice(0,6).map(t => `
+            <div class="item">
+              <div class="item-top">
+                <div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · ${esc(t.dept)} · échéance ${fmtDate(t.dueDate)}</div></div>
                 <div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div>
               </div>
               <div class="small" style="margin-top:7px">${esc(t.description || '')}</div>
@@ -675,56 +772,110 @@ function renderDashboard(){
       </div>
 
       <div class="card">
-        <div class="toolbar"><h3>Annonces récentes</h3><button class="btn-link" id="go-comm">Voir tout</button></div>
+        <div class="toolbar"><h3>Annonces & décisions récentes</h3><button class="btn-link" id="go-comm">Communication</button></div>
         <div class="list">
-          ${scopedAnnouncements().slice(0,4).map(a => `
+          ${companyAnnouncements.slice(0,5).map(a => `
             <div class="item">
               <div class="item-top">
                 <div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)} · ${a.targetDept || 'Entreprise'}</div></div>
-                ${deptBadge(a.dept)}
+                ${deptBadge(a.dept || 'Admin')}
               </div>
-              <div class="small" style="margin-top:7px">${esc(a.body)}</div>
+              <div class="small" style="margin-top:7px">${esc(a.body || '')}</div>
             </div>
           `).join('') || `<div class="empty">Aucune annonce.</div>`}
         </div>
       </div>
+    </div>`;
 
-      <div class="card">
-        <div class="toolbar"><h3>Documents utiles</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div>
-        <div class="list">
-          ${scopedDocs().slice(0,4).map(d => `
-            <div class="item">
-              <div class="item-top">
-                <div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')} · ${esc(d.ownerDept || '—')}</div></div>
-                ${deptBadge(d.ownerDept || 'Admin')}
-              </div>
-              <div class="small" style="margin-top:7px">${esc(d.summary || '')}</div>
-            </div>
-          `).join('') || `<div class="empty">Aucun document.</div>`}
-        </div>
+  const departmentTop = {
+    'Technical': `
+      <div class="grid grid-4">
+        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Projets / tâches ouverts</div><div class="kpi-sub" style="color:var(--purple)">${deptTasks.filter(t=>t.priority==='high' && t.status!=='done').length} urgents</div></div>
+        <div class="kpi"><div class="kpi-value">${deptTickets.filter(t=>t.status!=='resolved').length}</div><div class="kpi-label">Tickets à traiter</div><div class="kpi-sub" style="color:var(--red)">support & technique</div></div>
+        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Effectif technique</div><div class="kpi-sub" style="color:var(--blue)">équipe visible</div></div>
+        <div class="kpi"><div class="kpi-value">${myDocs.length}</div><div class="kpi-label">Docs utiles</div><div class="kpi-sub" style="color:var(--green)">procédures & runbooks</div></div>
       </div>
+      <div class="grid grid-2" style="margin-top:12px">
+        <div class="card"><div class="toolbar"><h3>Charge delivery</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.filter(t=>t.status!=='done').slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune tâche technique.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Incidents / Support</h3><button class="btn-link" id="go-support">Tickets</button></div><div class="list">${deptTickets.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.requesterName || t.requesterUid || '—')} · ${fmtDate(t.createdAt)}</div></div>${ticketStatusBadge(t.status)}</div><div class="small" style="margin-top:7px">${esc(t.description || '')}</div></div>`).join('') || `<div class="empty">Aucun ticket.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Runbooks & documents</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')} · ${esc(d.ownerDept || '—')}</div></div>${deptBadge(d.ownerDept || 'Technical')}</div></div>`).join('') || `<div class="empty">Aucun document technique.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Annonces techniques</h3><button class="btn-link" id="go-comm">Communication</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
+      </div>`,
+    'Sales & Marketing': `
+      <div class="grid grid-4">
+        <div class="kpi"><div class="kpi-value">${deptLeads.filter(l=>!['Gagné','Perdu'].includes(l.stage)).length}</div><div class="kpi-label">Leads actifs</div><div class="kpi-sub" style="color:var(--amber)">pipeline à suivre</div></div>
+        <div class="kpi"><div class="kpi-value">${money(deptLeads.reduce((a,b)=>a+Number(b.value||0),0))}</div><div class="kpi-label">Pipeline commercial</div><div class="kpi-sub" style="color:var(--purple)">valeur totale</div></div>
+        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Actions commerciales</div><div class="kpi-sub" style="color:var(--blue)">offres et suivis</div></div>
+        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Équipe visible</div><div class="kpi-sub" style="color:var(--green)">sales & marketing</div></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:12px">
+        <div class="card"><div class="toolbar"><h3>Pipeline prioritaire</h3><button class="btn-link" id="go-crm">CRM</button></div><div class="list">${deptLeads.slice(0,6).map(l => `<div class="item"><div class="item-top"><div><b>${esc(l.company)}</b><div class="meta">${esc(l.contactName || '—')} · ${esc(l.service || '—')}</div></div>${leadStageBadge(l.stage)}</div><div class="row" style="margin-top:7px;justify-content:space-between"><span class="meta">${money(l.value || 0)}</span><span class="meta">proba ${esc(l.probability || 0)}%</span></div></div>`).join('') || `<div class="empty">Aucun lead.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Actions à lancer</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune action.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Documents commerciaux</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')}</div></div>${deptBadge(d.ownerDept || dept)}</div></div>`).join('') || `<div class="empty">Aucun document.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Annonces & campagnes</h3><button class="btn-link" id="go-comm">Communication</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
+      </div>`,
+    'HR': `
+      <div class="grid grid-4">
+        <div class="kpi"><div class="kpi-value">${deptOnboarding.filter(o=>o.status!=='completed').length}</div><div class="kpi-label">Onboardings actifs</div><div class="kpi-sub" style="color:var(--green)">intégration en cours</div></div>
+        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Équipe RH visible</div><div class="kpi-sub" style="color:var(--purple)">structure RH</div></div>
+        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Actions RH</div><div class="kpi-sub" style="color:var(--amber)">priorités du moment</div></div>
+        <div class="kpi"><div class="kpi-value">${myAnnouncements.length}</div><div class="kpi-label">Comms RH</div><div class="kpi-sub" style="color:var(--blue)">annonces ciblées</div></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:12px">
+        <div class="card"><div class="toolbar"><h3>Suivi onboarding</h3><button class="btn-link" id="go-ob">Onboarding</button></div><div class="list">${deptOnboarding.slice(0,6).map(o => `<div class="item"><div class="item-top"><div><b>${esc(o.employeeName)}</b><div class="meta">début ${fmtDate(o.startDate)} · ${esc(o.managerName || '—')}</div></div><span class="meta"><b>${pctOnboarding(o)}%</b></span></div><div class="progress" style="margin-top:8px"><div style="width:${pctOnboarding(o)}%"></div></div></div>`).join('') || `<div class="empty">Aucun onboarding.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Actions RH</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune tâche RH.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Documents RH</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')}</div></div>${deptBadge(d.ownerDept || dept)}</div></div>`).join('') || `<div class="empty">Aucun document RH.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Communication interne</h3><button class="btn-link" id="go-comm">Annonces</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
+      </div>`,
+    'Finance': `
+      <div class="grid grid-4">
+        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Actions financières</div><div class="kpi-sub" style="color:var(--blue)">clôture et suivi</div></div>
+        <div class="kpi"><div class="kpi-value">${money(totalPipeline)}</div><div class="kpi-label">Visibilité pipeline</div><div class="kpi-sub" style="color:var(--amber)">référence business</div></div>
+        <div class="kpi"><div class="kpi-value">${resolutionRate}%</div><div class="kpi-label">Taux de résolution</div><div class="kpi-sub" style="color:var(--green)">impact service</div></div>
+        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Équipe Finance visible</div><div class="kpi-sub" style="color:var(--purple)">coordination</div></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:12px">
+        <div class="card"><div class="toolbar"><h3>Priorités Finance</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune tâche Finance.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Reporting synthétique</h3><button class="btn-link" id="go-reports">Rapports</button></div><div class="list"><div class="item"><div class="item-top"><div><b>Pipeline commercial</b><div class="meta">Valeur consolidée</div></div><span class="meta"><b>${money(totalPipeline)}</b></span></div></div><div class="item"><div class="item-top"><div><b>Tâches globales</b><div class="meta">Complétion entreprise</div></div><span class="meta"><b>${taskCompletionRate}%</b></span></div></div><div class="item"><div class="item-top"><div><b>Support</b><div class="meta">Taux de résolution</div></div><span class="meta"><b>${resolutionRate}%</b></span></div></div></div></div>
+        <div class="card"><div class="toolbar"><h3>Documents Finance</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')}</div></div>${deptBadge(d.ownerDept || dept)}</div></div>`).join('') || `<div class="empty">Aucun document Finance.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Infos d’entreprise</h3><button class="btn-link" id="go-comm">Communication</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
+      </div>`,
+    'Support': `
+      <div class="grid grid-4">
+        <div class="kpi"><div class="kpi-value">${deptTickets.filter(t=>t.status!=='resolved').length}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">help desk</div></div>
+        <div class="kpi"><div class="kpi-value">${resolutionRate}%</div><div class="kpi-label">Taux de résolution</div><div class="kpi-sub" style="color:var(--green)">référence globale</div></div>
+        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Actions support</div><div class="kpi-sub" style="color:var(--amber)">backlog équipe</div></div>
+        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Équipe support visible</div><div class="kpi-sub" style="color:var(--blue)">service desk</div></div>
+      </div>
+      <div class="grid grid-2" style="margin-top:12px">
+        <div class="card"><div class="toolbar"><h3>Backlog support</h3><button class="btn-link" id="go-support">Tickets</button></div><div class="list">${deptTickets.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.requesterName || t.requesterUid || '—')} · ${fmtDate(t.createdAt)}</div></div>${ticketStatusBadge(t.status)}</div><div class="small" style="margin-top:7px">${esc(t.description || '')}</div></div>`).join('') || `<div class="empty">Aucun ticket.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Actions équipe</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune tâche support.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Base documentaire</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')}</div></div>${deptBadge(d.ownerDept || dept)}</div></div>`).join('') || `<div class="empty">Aucun document support.</div>`}</div></div>
+        <div class="card"><div class="toolbar"><h3>Annonces opérationnelles</h3><button class="btn-link" id="go-comm">Communication</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
+      </div>`
+  };
 
-      <div class="card">
-        <div class="toolbar"><h3>Onboarding</h3><button class="btn-link" id="go-ob">Détails</button></div>
-        <div class="list">
-          ${activeOnboarding.slice(0,4).map(o => `
-            <div class="item">
-              <div class="item-top">
-                <div><b>${esc(o.employeeName)}</b><div class="meta">${esc(o.dept)} · début ${fmtDate(o.startDate)}</div></div>
-                <span class="meta"><b>${pctOnboarding(o)}%</b></span>
-              </div>
-              <div class="progress" style="margin-top:8px"><div style="width:${pctOnboarding(o)}%"></div></div>
-            </div>
-          `).join('') || `<div class="empty">Aucun onboarding en cours.</div>`}
-        </div>
-      </div>
+  $('view').innerHTML = executiveView ? executiveTop : (departmentTop[dept] || `
+    <div class="grid grid-4">
+      <div class="kpi"><div class="kpi-value">${myTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Tâches ouvertes</div><div class="kpi-sub" style="color:var(--purple)">à suivre</div></div>
+      <div class="kpi"><div class="kpi-value">${myTickets.filter(t=>t.status!=='resolved').length}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">support</div></div>
+      <div class="kpi"><div class="kpi-value">${unreadNotifications().length}</div><div class="kpi-label">Notifications non lues</div><div class="kpi-sub" style="color:var(--blue)">in-app</div></div>
+      <div class="kpi"><div class="kpi-value">${myLeads.length ? money(myLeads.reduce((a,b)=>a+Number(b.value||0),0)) : '—'}</div><div class="kpi-label">Pipeline</div><div class="kpi-sub" style="color:var(--amber)">si autorisé</div></div>
     </div>
-  `;
+  `);
 
-  $('go-tasks')?.addEventListener('click', ()=>setView('tasks'));
-  $('go-comm')?.addEventListener('click', ()=>setView('comm'));
-  $('go-docs')?.addEventListener('click', ()=>setView('docs'));
-  $('go-ob')?.addEventListener('click', ()=>setView('onboarding'));
+  const linkMap = {
+    'go-reports':'reports',
+    'go-support':'support',
+    'go-tasks':'tasks',
+    'go-comm':'comm',
+    'go-docs':'docs',
+    'go-ob':'onboarding',
+    'go-crm':'crm'
+  };
+  Object.entries(linkMap).forEach(([id, view]) => {
+    $(id)?.addEventListener('click', ()=>setView(view));
+  });
 }
 
 function renderTasks(){
