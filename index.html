@@ -3,283 +3,335 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IMPROTECH Intranet Enterprise</title>
+<title>IMPROTECH Workspace v4</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f5f4f0;--card:#fff;--text:#1a1a1a;--muted:#6b6a65;--border:#e0dfd8;
-  --purple:#534AB7;--purple-d:#3C3489;--purple-l:#EEEDFE;
-  --amber:#BA7517;--green:#1D9E75;--blue:#185FA5;--red:#D85A30;
-  --radius:10px;--radius-lg:14px;
+  --bg:#f5f7fb;--card:#ffffff;--line:#e7ebf3;--text:#172033;--muted:#6f7b92;
+  --primary:#4f46e5;--primary-2:#6366f1;--primary-soft:#eef0ff;--green:#0f9d58;
+  --amber:#c58b16;--red:#de5b4a;--blue:#2076d6;--cyan:#1196a4;
+  --radius:14px;--radius-lg:18px;--shadow:0 8px 30px rgba(33, 52, 98, .08);
+  --sidebar:#172033;--sidebar-soft:#202b42;--sidebar-text:#d9deea;
 }
-@media(prefers-color-scheme:dark){
-  :root{--bg:#1a1918;--card:#252422;--text:#f0ede8;--muted:#888780;--border:#333230;--purple-l:#26215C}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select,textarea{font:inherit}
+.hidden{display:none!important}
+a{text-decoration:none;color:inherit}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.badge.primary{background:var(--primary-soft);color:var(--primary)}
+.badge.green{background:#e7f7ee;color:var(--green)}
+.badge.red{background:#fdeceb;color:var(--red)}
+.badge.amber{background:#fcf2df;color:var(--amber)}
+.badge.blue{background:#eaf3ff;color:var(--blue)}
+.badge.gray{background:#eef1f6;color:#56627a}
+.btn{border:none;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;transition:.18s ease}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff}
+.btn-primary:hover{filter:brightness(.98)}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
+.btn-soft{background:var(--primary-soft);color:var(--primary)}
+.btn-danger{background:#fff2f1;color:var(--red);border:1px solid #f7d1cc}
+.btn-success{background:#e7f7ee;color:var(--green);border:1px solid #bde6cb}
+.input,.select,.textarea{
+  width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+  background:#fff;color:var(--text);outline:none
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh}
-button,input,select,textarea{font-family:inherit}
-.hidden{display:none !important}
-.loading-screen,#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.login-wrap{width:100%;max-width:460px}
-.login-logo{font-size:32px;font-weight:700;text-align:center;margin-bottom:4px}.login-logo b{color:var(--purple)}
-.login-tagline{font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px}
-.login-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:30px}
-.auth-switch{display:flex;gap:8px;margin-bottom:14px}
-.auth-switch button{flex:1}
-.panel-muted{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
-.badge-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:4px 8px;border-radius:999px;background:var(--purple-l);color:#26215C;font-weight:700}
-.login-lbl{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
-.login-input, .field, .textarea, .select{
-  width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);
-  background:var(--bg);color:var(--text);font-size:14px;outline:none
+.input:focus,.select:focus,.textarea:focus{border-color:#b7c2f5;box-shadow:0 0 0 4px rgba(79,70,229,.08)}
+.textarea{min-height:110px;resize:vertical}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+small.muted,.muted{color:var(--muted)}
+.page{padding:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+.card-pad{padding:18px}
+.section-title{font-size:15px;font-weight:800;letter-spacing:.1px}
+.section-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{padding:18px;border-radius:18px;background:linear-gradient(180deg,#fff,#fafbff);border:1px solid var(--line);box-shadow:var(--shadow)}
+.kpi .num{font-size:28px;font-weight:900;letter-spacing:-.5px}
+.kpi .lbl{font-size:12px;color:var(--muted);margin-top:6px}
+.kpi .sub{font-size:12px;font-weight:700;margin-top:4px}
+.feed-list,.simple-list{display:grid;gap:12px}
+.feed-item,.list-item{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.feed-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px}
+.feed-title{font-size:15px;font-weight:800}
+.feed-body{color:#2a3347;line-height:1.55}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0}
+.row{display:flex;gap:14px}
+.col{display:grid;gap:14px}
+.approval-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.priority-dot{width:8px;height:8px;border-radius:50%}
+.topbar{
+  height:74px;border-bottom:1px solid var(--line);background:#fff;display:flex;align-items:center;
+  justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:50
 }
-.login-input:focus,.field:focus,.textarea:focus,.select:focus{border-color:var(--purple)}
-.login-input{margin-bottom:14px}
-.textarea{resize:vertical;min-height:90px}
-.login-btn,.btn-p{
-  padding:12px 16px;border:none;border-radius:var(--radius);background:var(--purple);color:#fff;
-  font-size:14px;font-weight:700;cursor:pointer
+.topbar-left{display:flex;align-items:center;gap:14px}
+.brand-sm{font-size:24px;font-weight:900;letter-spacing:-.7px}
+.brand-sm b{color:var(--primary)}
+.search{width:420px;max-width:42vw;position:relative}
+.search input{width:100%;padding:12px 14px 12px 42px;border-radius:14px;border:1px solid var(--line);background:#f8f9fc}
+.search svg{position:absolute;left:13px;top:11px;opacity:.55}
+.top-actions{display:flex;align-items:center;gap:12px}
+.icon-btn{
+  width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;cursor:pointer
 }
-.login-btn{width:100%}
-.login-btn:hover,.btn-p:hover{background:var(--purple-d)}
-.btn-s{font-size:13px;padding:10px 13px;border:1px solid var(--border);border-radius:var(--radius);background:transparent;color:var(--muted);cursor:pointer}
-.btn-danger{background:var(--red)!important;color:#fff!important;border-color:var(--red)!important}
-.btn-success{background:var(--green)!important;color:#fff!important;border-color:var(--green)!important}
-.btn-link{background:none;border:none;color:var(--purple);cursor:pointer;padding:0}
-.login-err,.notice{
-  background:#FCEBEB;color:#501313;border:1px solid #F7C1C1;border-radius:var(--radius);padding:10px 14px;font-size:13px;margin-bottom:14px
-}
-.notice-ok{background:#E1F5EE;color:#085041;border-color:#9FE1CB}
-.notice-info{background:#E6F1FB;color:#042C53;border-color:#B5D4F4}
-#app-screen{display:none;min-height:100vh;max-width:1320px;margin:0 auto}
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
 .sidebar{
-  width:280px;background:var(--card);border-right:1px solid var(--border);padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto
+  background:linear-gradient(180deg,var(--sidebar),#141c2e);color:var(--sidebar-text);
+  padding:18px 14px;border-right:1px solid rgba(255,255,255,.05);position:sticky;top:0;height:100vh;overflow:auto
 }
-.app-shell{display:flex;min-height:100vh}
-.brand{font-size:23px;font-weight:800;letter-spacing:-.4px;margin-bottom:2px}.brand b{color:var(--purple)}
-.subbrand{font-size:12px;color:var(--muted);margin-bottom:18px}
-.user-card{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg);margin-bottom:14px}
-.avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
-.user-name{font-size:14px;font-weight:700}.user-meta{font-size:11px;color:var(--muted);margin-top:2px}
-.nav{display:grid;gap:7px}
-.nav button{display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;text-align:left}
-.nav button.active{background:var(--purple-l);border-color:var(--purple);font-weight:700}
-.nav-ic{font-size:17px;width:22px;text-align:center}
-.side-footer{margin-top:16px;display:grid;gap:8px}
-.content{flex:1;padding:18px}
-.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.top-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.searchbar{
-  display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);
-  border-radius:99px;padding:10px 14px;min-width:320px;max-width:520px;flex:1
+.brand{
+  font-size:36px;font-weight:950;letter-spacing:-1px;line-height:1;margin-bottom:4px
 }
-.searchbar input{border:none;background:transparent;outline:none;color:var(--text);width:100%;font-size:14px}
-.page-head h1{font-size:22px;margin-bottom:4px}.page-head p{font-size:13px;color:var(--muted)}
-.grid{display:grid;gap:12px}
-.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
-.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
-@media (max-width:1080px){
-  .app-shell{display:block}.sidebar{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border)}
-  .searchbar{min-width:100%}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}
+.brand b{color:#818cf8}
+.brand-sub{font-size:12px;color:#98a3ba;margin-bottom:16px}
+.profile-card{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:16px;margin-bottom:14px
 }
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px}
-.card h3{font-size:15px;margin-bottom:10px}
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
-.kpi-value{font-size:24px;font-weight:800}
-.kpi-label{font-size:12px;color:var(--muted);margin-top:3px}
-.kpi-sub{font-size:11px;font-weight:700;margin-top:4px}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:700}
-.bp{background:#EEEDFE;color:#26215C}.ba{background:#FAEEDA;color:#633806}.bt{background:#E1F5EE;color:#085041}.bc{background:#FAECE7;color:#4A1B0C}.bg{background:#f0efe8;color:#5F5E5A}.bgr{background:#EAF3DE;color:#173404}.bbl{background:#E6F1FB;color:#042C53}.bred{background:#FCEBEB;color:#501313}
-.list{display:grid;gap:10px}
-.item{border:1px solid var(--border);border-radius:var(--radius);padding:12px;background:var(--card)}
-.item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
-.meta{font-size:12px;color:var(--muted)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.filters button{padding:7px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer}
-.filters button.active{background:var(--purple-l);border-color:var(--purple);color:#26215C;font-weight:700}
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.form-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-@media (max-width:760px){.form-grid,.form-grid-3{grid-template-columns:1fr}}
-.label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
-.toolbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:var(--radius)}
-.progress{height:8px;background:var(--bg);border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--purple)}
-.timeline{display:grid;gap:8px}
-.timeline .item{background:var(--bg)}
-.small{font-size:12px}
-.tiny{font-size:11px;color:var(--muted)}
-.chat-box{min-height:280px;max-height:380px;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:grid;gap:10px;margin-bottom:12px}
-.mu{justify-self:end;background:var(--purple);color:#fff;border-radius:16px 16px 4px 16px;padding:10px 14px;max-width:85%;white-space:pre-wrap}
-.ma{justify-self:start;background:var(--card);border:1px solid var(--border);border-radius:16px 16px 16px 4px;padding:10px 14px;max-width:85%;white-space:pre-wrap}
-.table{width:100%;border-collapse:collapse}
-.table th,.table td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px;vertical-align:top}
-.table th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px;z-index:300}
-.modal{max-width:760px;width:100%;max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px}
-hr.sep{border:none;border-top:1px solid var(--border);margin:10px 0}
-.right{margin-left:auto}
+.profile-meta{margin-top:10px}
+.profile-name{font-size:14px;font-weight:800;color:#fff}
+.profile-role{font-size:12px;color:#aeb7ca;margin-top:2px}
+.side-group{margin-top:8px}
+.side-label{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#8692ab;margin:14px 10px 8px}
+.nav{display:grid;gap:6px}
+.nav-btn{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid transparent;background:transparent;color:var(--sidebar-text);cursor:pointer;text-align:left
+}
+.nav-btn:hover{background:rgba(255,255,255,.06)}
+.nav-btn.active{background:#fff;color:var(--sidebar);font-weight:800}
+.nav-btn .count{margin-left:auto;background:rgba(255,255,255,.12);padding:2px 8px;border-radius:999px;font-size:11px}
+.nav-btn.active .count{background:#eef0ff;color:var(--primary)}
+.notice{padding:12px 14px;border-radius:14px;font-size:13px;border:1px solid var(--line);margin-bottom:14px}
+.notice.info{background:#eef4ff;color:#254072;border-color:#d7e4ff}
+.notice.ok{background:#e8f8ef;color:#165d38;border-color:#bfe7cf}
+.notice.warn{background:#fff6e9;color:#7b5712;border-color:#f4dfb6}
+.auth-shell{min-height:100vh;display:grid;place-items:center;padding:30px}
+.auth-wrap{width:100%;max-width:1120px;display:grid;grid-template-columns:1.15fr .95fr;gap:22px}
+.auth-panel{
+  background:linear-gradient(145deg,#1d2640,#141b2d);color:#fff;border-radius:28px;padding:34px;border:1px solid rgba(255,255,255,.06)
+}
+.auth-panel h1{font-size:58px;line-height:.96;letter-spacing:-1.8px}
+.auth-panel h1 b{color:#818cf8}
+.auth-panel p{margin-top:16px;color:#c0c8db;line-height:1.7}
+.auth-bullets{margin-top:24px;display:grid;gap:12px}
+.auth-bullets div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:16px}
+.auth-card{background:#fff;border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:var(--shadow)}
+.tabs{display:flex;gap:8px;background:#f4f6fb;border:1px solid var(--line);padding:6px;border-radius:14px;margin-bottom:18px}
+.tab{flex:1;border:none;background:transparent;padding:11px 12px;border-radius:10px;font-weight:800;cursor:pointer;color:#5d6780}
+.tab.active{background:#fff;color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.auth-title{font-size:27px;font-weight:900}
+.auth-sub{font-size:13px;color:var(--muted);margin-top:6px;margin-bottom:18px}
+.split{display:grid;grid-template-columns:1.35fr .9fr;gap:16px}
+.hero-card{
+  padding:22px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,#fff,#f9fbff)
+}
+.hero-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.hero-title{font-size:28px;font-weight:900;letter-spacing:-.8px}
+.hero-text{margin-top:10px;color:#314057;line-height:1.65;max-width:720px}
+.widget-grid{display:grid;grid-template-columns:1.2fr .95fr;gap:16px;margin-top:16px}
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kanban-col{background:#f9fbff;border:1px solid var(--line);border-radius:18px;padding:14px}
+.kanban-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.kanban-title{font-size:13px;font-weight:900}
+.ticket-list,.approval-list,.doc-list,.task-list,.crm-list,.user-list{display:grid;gap:12px}
+.ticket,.task,.doc,.approval,.user-row,.crm-card{
+  border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff
+}
+.ticket-title,.task-title,.doc-title,.crm-title,.user-title{font-size:14px;font-weight:800}
+.progress{height:8px;background:#edf0f7;border-radius:999px;overflow:hidden}
+.progress>span{height:100%;display:block;border-radius:999px;background:linear-gradient(90deg,var(--primary),#8b5cf6)}
+.table-lite{width:100%;border-collapse:collapse}
+.table-lite th,.table-lite td{padding:12px 10px;border-bottom:1px solid var(--line);font-size:13px;text-align:left}
+.table-lite th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.stat-stack{display:grid;gap:12px}
+.stat-row{display:grid;grid-template-columns:120px 1fr 44px;align-items:center;gap:10px}
+.stat-row .bar{height:8px;background:#edf0f7;border-radius:999px;overflow:hidden}
+.stat-row .bar span{display:block;height:100%;background:linear-gradient(90deg,#4f46e5,#8b5cf6)}
+.pending-screen{min-height:100vh;display:grid;place-items:center;padding:22px}
+.pending-card{width:100%;max-width:760px}
+.user-pill{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#fff}
+.quick-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.panel-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:16px}
+@media (max-width:1100px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto}
+  .search{max-width:100%;width:100%}
+  .kpi-grid,.widget-grid,.split,.panel-grid,.field-row,.auth-wrap,.kanban{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-<div class="loading-screen" id="loading-screen">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
-    <div class="spinner"></div>
-    <span class="meta">Connexion à IMPROTECH...</span>
+
+<div id="loading-screen" class="auth-shell">
+  <div class="card card-pad" style="max-width:460px;width:100%;text-align:center">
+    <div style="width:42px;height:42px;border-radius:50%;border:3px solid #e8ecf6;border-top-color:#4f46e5;margin:0 auto 16px;animation:spin .8s linear infinite"></div>
+    <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">Chargement du workspace</div>
+    <div class="muted" style="margin-top:6px">Connexion à IMPROTECH Workspace…</div>
   </div>
 </div>
 
-<div id="login-screen" class="hidden">
-  <div class="login-wrap">
-    <div class="login-logo"><b>IMPRO</b>TECH</div>
-    <div class="login-tagline">Portail entreprise · Accès unique pour toute la compagnie</div>
-    <div class="login-box">
-      <div class="auth-switch">
-        <button id="show-login-tab" class="btn-p" type="button">Se connecter</button>
-        <button id="show-signup-tab" class="btn-s" type="button">Créer mon compte</button>
+<div id="auth-screen" class="auth-shell hidden">
+  <div class="auth-wrap">
+    <div class="auth-panel">
+      <div class="badge primary" style="background:rgba(129,140,248,.18);color:#cbd2ff">Workspace v4 • Bitrix24 style</div>
+      <h1 style="margin-top:16px"><b>IMPRO</b>TECH<br>Workspace</h1>
+      <p>Portail central pour la collaboration, la relation client, les opérations, les approbations d’accès, les documents, le support et la vision exécutive.</p>
+      <div class="auth-bullets">
+        <div><strong>Dashboards par métier.</strong><br><span class="muted" style="color:#c0c8db">Technical, Sales, HR, Finance, Support + vues Executive MD et CTO.</span></div>
+        <div><strong>Validation d’accès contrôlée.</strong><br><span class="muted" style="color:#c0c8db">HR, Admin, MD et CTO peuvent approuver les nouveaux comptes.</span></div>
+        <div><strong>Structure Improtech intégrée.</strong><br><span class="muted" style="color:#c0c8db">Othniel, Tariq, Yael, Kassum, Unclebert et Gilles sont préconfigurés.</span></div>
       </div>
-      <div id="login-panel">
-        <div id="login-err" class="login-err hidden"></div>
-        <label class="login-lbl">Adresse email</label>
-        <input id="login-email" class="login-input" type="email" placeholder="prenom.nom@improtechsystems.com" autocomplete="email"/>
-        <label class="login-lbl">Mot de passe</label>
-        <input id="login-pwd" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password" />
-        <button id="login-btn" class="login-btn">Se connecter</button>
-        <div class="tiny" style="margin-top:10px">Utilise ton email professionnel Improtech. Les comptes en attente restent bloqués jusqu’à validation Admin/HR.</div>
+    </div>
+
+    <div class="auth-card">
+      <div class="tabs">
+        <button class="tab active" id="tab-login" onclick="showAuthTab('login')">Se connecter</button>
+        <button class="tab" id="tab-register" onclick="showAuthTab('register')">Créer mon compte</button>
       </div>
-      <div id="signup-panel" class="hidden">
-        <div id="signup-err" class="login-err hidden"></div>
-        <div id="signup-ok" class="notice notice-ok hidden"></div>
-        <label class="login-lbl">Nom complet</label>
-        <input id="signup-name" class="login-input" type="text" placeholder="Ex: Gilles Kouassi" autocomplete="name"/>
-        <label class="login-lbl">Adresse email professionnelle</label>
-        <input id="signup-email" class="login-input" type="email" placeholder="prenom.nom@improtechsystems.com" autocomplete="email"/>
-        <label class="login-lbl">Mot de passe</label>
-        <input id="signup-pwd" class="login-input" type="password" placeholder="Minimum 8 caractères" autocomplete="new-password"/>
-        <div class="form-grid">
+
+      <div id="auth-notice"></div>
+
+      <div id="login-tab">
+        <div class="auth-title">Connexion</div>
+        <div class="auth-sub">Connecte-toi avec ton email professionnel Improtech.</div>
+        <div class="field-row">
           <div>
-            <label class="login-lbl">Département</label>
-            <select id="signup-dept" class="select">
-              <option>Technical</option>
-              <option>Sales & Marketing</option>
-              <option>HR</option>
-              <option>Finance</option>
-              <option>Support</option>
-            </select>
+            <label class="muted" style="font-size:12px">Adresse email</label>
+            <input class="input" id="login-email" type="email" placeholder="prenom.nom@improtechsystems.com">
           </div>
           <div>
-            <label class="login-lbl">Fonction</label>
-            <select id="signup-role" class="select">
-              <option>Engineer</option>
-              <option>Sales Executive</option>
-              <option>HR Officer</option>
-              <option>Finance Officer</option>
-              <option>Support Agent</option>
-              <option>Employee</option>
-            </select>
-          </div>
-          <div>
-            <label class="login-lbl">Manager</label>
-            <input id="signup-manager" class="field" type="text" placeholder="Ex: Othniel"/>
-          </div>
-          <div>
-            <label class="login-lbl">Localisation</label>
-            <input id="signup-location" class="field" type="text" placeholder="Ex: Accra HQ"/>
+            <label class="muted" style="font-size:12px">Mot de passe</label>
+            <input class="input" id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
           </div>
         </div>
-        <button id="signup-btn" class="login-btn" style="margin-top:12px">Créer mon compte</button>
-        <div class="tiny" style="margin-top:10px">Le dashboard est attribué automatiquement selon le département et le rôle. Les rôles exécutifs sont réservés à l’administration.</div>
+        <div class="quick-actions">
+          <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Se connecter</button>
+          <button class="btn btn-ghost" onclick="prefillDemo('othniel')">Othniel</button>
+          <button class="btn btn-ghost" onclick="prefillDemo('tariq')">Tariq</button>
+          <button class="btn btn-ghost" onclick="prefillDemo('yael')">Yael</button>
+          <button class="btn btn-ghost" onclick="prefillDemo('gilles')">Gilles</button>
+        </div>
+      </div>
+
+      <div id="register-tab" class="hidden">
+        <div class="auth-title">Créer mon compte</div>
+        <div class="auth-sub">L’accès sera créé puis soumis pour validation par HR / Admin / MD / CTO.</div>
+        <div class="field-row">
+          <div>
+            <label class="muted" style="font-size:12px">Nom complet</label>
+            <input class="input" id="reg-name" placeholder="Ex: Gilles Bourgeois">
+          </div>
+          <div>
+            <label class="muted" style="font-size:12px">Email professionnel</label>
+            <input class="input" id="reg-email" type="email" placeholder="prenom.nom@improtechsystems.com">
+          </div>
+          <div>
+            <label class="muted" style="font-size:12px">Mot de passe</label>
+            <input class="input" id="reg-password" type="password" placeholder="Minimum 6 caractères">
+          </div>
+          <div>
+            <label class="muted" style="font-size:12px">Département</label>
+            <select class="select" id="reg-dept"></select>
+          </div>
+          <div>
+            <label class="muted" style="font-size:12px">Poste</label>
+            <select class="select" id="reg-role"></select>
+          </div>
+          <div>
+            <label class="muted" style="font-size:12px">Manager</label>
+            <input class="input" id="reg-manager" placeholder="Ex: Othniel">
+          </div>
+        </div>
+        <div class="quick-actions">
+          <button class="btn btn-primary" id="register-btn" onclick="doRegister()">Créer mon accès</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<div id="pending-screen" class="hidden">
-  <div class="login-wrap">
-    <div class="login-logo"><b>IMPRO</b>TECH</div>
-    <div class="login-tagline">Compte en attente de validation</div>
-    <div class="login-box">
-      <div class="panel-muted">
-        <div class="badge-pill">Validation requise</div>
-        <div style="font-size:18px;font-weight:800;margin:10px 0 6px">Ton accès a bien été créé.</div>
-        <div id="pending-copy" style="line-height:1.6;color:var(--muted)">Ton profil est en attente de validation par HR ou un administrateur. Dès validation, ton dashboard sera disponible.</div>
-      </div>
-      <div class="row" style="margin-top:14px">
-        <button id="pending-refresh" class="btn-s">Vérifier à nouveau</button>
-        <button id="pending-logout" class="btn-p">Se déconnecter</button>
+<div id="pending-screen" class="pending-screen hidden">
+  <div class="pending-card card card-pad">
+    <div style="font-size:52px;font-weight:950;letter-spacing:-1px;text-align:center"><b style="color:#4f46e5">IMPRO</b>TECH</div>
+    <div style="font-size:24px;font-weight:900;letter-spacing:-.6px;text-align:center;margin-top:10px">Compte en attente de validation</div>
+    <div class="muted" style="text-align:center;margin-top:6px">Le profil a bien été créé et sera activé dès validation.</div>
+    <div class="card card-pad" style="margin-top:18px;background:linear-gradient(180deg,#fff,#fafbff)">
+      <div class="badge primary">Validation requise</div>
+      <div style="font-size:34px;font-weight:900;letter-spacing:-.8px;margin-top:12px">Ton accès a bien été créé.</div>
+      <div id="pending-copy" class="hero-text" style="margin-top:12px"></div>
+      <div class="quick-actions">
+        <button class="btn btn-ghost" onclick="checkMyApproval()">Vérifier à nouveau</button>
+        <button class="btn btn-primary" onclick="doLogout()">Se déconnecter</button>
       </div>
     </div>
   </div>
 </div>
 
-<div id="app-screen">
-  <div class="app-shell">
+<div id="app-screen" class="hidden">
+  <div class="layout">
     <aside class="sidebar">
       <div class="brand"><b>IMPRO</b>TECH</div>
-      <div class="subbrand">Enterprise Workspace · Accra HQ</div>
+      <div class="brand-sub">Workspace v4 · style Bitrix24</div>
 
-      <div class="user-card">
-        <div class="avatar" id="user-av">?</div>
-        <div>
-          <div class="user-name" id="user-nm">—</div>
-          <div class="user-meta" id="user-meta">—</div>
+      <div class="profile-card">
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="avatar" id="side-avatar">?</div>
+          <div class="profile-meta">
+            <div class="profile-name" id="side-name">—</div>
+            <div class="profile-role" id="side-role">—</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <span class="badge primary" id="side-dept">—</span>
+          <span class="badge gray" id="side-dashboard">—</span>
         </div>
       </div>
 
-      <div class="nav" id="nav"></div>
-
-      <div class="side-footer">
-        <button class="btn-s" id="open-notifs">🔔 Notifications</button>
-        <button class="btn-s" id="open-search">🔎 Recherche globale</button>
-        <button class="btn-s btn-danger" id="logout-btn">Se déconnecter</button>
+      <div class="side-group">
+        <div class="side-label">Workspace</div>
+        <div class="nav" id="nav-main"></div>
+      </div>
+      <div class="side-group">
+        <div class="side-label">Actions</div>
+        <div class="nav">
+          <button class="nav-btn" onclick="renderView('profile', this)">👤 Mon profil</button>
+          <button class="nav-btn" onclick="doLogout()">⎋ Se déconnecter</button>
+        </div>
       </div>
     </aside>
 
-    <main class="content">
+    <main>
       <div class="topbar">
-        <div class="page-head">
-          <h1 id="page-title">Dashboard</h1>
-          <p id="page-subtitle">Chargement...</p>
+        <div class="topbar-left">
+          <div class="brand-sm"><b>IMPRO</b>TECH</div>
+          <div class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4a6 6 0 1 0 3.87 10.58l4.27 4.28l1.41-1.42l-4.28-4.27A6 6 0 0 0 10 4m0 2a4 4 0 1 1 0 8a4 4 0 0 1 0-8"/></svg>
+            <input id="global-search" placeholder="Rechercher une tâche, un ticket, un employé, un lead, un document...">
+          </div>
         </div>
         <div class="top-actions">
-          <div class="searchbar">
-            <span>🔎</span>
-            <input id="global-search-input" placeholder="Rechercher tâches, tickets, leads, documents, personnes..." />
+          <button class="icon-btn" onclick="renderView('notifications', document.querySelector('[data-view=notifications]'))">🔔</button>
+          <div class="user-pill">
+            <div class="avatar" id="top-avatar" style="width:34px;height:34px;font-size:13px">?</div>
+            <div>
+              <div style="font-size:13px;font-weight:800" id="top-name">—</div>
+              <div style="font-size:11px;color:var(--muted)" id="top-role">—</div>
+            </div>
           </div>
-          <button class="btn-s" id="refresh-btn">Actualiser</button>
         </div>
       </div>
-      <div id="flash"></div>
-      <div id="view"></div>
-    </main>
-  </div>
-</div>
 
-<div class="modal-backdrop" id="modal-backdrop">
-  <div class="modal">
-    <div class="toolbar">
-      <h3 id="modal-title">Fenêtre</h3>
-      <button class="btn-s" id="modal-close">Fermer</button>
-    </div>
-    <div id="modal-body"></div>
+      <div class="page" id="page"></div>
+    </main>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-import {
-  getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
-  serverTimestamp, onSnapshot, query, orderBy, limit, where, getDocs
-} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, query, where, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-// ------------------------------------------------------------
-// CONFIG
-// ------------------------------------------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyCa5ZAo-YDPUu6Kchl_chbHHm9iaLZVS6Q",
   authDomain: "improtech-intranet.firebaseapp.com",
@@ -290,1491 +342,937 @@ const firebaseConfig = {
   measurementId: "G-77CPJ4SX7T"
 };
 
-// IMPORTANT:
-// 1) Add your deployed domain to Firebase Auth > Authorized domains
-// 2) Firestore rules must allow authenticated users appropriately
-// 3) AI endpoint below must be served by your own backend /api/ai
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const DEPTS = ['Technical','Sales & Marketing','HR','Finance','Support','Admin'];
-const DC = {Technical:'#534AB7','Sales & Marketing':'#BA7517',HR:'#1D9E75',Finance:'#185FA5',Support:'#D85A30',Admin:'#1a1a1a'};
-const DB_BADGE = {Technical:'bp','Sales & Marketing':'ba',HR:'bt',Finance:'bbl',Support:'bc',Admin:'bg'};
-const ADMIN_ROLES = ['Admin','CEO','MD','CTO'];
-
-const COLLECTIONS = {
-  users:'users',
-  tasks:'tasks',
-  announcements:'announcements',
-  tickets:'tickets',
-  leads:'leads',
-  org:'org_nodes',
-  onboarding:'onboarding',
-  documents:'documents',
-  notifications:'notifications',
-  audit:'audit_logs'
+const DEPTS = ['Technical','Sales & Marketing','HR','Finance','Support'];
+const ROLE_OPTIONS = {
+  'Technical':['Engineer','Pre-sales Engineer','Team Lead','CTO'],
+  'Sales & Marketing':['Sales Executive','Sales Manager','MD'],
+  'HR':['HR Officer','HR Manager'],
+  'Finance':['Finance Officer','Finance Manager'],
+  'Support':['Support Agent','Support Lead']
+};
+const VALIDATOR_ROLES = ['Admin','MD','CTO','HR Manager'];
+const EXEC_ROLES = ['MD','CTO','Admin'];
+const DEPT_COLOR = {
+  'Technical':'#4f46e5',
+  'Sales & Marketing':'#c58b16',
+  'HR':'#0f9d58',
+  'Finance':'#2076d6',
+  'Support':'#de5b4a',
+  'Admin':'#172033'
+};
+const PRESET_PROFILES = {
+  'othniel.atse@improtechsystems.com': {displayName:'Othniel Atse', department:'Technical', role:'CTO', dashboard:'Executive Tech', managerName:'—', isActive:true, status:'active'},
+  'tariq.tondi@improtechsystems.com': {displayName:'Tariq Tondi', department:'Sales & Marketing', role:'MD', dashboard:'Executive Global', managerName:'—', isActive:true, status:'active'},
+  'yael@improtechsystems.com': {displayName:'Yael', department:'Sales & Marketing', role:'Sales Manager', dashboard:'Sales', managerName:'Tariq Tondi', isActive:true, status:'active'},
+  'kassum@improtechsystems.com': {displayName:'Kassum', department:'HR', role:'HR Manager', dashboard:'HR', managerName:'—', isActive:true, status:'active'},
+  'unclebert@improtechsystems.com': {displayName:'Unclebert', department:'Finance', role:'Finance Manager', dashboard:'Finance', managerName:'—', isActive:true, status:'active'},
+  'gilles.bourgeois@improtechsystems.com': {displayName:'Gilles Bourgeois', department:'Technical', role:'Engineer', dashboard:'Tech', managerName:'Othniel Atse', isActive:false, status:'pending'}
 };
 
-const NAV = [
-  {id:'dash', label:'Dashboard', icon:'◈'},
-  {id:'tasks', label:'Tâches', icon:'☑'},
-  {id:'comm', label:'Communication', icon:'◎'},
-  {id:'crm', label:'CRM', icon:'◇'},
-  {id:'support', label:'Support', icon:'◉'},
-  {id:'onboarding', label:'Onboarding', icon:'✦'},
-  {id:'docs', label:'Documents', icon:'▤'},
-  {id:'reports', label:'Rapports', icon:'▦'},
-  {id:'org', label:'Organigramme', icon:'⊞'},
-  {id:'search', label:'Recherche', icon:'⌕'},
-  {id:'notifications', label:'Notifications', icon:'🔔'},
-  {id:'admin', label:'Administration', icon:'⚙'},
-  {id:'ai', label:'Assistant IA', icon:'✧'}
-];
+let currentUser = null;
+let profile = null;
+let currentView = 'home';
+let allUsers = [];
+let pendingUsers = [];
+let notifications = [];
+let navItems = [];
 
-const PROFILE_PRESETS = {
-  'gilles@improtechsystems.com': {displayName:'Gilles', department:'Technical', role:'Engineer', dashboard:'Tech', managerName:'Othniel', location:'Accra HQ', isActive:false, approvalStatus:'pending'},
-  'othniel@improtechsystems.com': {displayName:'Othniel', department:'Technical', role:'CTO', dashboard:'Executive Tech', managerName:'Tariq', location:'Accra HQ', isActive:true, approvalStatus:'active'},
-  'tariq@improtechsystems.com': {displayName:'Tariq', department:'Sales & Marketing', role:'MD', dashboard:'Executive Global', managerName:'Verlein', location:'Accra HQ', isActive:true, approvalStatus:'active'},
-  'kassum@improtechsystems.com': {displayName:'Kassum', department:'HR', role:'HR Manager', dashboard:'HR', managerName:'Tariq', location:'Accra HQ', isActive:true, approvalStatus:'active'},
-  'unclebert@improtechsystems.com': {displayName:'Unclebert', department:'Finance', role:'Finance Manager', dashboard:'Finance', managerName:'Tariq', location:'Accra HQ', isActive:true, approvalStatus:'active'}
-};
-
-function roleToDashboard(role='Employee', department='Technical'){
-  const r = String(role).toUpperCase();
-  if(r.includes('MD') || r.includes('CEO') || r.includes('ADMIN')) return 'Executive Global';
-  if(r.includes('CTO')) return 'Executive Tech';
-  if(department === 'Technical') return 'Tech';
-  if(department === 'HR') return 'HR';
-  if(department === 'Finance') return 'Finance';
-  if(department === 'Sales & Marketing') return 'Sales';
-  if(department === 'Support') return 'Support';
-  return 'General';
-}
-
-function presetForUser(user){
-  const email = String(user?.email || '').toLowerCase();
-  return PROFILE_PRESETS[email] || null;
-}
-
-const DEFAULT_PROFILE = (user) => {
-  const preset = presetForUser(user);
-  return {
-    uid: user.uid,
-    displayName: preset?.displayName || user.displayName || user.email.split('@')[0],
-    email: user.email,
-    department: preset?.department || 'Technical',
-    role: preset?.role || 'Employee',
-    dashboard: preset?.dashboard || roleToDashboard(preset?.role || 'Employee', preset?.department || 'Technical'),
-    managerName: preset?.managerName || '—',
-    location: preset?.location || 'Accra HQ',
-    isActive: typeof preset?.isActive === 'boolean' ? preset.isActive : false,
-    approvalStatus: preset?.approvalStatus || 'pending',
-    createdAt: new Date().toISOString()
-  };
-};
-
-const SEED = {
-  tasks: [
-    {title:"Déploiement pare-feu Ecobank",dept:"Technical",priority:"high",status:"todo",assigneeName:"Othniel",assigneeUid:"",dueDate:"2026-04-28",description:"Préparer plan d’implémentation et rollback.",watchers:["Technical"]},
-    {title:"Proposition SEMLEX Group",dept:"Sales & Marketing",priority:"high",status:"inprog",assigneeName:"Tariq",assigneeUid:"",dueDate:"2026-04-25",description:"Réponse RFP Zero Trust.",watchers:["Sales & Marketing","Admin"]},
-    {title:"Onboarding Kwame Asare",dept:"HR",priority:"medium",status:"inprog",assigneeName:"Kassum",assigneeUid:"",dueDate:"2026-04-30",description:"Coordonner RH, IT et manager.",watchers:["HR","Technical"]},
-    {title:"Health check clients managés",dept:"Technical",priority:"medium",status:"todo",assigneeName:"Gilles",assigneeUid:"",dueDate:"2026-04-29",description:"Contrôler sauvegardes, patching et alertes critiques.",watchers:["Technical"]}
+const staticData = {
+  feed: [
+    {title:'Nouvelle demande d’accès', text:'Gilles Bourgeois a demandé l’accès au portail (Technical · Engineer).', time:'22 avr · 19:07', category:'approval'},
+    {title:'Point commercial stratégique', text:'Yael a déplacé 2 opportunités vers la phase Négociation et a planifié une relance Orange CI.', time:'22 avr · 16:20', category:'sales'},
+    {title:'Maintenance technique', text:'Le CTO a annoncé une revue de l’architecture réseau vendredi à 9h.', time:'22 avr · 10:00', category:'technical'}
   ],
-  announcements: [
-    {authorName:"Tariq (MD)",dept:"Sales & Marketing",body:"SEMLEX qualifié. RFP Zero Trust reçu. Réunion lundi 10h.",scope:"company"},
-    {authorName:"Kassum (HR)",dept:"HR",body:"Feuilles de présence avril à soumettre avant vendredi 18h.",scope:"company"},
-    {authorName:"Othniel (CTO)",dept:"Technical",body:"Lab CCIE maintenance ce week-end. Déploiement Fortinet Ecobank lundi 6h.",scope:"company"}
+  tasks: [
+    {title:'Architecture review Stanbic', owner:'Othniel Atse', dept:'Technical', status:'In Progress', priority:'High', due:'24 avr'},
+    {title:'Proposition Zero Trust SEMLEX', owner:'Yael', dept:'Sales & Marketing', status:'Review', priority:'High', due:'23 avr'},
+    {title:'Checklist onboarding Gilles', owner:'Kassum', dept:'HR', status:'Pending', priority:'Medium', due:'25 avr'},
+    {title:'Préparation budget Q2', owner:'Unclebert', dept:'Finance', status:'Done', priority:'Medium', due:'21 avr'},
+    {title:'Revue tickets VIP', owner:'Support Lead', dept:'Support', status:'Open', priority:'High', due:'Aujourd’hui'}
   ],
   tickets: [
-    {title:"VPN Stanbic — déconnexions",dept:"Technical",priority:"high",status:"open",requester:"IT Stanbic",category:"Network",sla:"4h",description:"Coupures depuis mise à jour firmware.",assigneeName:"—"},
-    {title:"Accès portail formation bloqué",dept:"Support",priority:"medium",status:"open",requester:"Étudiant CCNA #12",category:"Training",sla:"24h",description:"Impossible de se connecter au portail.",assigneeName:"—"}
+    {title:'VPN Stanbic — déconnexions', requester:'Stanbic IT', severity:'High', status:'Open', dept:'Technical'},
+    {title:'Projecteur salle A indisponible', requester:'Formation', severity:'Medium', status:'In Progress', dept:'Support'},
+    {title:'Accès portail étudiant bloqué', requester:'Student #12', severity:'Low', status:'Open', dept:'Support'}
   ],
   leads: [
-    {company:"MTN Ghana",contact:"K. Asante",service:"Managed Services",value:120000,stage:"Négociation",probability:75,owner:"Sales Team",nextAction:"Envoyer version finale de proposition",nextActionDate:"2026-04-24"},
-    {company:"SEMLEX Group",contact:"B. Koffi",service:"Zero Trust",value:60000,stage:"Proposition",probability:60,owner:"Tariq",nextAction:"Clarifier le périmètre SOC",nextActionDate:"2026-04-23"}
+    {company:'Orange CI', value:'$95k', stage:'Négociation', owner:'Yael', probability:74},
+    {company:'SEMLEX Group', value:'$60k', stage:'Proposition', owner:'Yael', probability:61},
+    {company:'MTN Ghana', value:'$120k', stage:'Qualification', owner:'Tariq Tondi', probability:47}
   ],
   documents: [
-    {title:"Politique RH — Congés",category:"HR",ownerDept:"HR",summary:"Guide de gestion des congés annuels, exceptionnels et validations.",url:"",access:["HR","Admin"]},
-    {title:"Runbook Support N1",category:"Support",ownerDept:"Support",summary:"Procédures standard pour incidents récurrents et escalades.",url:"",access:["Support","Technical","Admin"]},
-    {title:"Template Proposition Client",category:"Sales",ownerDept:"Sales & Marketing",summary:"Modèle standard de proposition commerciale.",url:"",access:["Sales & Marketing","Admin"]}
-  ],
-  onboarding: [
-    {employeeName:"Kwame Asare",dept:"Technical",managerName:"Othniel",startDate:"2026-04-15",email:"k.asare@improtechsystems.com",status:"in_progress",checklist:[
-      {label:"Créer compte email professionnel",done:true},
-      {label:"Accès VPN configuré",done:true},
-      {label:"Remettre ordinateur & matériel",done:true},
-      {label:"Briefing sécurité & politique IT",done:false},
-      {label:"Session shadow ingénieur senior",done:false}
-    ]}
-  ],
-  org: [
-    {name:"Verlein",role:"CEO",dept:"Admin",managerId:null,level:0,sortOrder:1},
-    {name:"Tariq",role:"MD / GM",dept:"Admin",managerId:"seed_ceo",level:1,sortOrder:1},
-    {name:"Othniel",role:"CTO",dept:"Technical",managerId:"seed_md",level:2,sortOrder:1},
-    {name:"Kassum",role:"HR Manager",dept:"HR",managerId:"seed_md",level:2,sortOrder:2},
-    {name:"Unclebert",role:"Finance Manager",dept:"Finance",managerId:"seed_md",level:2,sortOrder:3},
-    {name:"Gilles",role:"Engineer",dept:"Technical",managerId:"seed_md",level:3,sortOrder:4}
+    {title:'Procédure d’onboarding Improtech', type:'Policy', owner:'HR'},
+    {title:'Standard Build Firewall', type:'Technical SOP', owner:'Technical'},
+    {title:'Template proposition commerciale', type:'Sales Template', owner:'Sales'},
+    {title:'Procédure validation d’accès', type:'Access Workflow', owner:'Admin'}
   ]
 };
 
-// ------------------------------------------------------------
-// STATE
-// ------------------------------------------------------------
-let currentUser = null;
-let profile = null;
-let currentView = 'dash';
-let unsubscribers = [];
-let cache = {
-  tasks: [], announcements: [], tickets: [], leads: [], docs: [], onboarding: [], org: [], users: [], notifications: [], audit: []
-};
-let aiMsgs = [];
-let filters = {task:'all', ticket:'all', lead:'all', doc:'all'};
-let globalSearchQuery = '';
-
-const $ = (id) => document.getElementById(id);
-const esc = (s='') => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const fmtDate = (val) => {
-  if(!val) return '—';
-  const d = typeof val === 'string' ? new Date(val) : (val.toDate ? val.toDate() : new Date(val));
-  if(Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
-};
-const fmtDateTime = (val) => {
-  if(!val) return '—';
-  const d = typeof val === 'string' ? new Date(val) : (val.toDate ? val.toDate() : new Date(val));
-  if(Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-};
-const money = (n=0) => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(n||0));
-const badge = (text, klass='bg') => `<span class="badge ${klass}">${esc(text)}</span>`;
-const deptBadge = (dept) => badge(dept, DB_BADGE[dept] || 'bg');
-const priorityBadge = (p) => ({high:badge('Urgent','bc'),medium:badge('Moyen','ba'),low:badge('Faible','bg')}[p] || badge(p,'bg'));
-const taskStatusBadge = (s) => ({todo:badge('À faire','bg'),inprog:badge('En cours','ba'),done:badge('Terminé','bgr')}[s] || badge(s,'bg'));
-const ticketStatusBadge = (s) => ({open:badge('Ouvert','bred'),inprog:badge('En cours','ba'),resolved:badge('Résolu','bgr')}[s] || badge(s,'bg'));
-const leadStageBadge = (s) => ({'Prospection':badge(s,'bg'),'Qualification':badge(s,'bt'),'Proposition':badge(s,'bp'),'Négociation':badge(s,'ba'),'Gagné':badge(s,'bgr'),'Perdu':badge(s,'bred')}[s] || badge(s,'bg'));
-const notify = (msg, type='info') => {
-  $('flash').innerHTML = `<div class="notice ${type==='ok'?'notice-ok':type==='info'?'notice-info':''}">${esc(msg)}</div>`;
-  setTimeout(()=>{ $('flash').innerHTML=''; }, 4000);
-};
-const initials = (name='?') => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  return parts.length > 1 ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase() : name.slice(0,2).toUpperCase();
-};
-const getDeptColor = (dept) => DC[dept] || '#534AB7';
-const isAdmin = () => profile && ADMIN_ROLES.includes(profile.role);
-const canAccess = (view) => {
-  const dept = profile?.department;
-  if(isAdmin()) return true;
-  if(['dash','tasks','comm','docs','search','notifications','ai'].includes(view)) return true;
-  if(view==='crm') return dept==='Sales & Marketing';
-  if(view==='support') return dept==='Support' || dept==='Technical';
-  if(view==='reports') return dept==='Finance';
-  if(view==='onboarding') return dept==='HR';
-  if(view==='admin') return false;
-  if(view==='org') return true;
-  return true;
-};
-const audit = async (action, module, detail={}) => {
-  if(!currentUser || !profile) return;
-  try{
-    await addDoc(collection(db, COLLECTIONS.audit), {
-      action, module, detail,
-      actorUid: currentUser.uid,
-      actorName: profile.displayName,
-      actorDept: profile.department,
-      createdAt: serverTimestamp()
-    });
-  }catch(e){ console.warn('Audit log failed', e); }
-};
-
-// ------------------------------------------------------------
-// AUTH
-// ------------------------------------------------------------
-$('login-btn').addEventListener('click', doLogin);
-$('signup-btn').addEventListener('click', doSignup);
-$('show-login-tab').addEventListener('click', ()=>setAuthMode('login'));
-$('show-signup-tab').addEventListener('click', ()=>setAuthMode('signup'));
-$('pending-refresh').addEventListener('click', async ()=>{ if(currentUser){ await ensureProfile(currentUser, true); if(profile?.isActive){ renderShell(); setView('dash'); $('pending-screen').classList.add('hidden'); $('app-screen').style.display='block'; } else { showPendingScreen(); } }});
-$('pending-logout').addEventListener('click', ()=>signOut(auth));
-$('login-pwd').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
-$('logout-btn').addEventListener('click', async () => { await signOut(auth); });
-
-async function doLogin(){
-  const email = $('login-email').value.trim();
-  const pwd = $('login-pwd').value;
-  const err = $('login-err');
-  err.classList.add('hidden');
-  if(!email || !pwd){
-    err.textContent = 'Veuillez remplir tous les champs.'; err.classList.remove('hidden'); return;
-  }
-  $('login-btn').disabled = true;
-  $('login-btn').textContent = 'Connexion...';
-  try{
-    await signInWithEmailAndPassword(auth, email, pwd);
-  }catch(e){
-    err.textContent = e.code === 'auth/unauthorized-domain'
-      ? 'Domaine non autorisé dans Firebase Authentication.'
-      : 'Email ou mot de passe incorrect.';
-    err.classList.remove('hidden');
-    $('login-btn').disabled = false;
-    $('login-btn').textContent = 'Se connecter';
-  }
+function $(id){ return document.getElementById(id); }
+function initials(name='?'){ const p = String(name).trim().split(' ').filter(Boolean); return p.length>1 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : (p[0]?.slice(0,2).toUpperCase() || '?'); }
+function deptColor(d){ return DEPT_COLOR[d] || '#4f46e5'; }
+function dashboardForRole(department, role){
+  if (role === 'MD') return 'Executive Global';
+  if (role === 'CTO') return 'Executive Tech';
+  if (department === 'Technical') return 'Tech';
+  if (department === 'Sales & Marketing') return 'Sales';
+  if (department === 'HR') return 'HR';
+  if (department === 'Finance') return 'Finance';
+  if (department === 'Support') return 'Support';
+  return 'Workspace';
 }
-
-$('signup-pwd').addEventListener('keydown', e => { if(e.key === 'Enter') doSignup(); });
-
-function setAuthMode(mode='login'){
-  const login = mode === 'login';
-  $('login-panel').classList.toggle('hidden', !login);
-  $('signup-panel').classList.toggle('hidden', login);
-  $('show-login-tab').className = login ? 'btn-p' : 'btn-s';
-  $('show-signup-tab').className = login ? 'btn-s' : 'btn-p';
+function isValidator(){ return !!(profile && VALIDATOR_ROLES.includes(profile.role)); }
+function isExecutive(){ return !!(profile && EXEC_ROLES.includes(profile.role)); }
+function showNotice(message, type='info'){
+  $('auth-notice').innerHTML = `<div class="notice ${type}">${message}</div>`;
 }
-
-function showPendingScreen(){
-  $('loading-screen').style.display='none';
-  $('login-screen').classList.add('hidden');
-  $('app-screen').style.display='none';
-  $('pending-screen').classList.remove('hidden');
-  $('pending-copy').textContent = `Le profil ${profile?.displayName || ''} (${profile?.email || ''}) est encore en attente. Dès validation par HR/Admin, le dashboard ${profile?.dashboard || 'prévu'} sera activé.`;
+function clearNotice(){ $('auth-notice').innerHTML = ''; }
+function escapeHtml(s=''){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+function setAuthTab(mode){
+  $('tab-login').classList.toggle('active', mode==='login');
+  $('tab-register').classList.toggle('active', mode==='register');
+  $('login-tab').classList.toggle('hidden', mode!=='login');
+  $('register-tab').classList.toggle('hidden', mode!=='register');
+  clearNotice();
 }
+window.showAuthTab = setAuthTab;
 
-function hideAuthAux(){
-  $('pending-screen').classList.add('hidden');
-  $('login-screen').classList.add('hidden');
+function populateRegisterFields(){
+  $('reg-dept').innerHTML = DEPTS.map(d=>`<option>${d}</option>`).join('');
+  populateRoleOptions();
 }
-
-function isImprotechEmail(email=''){
-  return /@improtechsystems\.com$/i.test(String(email).trim());
+function populateRoleOptions(){
+  const dept = $('reg-dept').value;
+  const roles = ROLE_OPTIONS[dept] || [];
+  $('reg-role').innerHTML = roles.map(r=>`<option>${r}</option>`).join('');
+  if (dept === 'Technical') $('reg-manager').value = 'Othniel Atse';
+  if (dept === 'Sales & Marketing') $('reg-manager').value = 'Yael';
 }
+$('reg-dept')?.addEventListener?.('change', populateRoleOptions);
 
-function buildSignupProfile(user){
-  const preset = presetForUser(user);
-  if(preset){
-    return {
-      uid:user.uid,
-      email:user.email,
-      displayName:preset.displayName || $('signup-name').value.trim() || user.email.split('@')[0],
-      department:preset.department || $('signup-dept').value,
-      role:preset.role || $('signup-role').value,
-      dashboard:preset.dashboard || roleToDashboard(preset.role || $('signup-role').value, preset.department || $('signup-dept').value),
-      managerName:preset.managerName || $('signup-manager').value.trim() || '—',
-      location:preset.location || $('signup-location').value.trim() || 'Accra HQ',
-      isActive: typeof preset.isActive === 'boolean' ? preset.isActive : false,
-      approvalStatus: preset.approvalStatus || 'pending',
-      createdAt:new Date().toISOString()
-    };
-  }
-  const dept = $('signup-dept').value;
-  const role = $('signup-role').value;
-  return {
-    uid:user.uid,
-    email:user.email,
-    displayName:$('signup-name').value.trim(),
-    department:dept,
-    role:role,
-    dashboard:roleToDashboard(role, dept),
-    managerName:$('signup-manager').value.trim() || '—',
-    location:$('signup-location').value.trim() || 'Accra HQ',
-    isActive:false,
-    approvalStatus:'pending',
-    createdAt:new Date().toISOString()
+window.prefillDemo = function(which){
+  const presets = {
+    othniel:'othniel.atse@improtechsystems.com',
+    tariq:'tariq.tondi@improtechsystems.com',
+    yael:'yael@improtechsystems.com',
+    gilles:'gilles.bourgeois@improtechsystems.com'
   };
-}
+  $('login-email').value = presets[which] || '';
+};
 
-async function doSignup(){
-  const err = $('signup-err');
-  const ok = $('signup-ok');
-  err.classList.add('hidden');
-  ok.classList.add('hidden');
-  const name = $('signup-name').value.trim();
-  const email = $('signup-email').value.trim().toLowerCase();
-  const pwd = $('signup-pwd').value;
-  if(!name || !email || !pwd){
-    err.textContent = 'Veuillez remplir les champs requis.';
-    err.classList.remove('hidden');
-    return;
-  }
-  if(!isImprotechEmail(email)){
-    err.textContent = 'Utilise uniquement une adresse @improtechsystems.com';
-    err.classList.remove('hidden');
-    return;
-  }
-  if(pwd.length < 8){
-    err.textContent = 'Le mot de passe doit contenir au moins 8 caractères.';
-    err.classList.remove('hidden');
-    return;
-  }
-  $('signup-btn').disabled = true;
-  $('signup-btn').textContent = 'Création...';
-  try{
-    const cred = await createUserWithEmailAndPassword(auth, email, pwd);
-    const baseProfile = buildSignupProfile(cred.user);
-    await setDoc(doc(db, COLLECTIONS.users, cred.user.uid), {
-      ...baseProfile,
-      requestedAt: serverTimestamp(),
-      lastLoginAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    }, {merge:true});
-    await createNotification({
-      title:'Nouvelle demande d’accès',
-      body:`${baseProfile.displayName} a demandé l’accès au portail (${baseProfile.department} · ${baseProfile.role}).`,
-      deptScope:'company',
-      type:'approval'
-    });
-    if(baseProfile.isActive){
-      notify(`Compte créé. Dashboard ${baseProfile.dashboard} activé.`, 'ok');
-    }else{
-      showPendingScreen();
-    }
-  }catch(e){
-    err.textContent = e.code === 'auth/email-already-in-use'
-      ? 'Cet email est déjà enregistré.'
-      : 'Impossible de créer le compte pour le moment.';
-    err.classList.remove('hidden');
-  }finally{
-    $('signup-btn').disabled = false;
-    $('signup-btn').textContent = 'Créer mon compte';
-  }
-}
-
-onAuthStateChanged(auth, async (user) => {
-  stopListeners();
-  if(user){
-    currentUser = user;
-    await ensureProfile(user);
-    await ensureSeedData();
-    bindLiveData();
-    hideAuthAux();
-    if(profile?.isActive){
-      renderShell();
-      setView('dash');
-      $('app-screen').style.display='block';
-    }else{
-      showPendingScreen();
-    }
-  }else{
-    currentUser = null;
-    profile = null;
-    cache = {tasks:[],announcements:[],tickets:[],leads:[],docs:[],onboarding:[],org:[],users:[],notifications:[],audit:[]};
-    $('app-screen').style.display='none';
-    $('pending-screen').classList.add('hidden');
-    $('login-screen').classList.remove('hidden');
-    setAuthMode('login');
-    $('login-btn').disabled = false;
-    $('login-btn').textContent = 'Se connecter';
-  }
-  $('loading-screen').style.display='none';
-});
-
-async function ensureProfile(user, forceRefresh=false){
-  const ref = doc(db, COLLECTIONS.users, user.uid);
+async function ensureUserProfile(user, extra = null){
+  const ref = doc(db, 'users', user.uid);
   const snap = await getDoc(ref);
-  if(snap.exists()){
-    profile = {id:snap.id, ...snap.data()};
-    const preset = presetForUser(user);
-    const patch = {
-      dashboard: profile.dashboard || roleToDashboard(profile.role, profile.department),
-      updatedAt: serverTimestamp()
-    };
-    if(forceRefresh && preset && preset.isActive && !profile.isActive){
-      patch.isActive = true;
-      patch.approvalStatus = 'active';
+  const email = (user.email || '').toLowerCase();
+  const preset = PRESET_PROFILES[email] || {};
+  if (snap.exists()) {
+    const data = snap.data();
+    // backfill missing critical fields
+    const patch = {};
+    if (!data.dashboard) patch.dashboard = dashboardForRole(data.department || preset.department || 'Technical', data.role || preset.role || 'Employee');
+    if (data.isActive === undefined && data.status === 'active') patch.isActive = true;
+    if (data.status === undefined) patch.status = data.isActive ? 'active' : (preset.status || 'pending');
+    if (!data.displayName && (extra?.displayName || preset.displayName || user.displayName)) patch.displayName = extra?.displayName || preset.displayName || user.displayName;
+    if (!data.email) patch.email = user.email;
+    if (!data.uid) patch.uid = user.uid;
+    if (Object.keys(patch).length) {
+      patch.updatedAt = serverTimestamp();
+      await updateDoc(ref, patch);
     }
-    if(preset && !profile.managerName) patch.managerName = preset.managerName || '—';
-    await updateDoc(ref, {...patch, lastLoginAt: serverTimestamp()}).catch(()=>{});
-    profile = {...profile, ...patch};
-  }else{
-    profile = DEFAULT_PROFILE(user);
-    await setDoc(ref, {...profile, createdAt: serverTimestamp(), lastLoginAt: serverTimestamp(), updatedAt: serverTimestamp()});
+    const refreshed = await getDoc(ref);
+    return refreshed.data();
   }
-  await updateDoc(ref, {lastLoginAt: serverTimestamp()}).catch(()=>{});
-}
-
-// ------------------------------------------------------------
-// FIRST-RUN SEED
-// ------------------------------------------------------------
-async function ensureSeedData(){
-  const metaRef = doc(db, '_meta', 'bootstrap');
-  const metaSnap = await getDoc(metaRef);
-  if(metaSnap.exists()) return;
-
-  for(const t of SEED.tasks) await addDoc(collection(db, COLLECTIONS.tasks), {...t, createdAt:serverTimestamp(), createdBy:currentUser.uid, comments:[], attachments:[]});
-  for(const a of SEED.announcements) await addDoc(collection(db, COLLECTIONS.announcements), {...a, publishedAt:serverTimestamp(), targetDept:null});
-  for(const t of SEED.tickets) await addDoc(collection(db, COLLECTIONS.tickets), {...t, createdAt:serverTimestamp(), updatedAt:serverTimestamp(), internalNotes:[]});
-  for(const l of SEED.leads) await addDoc(collection(db, COLLECTIONS.leads), {...l, createdAt:serverTimestamp(), updatedAt:serverTimestamp(), source:'Direct', notes:''});
-  for(const d of SEED.documents) await addDoc(collection(db, COLLECTIONS.documents), {...d, createdAt:serverTimestamp(), updatedAt:serverTimestamp()});
-  for(const o of SEED.onboarding) await addDoc(collection(db, COLLECTIONS.onboarding), {...o, createdAt:serverTimestamp(), updatedAt:serverTimestamp()});
-
-  const orgMap = {};
-  const ceo = await addDoc(collection(db, COLLECTIONS.org), {...SEED.org[0], createdAt:serverTimestamp()}); orgMap.seed_ceo = ceo.id;
-  const md = await addDoc(collection(db, COLLECTIONS.org), {...SEED.org[1], managerId:orgMap.seed_ceo, createdAt:serverTimestamp()}); orgMap.seed_md = md.id;
-  for(const n of SEED.org.slice(2)) await addDoc(collection(db, COLLECTIONS.org), {...n, managerId:orgMap.seed_md, createdAt:serverTimestamp()});
-
-  await addDoc(collection(db, COLLECTIONS.notifications), {
-    title:'Bienvenue sur IMPROTECH Enterprise',
-    body:'Votre intranet est prêt. Vérifiez les règles Firestore et le domaine autorisé Firebase.',
-    deptScope:'company',
-    userUid:null,
-    readBy:[],
-    createdAt:serverTimestamp(),
-    type:'system'
-  });
-
-  await setDoc(metaRef, {seededAt:serverTimestamp(), seededBy:currentUser.uid});
-}
-
-// ------------------------------------------------------------
-// LIVE DATA
-// ------------------------------------------------------------
-function stopListeners(){
-  unsubscribers.forEach(fn=>{ try{fn();}catch{} });
-  unsubscribers = [];
-}
-
-function bindLiveData(){
-  const listen = (key, qRef, mapFn=(d)=>({id:d.id,...d.data()})) => {
-    const unsub = onSnapshot(qRef, snap => {
-      cache[key] = snap.docs.map(mapFn);
-      if(currentView === 'search' && globalSearchQuery) renderCurrentView();
-      if(['dash','tasks','comm','crm','support','docs','reports','onboarding','org','notifications','admin'].includes(currentView)) renderCurrentView();
-      updateNavBadges();
-    });
-    unsubscribers.push(unsub);
+  const baseDept = extra?.department || preset.department || 'Technical';
+  const baseRole = extra?.role || preset.role || 'Employee';
+  const baseStatus = extra?.status || preset.status || 'pending';
+  const newProfile = {
+    uid: user.uid,
+    displayName: extra?.displayName || preset.displayName || user.displayName || user.email.split('@')[0],
+    email: user.email,
+    department: baseDept,
+    role: baseRole,
+    dashboard: extra?.dashboard || preset.dashboard || dashboardForRole(baseDept, baseRole),
+    managerName: extra?.managerName || preset.managerName || '—',
+    status: baseStatus,
+    isActive: extra?.isActive !== undefined ? extra.isActive : (preset.isActive ?? baseStatus === 'active'),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    lastLoginAt: serverTimestamp()
   };
-
-  listen('tasks', query(collection(db, COLLECTIONS.tasks), orderBy('createdAt','desc')));
-  listen('announcements', query(collection(db, COLLECTIONS.announcements), orderBy('publishedAt','desc')));
-  listen('tickets', query(collection(db, COLLECTIONS.tickets), orderBy('updatedAt','desc')));
-  listen('leads', query(collection(db, COLLECTIONS.leads), orderBy('updatedAt','desc')));
-  listen('docs', query(collection(db, COLLECTIONS.documents), orderBy('updatedAt','desc')));
-  listen('onboarding', query(collection(db, COLLECTIONS.onboarding), orderBy('updatedAt','desc')));
-  listen('org', query(collection(db, COLLECTIONS.org), orderBy('level','asc'), orderBy('sortOrder','asc')));
-  listen('users', query(collection(db, COLLECTIONS.users), orderBy('displayName','asc')));
-  listen('notifications', query(collection(db, COLLECTIONS.notifications), orderBy('createdAt','desc'), limit(50)));
-  listen('audit', query(collection(db, COLLECTIONS.audit), orderBy('createdAt','desc'), limit(100)));
+  await setDoc(ref, newProfile);
+  if (baseStatus === 'pending') {
+    await addDoc(collection(db, 'auditLogs'), {
+      type:'access_request',
+      message:`${newProfile.displayName} a demandé l'accès au portail (${newProfile.department} · ${newProfile.role}).`,
+      email:newProfile.email,
+      uid:user.uid,
+      createdAt:serverTimestamp()
+    }).catch(()=>{});
+  }
+  return newProfile;
 }
 
-// ------------------------------------------------------------
-// SHELL
-// ------------------------------------------------------------
-$('refresh-btn').addEventListener('click', () => renderCurrentView());
-$('open-notifs').addEventListener('click', () => setView('notifications'));
-$('open-search').addEventListener('click', () => setView('search'));
-$('global-search-input').addEventListener('keydown', e => {
-  if(e.key === 'Enter'){
-    globalSearchQuery = e.target.value.trim();
-    setView('search');
+window.doLogin = async function(){
+  clearNotice();
+  const email = $('login-email').value.trim();
+  const password = $('login-password').value;
+  if (!email || !password) return showNotice("Renseigne ton email et ton mot de passe.", 'warn');
+  $('login-btn').disabled = true;
+  try{
+    await signInWithEmailAndPassword(auth, email, password);
+  }catch(e){
+    console.error(e);
+    showNotice("Connexion impossible. Vérifie tes identifiants ou crée ton compte.", 'warn');
+  }finally{
+    $('login-btn').disabled = false;
   }
-});
-$('modal-close').addEventListener('click', closeModal);
-$('modal-backdrop').addEventListener('click', (e) => { if(e.target.id === 'modal-backdrop') closeModal(); });
-setAuthMode('login');
+};
 
-function renderShell(){
-  const dept = profile?.department || 'Technical';
-  $('user-av').style.background = getDeptColor(dept);
-  $('user-av').textContent = initials(profile?.displayName || '?');
-  $('user-nm').textContent = profile?.displayName || '—';
-  $('user-meta').textContent = `${profile?.role || 'Employee'} · ${dept}`;
-  $('nav').innerHTML = NAV.filter(n => canAccess(n.id)).map(n => `
-    <button data-view="${n.id}" class="${currentView===n.id?'active':''}">
-      <span class="nav-ic">${n.icon}</span>
+window.doRegister = async function(){
+  clearNotice();
+  const displayName = $('reg-name').value.trim();
+  const email = $('reg-email').value.trim().toLowerCase();
+  const password = $('reg-password').value;
+  const department = $('reg-dept').value;
+  const role = $('reg-role').value;
+  const managerName = $('reg-manager').value.trim() || '—';
+  if (!displayName || !email || !password || !department || !role) return showNotice("Tous les champs principaux sont requis.", 'warn');
+  if (!email.endsWith('@improtechsystems.com')) return showNotice("Utilise uniquement un email @improtechsystems.com", 'warn');
+  if (password.length < 6) return showNotice("Le mot de passe doit contenir au moins 6 caractères.", 'warn');
+  if (['Admin','MD','CTO'].includes(role)) return showNotice("Ce rôle ne peut pas être demandé via l’inscription publique.", 'warn');
+
+  $('register-btn').disabled = true;
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const extra = {
+      displayName,
+      email,
+      department,
+      role,
+      managerName,
+      dashboard: dashboardForRole(department, role),
+      status:'pending',
+      isActive:false
+    };
+    await ensureUserProfile(cred.user, extra);
+    showNotice("Compte créé. Il sera disponible après validation HR/Admin/MD/CTO.", 'ok');
+  }catch(e){
+    console.error(e);
+    showNotice("Création impossible. " + (e.message || e), 'warn');
+  }finally{
+    $('register-btn').disabled = false;
+  }
+};
+
+window.doLogout = async function(){ await signOut(auth); };
+
+async function refreshProfile(user){
+  profile = await ensureUserProfile(user);
+  await updateDoc(doc(db, 'users', user.uid), { lastLoginAt: serverTimestamp(), updatedAt: serverTimestamp() }).catch(()=>{});
+}
+
+async function fetchUsersAndNotifications(){
+  try{
+    const snap = await getDocs(collection(db, 'users'));
+    allUsers = snap.docs.map(d=> ({id:d.id, ...d.data()}));
+    pendingUsers = allUsers.filter(u => (u.status === 'pending') || (u.isActive === false && u.status !== 'active'));
+  }catch(e){
+    console.error(e);
+    allUsers = [];
+    pendingUsers = [];
+  }
+  notifications = [
+    ...pendingUsers.map(u => ({
+      id:u.uid || u.id,
+      title:'Nouvelle demande d’accès',
+      body:`${u.displayName || u.email} a demandé l’accès au portail (${u.department || '—'} · ${u.role || '—'}).`,
+      time:'Nouveau',
+      category:'approval'
+    })),
+    ...staticData.feed
+  ];
+}
+
+function showAuth(){ $('loading-screen').classList.add('hidden'); $('pending-screen').classList.add('hidden'); $('app-screen').classList.add('hidden'); $('auth-screen').classList.remove('hidden'); setAuthTab('login'); }
+function showPending(){
+  $('loading-screen').classList.add('hidden'); $('auth-screen').classList.add('hidden'); $('app-screen').classList.add('hidden'); $('pending-screen').classList.remove('hidden');
+  $('pending-copy').innerHTML = `Le profil <strong>${escapeHtml(profile.displayName || '')}</strong> (${escapeHtml(profile.email || '')}) est encore en attente. Dès validation par HR/Admin, MD ou CTO, le dashboard <strong>${escapeHtml(profile.dashboard || 'Workspace')}</strong> sera activé.`;
+}
+function updateShell(){
+  const c = deptColor(profile.department || 'Technical');
+  $('side-avatar').style.background = c;
+  $('top-avatar').style.background = c;
+  $('side-avatar').textContent = initials(profile.displayName);
+  $('top-avatar').textContent = initials(profile.displayName);
+  $('side-name').textContent = profile.displayName || '—';
+  $('top-name').textContent = profile.displayName || '—';
+  $('side-role').textContent = `${profile.role || '—'} · ${profile.email || '—'}`;
+  $('top-role').textContent = profile.role || '—';
+  $('side-dept').textContent = profile.department || '—';
+  $('side-dashboard').textContent = profile.dashboard || 'Workspace';
+}
+function buildNav(){
+  const pendingCount = pendingUsers.length;
+  navItems = [
+    {id:'home', label:'Accueil', icon:'🏠', count:''},
+    {id:'feed', label:'Flux d’activité', icon:'📰', count:notifications.length},
+    {id:'tasks', label:'Tâches & Projets', icon:'✅', count:staticData.tasks.length},
+    {id:'crm', label:'CRM', icon:'💼', count:staticData.leads.length},
+    {id:'hr', label:'RH', icon:'👥', count:allUsers.length},
+    {id:'support', label:'Support', icon:'🎧', count:staticData.tickets.length},
+    {id:'documents', label:'Documents', icon:'📁', count:staticData.documents.length},
+    {id:'analytics', label:'Analytics', icon:'📊', count:''},
+    {id:'notifications', label:'Notifications', icon:'🔔', count:pendingCount}
+  ];
+  if (isValidator() || isExecutive()) navItems.push({id:'admin', label:'Administration', icon:'🛡️', count:pendingCount});
+  const nav = $('nav-main');
+  nav.innerHTML = navItems.map(n=>`
+    <button class="nav-btn ${n.id===currentView?'active':''}" data-view="${n.id}" onclick="renderView('${n.id}', this)">
+      <span>${n.icon}</span>
       <span>${n.label}</span>
-      <span class="right tiny" id="nav-badge-${n.id}"></span>
+      ${n.count!==''?`<span class="count">${n.count}</span>`:''}
     </button>
   `).join('');
-  [...$('nav').querySelectorAll('button')].forEach(btn => btn.addEventListener('click', () => setView(btn.dataset.view)));
-  updateNavBadges();
+}
+function showApp(){
+  $('loading-screen').classList.add('hidden'); $('auth-screen').classList.add('hidden'); $('pending-screen').classList.add('hidden'); $('app-screen').classList.remove('hidden');
+  updateShell();
+  buildNav();
+  renderView(currentView, document.querySelector(`[data-view="${currentView}"]`) || document.querySelector('[data-view="home"]'));
 }
 
-function updateNavBadges(){
-  const unread = cache.notifications.filter(n => !Array.isArray(n.readBy) || !n.readBy.includes(currentUser?.uid)).length;
-  if($('nav-badge-notifications')) $('nav-badge-notifications').textContent = unread ? `${unread}` : '';
-  const openTickets = cache.tickets.filter(t => t.status !== 'resolved').length;
-  if($('nav-badge-support')) $('nav-badge-support').textContent = openTickets ? `${openTickets}` : '';
-  const todoTasks = scopedTasks().filter(t => t.status !== 'done').length;
-  if($('nav-badge-tasks')) $('nav-badge-tasks').textContent = todoTasks ? `${todoTasks}` : '';
+function getTaskSubset(){
+  if (isExecutive()) return staticData.tasks;
+  return staticData.tasks.filter(t => t.dept === profile.department || t.owner === profile.displayName);
 }
+function getTicketSubset(){
+  if (isExecutive() || profile.department === 'Support' || profile.department === 'Technical') return staticData.tickets;
+  return staticData.tickets.filter(t => t.dept === profile.department);
+}
+function getLeadSubset(){
+  if (isExecutive() || profile.department === 'Sales & Marketing') return staticData.leads;
+  return staticData.leads.slice(0,1);
+}
+function kpiCard(num, lbl, sub, color='var(--primary)'){
+  return `<div class="kpi"><div class="num" style="color:${color}">${num}</div><div class="lbl">${lbl}</div><div class="sub" style="color:${color}">${sub}</div></div>`;
+}
+function renderHome(){
+  const myTasks = getTaskSubset();
+  const myTickets = getTicketSubset();
+  const myLeads = getLeadSubset();
+  const pending = pendingUsers.length;
+  const dept = profile.department;
+  let title = 'Workspace Overview';
+  let desc = 'Une vue complète de ton travail, de tes priorités et des mouvements clés dans l’entreprise.';
+  let kpis = [
+    kpiCard(myTasks.length,'Tâches visibles','pilotage quotidien','var(--primary)'),
+    kpiCard(myTickets.length,'Tickets suivis','opérations','var(--red)'),
+    kpiCard(myLeads.length,'Opportunités','pipeline','var(--amber)'),
+    kpiCard(pending,'Approbations','en attente','var(--blue)')
+  ];
 
-function setView(view){
-  if(!canAccess(view)){ notify("Accès restreint."); return; }
-  currentView = view;
-  renderShell();
-  renderCurrentView();
-}
+  if (profile.role === 'MD') {
+    title = 'Executive Global Dashboard';
+    desc = 'Vision consolidée business, opérations, pipeline et gouvernance interne.';
+    kpis = [
+      kpiCard('$275k','Pipeline global','+18% sur 30j','var(--amber)'),
+      kpiCard('11','Actions stratégiques','cross-départements','var(--primary)'),
+      kpiCard('4','Demandes d’accès','à approuver','var(--blue)'),
+      kpiCard('96%','Santé opérationnelle','stable','var(--green)')
+    ];
+  } else if (profile.role === 'CTO') {
+    title = 'Executive Tech Dashboard';
+    desc = 'Vue consolidée architecture, support critique, delivery technique et préparation projets.';
+    kpis = [
+      kpiCard('7','Priorités techniques','infra & cyber','var(--primary)'),
+      kpiCard('3','Incidents ouverts','à suivre','var(--red)'),
+      kpiCard('2','Releases prévues','cette semaine','var(--blue)'),
+      kpiCard('98.4%','Disponibilité','services','var(--green)')
+    ];
+  } else if (dept === 'Sales & Marketing') {
+    title = 'Sales Workspace';
+    desc = 'Pipeline commercial, relances, comptes clés et cadence d’exécution.';
+    kpis = [
+      kpiCard('$275k','Pipeline','opportunités ouvertes','var(--amber)'),
+      kpiCard('5','Relances urgentes','aujourd’hui','var(--primary)'),
+      kpiCard('2','Deals chauds','négociation','var(--red)'),
+      kpiCard('74%','Taux moyen','qualification','var(--green)')
+    ];
+  } else if (dept === 'Technical') {
+    title = 'Technical Workspace';
+    desc = 'Exécution des projets, tickets critiques, capacité delivery et coordination technique.';
+    kpis = [
+      kpiCard('6','Items en delivery','actifs','var(--primary)'),
+      kpiCard('3','Tickets critiques','à traiter','var(--red)'),
+      kpiCard('2','Revues d’architecture','planifiées','var(--blue)'),
+      kpiCard('87%','Capacité équipe','utilisée','var(--green)')
+    ];
+  } else if (dept === 'HR') {
+    title = 'HR Workspace';
+    desc = 'Onboarding, validation accès, structure équipe et opérations RH.';
+    kpis = [
+      kpiCard(pending,'Accès à valider','workflow','var(--blue)'),
+      kpiCard('2','Onboardings','cette semaine','var(--primary)'),
+      kpiCard(String(allUsers.length),'Employés','base active','var(--green)'),
+      kpiCard('1','Escalade RH','ouverte','var(--red)')
+    ];
+  }
 
-function renderCurrentView(){
-  const map = {
-    dash: renderDashboard,
-    tasks: renderTasks,
-    comm: renderCommunication,
-    crm: renderCRM,
-    support: renderSupport,
-    onboarding: renderOnboarding,
-    docs: renderDocuments,
-    reports: renderReports,
-    org: renderOrg,
-    search: renderSearch,
-    notifications: renderNotifications,
-    admin: renderAdmin,
-    ai: renderAI
-  };
-  const fn = map[currentView] || renderDashboard;
-  fn();
-}
-
-function setPage(title, subtitle){
-  $('page-title').textContent = title;
-  $('page-subtitle').textContent = subtitle;
-}
-
-// ------------------------------------------------------------
-// SCOPING & HELPERS
-// ------------------------------------------------------------
-function scopedTasks(){
-  if(isAdmin()) return cache.tasks;
-  return cache.tasks.filter(t => t.dept === profile.department || t.assigneeUid === currentUser.uid || t.assigneeName === profile.displayName);
-}
-function scopedAnnouncements(){
-  if(isAdmin()) return cache.announcements;
-  return cache.announcements.filter(a => a.scope === 'company' || !a.targetDept || a.targetDept === profile.department);
-}
-function scopedTickets(){
-  if(isAdmin()) return cache.tickets;
-  if(profile.department === 'Support' || profile.department === 'Technical') return cache.tickets;
-  return cache.tickets.filter(t => t.requesterUid === currentUser.uid);
-}
-function scopedLeads(){
-  if(isAdmin()) return cache.leads;
-  return profile.department === 'Sales & Marketing' ? cache.leads : [];
-}
-function scopedDocs(){
-  if(isAdmin()) return cache.docs;
-  return cache.docs.filter(d => !Array.isArray(d.access) || d.access.includes(profile.department) || d.access.includes('company'));
-}
-function scopedOnboarding(){
-  if(isAdmin()) return cache.onboarding;
-  return profile.department === 'HR' ? cache.onboarding : cache.onboarding.filter(o => o.email === profile.email);
-}
-function pctOnboarding(o){
-  const total = Array.isArray(o.checklist) ? o.checklist.length : 0;
-  const done = Array.isArray(o.checklist) ? o.checklist.filter(x => x.done).length : 0;
-  return total ? Math.round((done/total)*100) : 0;
-}
-function scopeNotif(n){
-  if(isAdmin()) return true;
-  if(n.userUid && n.userUid === currentUser.uid) return true;
-  if(!n.userUid && (n.deptScope === 'company' || n.deptScope === profile.department)) return true;
-  return false;
-}
-function unreadNotifications(){
-  return cache.notifications.filter(n => scopeNotif(n) && (!Array.isArray(n.readBy) || !n.readBy.includes(currentUser.uid)));
-}
-async function markNotificationRead(id){
-  const n = cache.notifications.find(x=>x.id===id);
-  if(!n) return;
-  const readBy = Array.isArray(n.readBy) ? [...new Set([...n.readBy, currentUser.uid])] : [currentUser.uid];
-  await updateDoc(doc(db, COLLECTIONS.notifications, id), {readBy});
-}
-async function createNotification({title, body, deptScope='company', userUid=null, type='info'}){
-  await addDoc(collection(db, COLLECTIONS.notifications), {
-    title, body, deptScope, userUid, type, readBy:[], createdAt:serverTimestamp()
-  });
-}
-
-// ------------------------------------------------------------
-// VIEWS
-// ------------------------------------------------------------
-function renderDashboard(){
-  setPage('Dashboard', `Vue d’ensemble · ${profile.department}`);
-  const myTasks = scopedTasks();
-  const openTickets = scopedTickets().filter(t => t.status !== 'resolved');
-  const activeOnboarding = scopedOnboarding().filter(o => o.status !== 'completed');
-  const leads = scopedLeads();
-
-  $('view').innerHTML = `
-    <div class="grid grid-4">
-      <div class="kpi"><div class="kpi-value">${myTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Tâches ouvertes</div><div class="kpi-sub" style="color:var(--purple)">à suivre</div></div>
-      <div class="kpi"><div class="kpi-value">${openTickets.length}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">support</div></div>
-      <div class="kpi"><div class="kpi-value">${unreadNotifications().length}</div><div class="kpi-label">Notifications non lues</div><div class="kpi-sub" style="color:var(--blue)">in-app</div></div>
-      <div class="kpi"><div class="kpi-value">${leads.length ? money(leads.reduce((a,b)=>a+Number(b.value||0),0)) : '—'}</div><div class="kpi-label">Pipeline commercial</div><div class="kpi-sub" style="color:var(--amber)">si autorisé</div></div>
+  return `
+    <div class="hero-card">
+      <div class="hero-top">
+        <div>
+          <div class="badge primary">${escapeHtml(profile.dashboard || 'Workspace')}</div>
+          <div class="hero-title" style="margin-top:10px">${title}</div>
+          <div class="hero-text">${desc}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted" style="font-size:12px">Connecté comme</div>
+          <div style="font-weight:900;font-size:16px">${escapeHtml(profile.displayName || '')}</div>
+          <div class="muted" style="font-size:12px;margin-top:4px">${escapeHtml(profile.role || '')} · ${escapeHtml(profile.department || '')}</div>
+        </div>
+      </div>
+      <div class="kpi-grid" style="margin-top:18px">${kpis.join('')}</div>
+      <div class="quick-actions">
+        <button class="btn btn-primary" onclick="renderView('tasks', document.querySelector('[data-view=tasks]'))">Voir les tâches</button>
+        <button class="btn btn-soft" onclick="renderView('crm', document.querySelector('[data-view=crm]'))">Ouvrir le CRM</button>
+        <button class="btn btn-ghost" onclick="renderView('notifications', document.querySelector('[data-view=notifications]'))">Notifications</button>
+      </div>
     </div>
 
-    <div class="grid grid-2" style="margin-top:12px">
-      <div class="card">
-        <div class="toolbar"><h3>Priorités de la semaine</h3><button class="btn-link" id="go-tasks">Voir tout</button></div>
-        <div class="list">
-          ${myTasks.filter(t=>t.status!=='done').slice(0,5).map(t => `
-            <div class="item">
-              <div class="item-top">
-                <div><div><b>${esc(t.title)}</b></div><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div>
-                <div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div>
+    <div class="widget-grid">
+      <div class="card card-pad">
+        <div class="section-title">Flux d’activité</div>
+        <div class="section-sub">Mouvements importants dans le workspace</div>
+        <div class="feed-list" style="margin-top:14px">
+          ${notifications.slice(0,4).map(n=>`
+            <div class="feed-item">
+              <div class="feed-head">
+                <div class="feed-title">${escapeHtml(n.title)}</div>
+                <span class="badge ${n.category==='approval'?'blue':'gray'}">${escapeHtml(n.category || 'info')}</span>
               </div>
-              <div class="small" style="margin-top:7px">${esc(t.description || '')}</div>
+              <div class="feed-body">${escapeHtml(n.body || n.text || '')}</div>
+              <div class="meta" style="margin-top:10px">${escapeHtml(n.time || '')}</div>
             </div>
-          `).join('') || `<div class="empty">Aucune priorité active.</div>`}
+          `).join('')}
         </div>
       </div>
 
-      <div class="card">
-        <div class="toolbar"><h3>Annonces récentes</h3><button class="btn-link" id="go-comm">Voir tout</button></div>
-        <div class="list">
-          ${scopedAnnouncements().slice(0,4).map(a => `
-            <div class="item">
-              <div class="item-top">
-                <div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)} · ${a.targetDept || 'Entreprise'}</div></div>
-                ${deptBadge(a.dept)}
+      <div class="card card-pad">
+        <div class="section-title">Actions prioritaires</div>
+        <div class="section-sub">Ce qui demande ton attention maintenant</div>
+        <div class="simple-list" style="margin-top:14px">
+          ${getTaskSubset().slice(0,4).map(t=>`
+            <div class="list-item">
+              <div style="display:flex;justify-content:space-between;gap:12px">
+                <div>
+                  <div class="task-title">${escapeHtml(t.title)}</div>
+                  <div class="meta" style="margin-top:8px">${escapeHtml(t.owner)} · ${escapeHtml(t.dept)} · ${escapeHtml(t.due || '')}</div>
+                </div>
+                <span class="badge ${t.priority==='High'?'red':'amber'}">${escapeHtml(t.priority)}</span>
               </div>
-              <div class="small" style="margin-top:7px">${esc(a.body)}</div>
             </div>
-          `).join('') || `<div class="empty">Aucune annonce.</div>`}
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="toolbar"><h3>Documents utiles</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div>
-        <div class="list">
-          ${scopedDocs().slice(0,4).map(d => `
-            <div class="item">
-              <div class="item-top">
-                <div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')} · ${esc(d.ownerDept || '—')}</div></div>
-                ${deptBadge(d.ownerDept || 'Admin')}
-              </div>
-              <div class="small" style="margin-top:7px">${esc(d.summary || '')}</div>
-            </div>
-          `).join('') || `<div class="empty">Aucun document.</div>`}
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="toolbar"><h3>Onboarding</h3><button class="btn-link" id="go-ob">Détails</button></div>
-        <div class="list">
-          ${activeOnboarding.slice(0,4).map(o => `
-            <div class="item">
-              <div class="item-top">
-                <div><b>${esc(o.employeeName)}</b><div class="meta">${esc(o.dept)} · début ${fmtDate(o.startDate)}</div></div>
-                <span class="meta"><b>${pctOnboarding(o)}%</b></span>
-              </div>
-              <div class="progress" style="margin-top:8px"><div style="width:${pctOnboarding(o)}%"></div></div>
-            </div>
-          `).join('') || `<div class="empty">Aucun onboarding en cours.</div>`}
+          `).join('')}
         </div>
       </div>
     </div>
   `;
+}
 
-  $('go-tasks')?.addEventListener('click', ()=>setView('tasks'));
-  $('go-comm')?.addEventListener('click', ()=>setView('comm'));
-  $('go-docs')?.addEventListener('click', ()=>setView('docs'));
-  $('go-ob')?.addEventListener('click', ()=>setView('onboarding'));
+function renderFeed(){
+  return `
+    <div class="card card-pad">
+      <div class="section-title">Flux d’activité Improtech</div>
+      <div class="section-sub">Annonces, approbations, opérations et activité commerciale</div>
+      <div class="feed-list" style="margin-top:16px">
+        ${notifications.map(n=>`
+          <div class="feed-item">
+            <div class="feed-head">
+              <div class="feed-title">${escapeHtml(n.title)}</div>
+              <span class="badge ${n.category==='approval'?'blue':'gray'}">${escapeHtml(n.category || 'info')}</span>
+            </div>
+            <div class="feed-body">${escapeHtml(n.body || n.text || '')}</div>
+            <div class="meta" style="margin-top:10px">${escapeHtml(n.time || '')}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
 }
 
 function renderTasks(){
-  setPage('Tâches', 'Gestion opérationnelle, assignation, commentaires et suivi');
-  const list = scopedTasks().filter(t => filters.task==='all' ? true : t.status===filters.task);
-  $('view').innerHTML = `
-    <div class="card">
-      <div class="toolbar">
-        <h3>Nouvelle tâche</h3>
-        <div class="filters">
-          ${['all','todo','inprog','done'].map(f => `<button class="${filters.task===f?'active':''}" data-filter="${f}">${f==='all'?'Toutes':f==='todo'?'À faire':f==='inprog'?'En cours':'Terminées'}</button>`).join('')}
-        </div>
-      </div>
-      <div class="form-grid-3">
-        <div><div class="label">Titre</div><input id="task-title" class="field" /></div>
-        <div><div class="label">Département</div><select id="task-dept" class="select">${DEPTS.filter(d=>d!=='Admin').map(d=>`<option ${d===profile.department?'selected':''}>${d}</option>`).join('')}</select></div>
-        <div><div class="label">Assigné à</div><input id="task-assignee" class="field" value="${esc(profile.displayName)}" /></div>
-        <div><div class="label">Priorité</div><select id="task-priority" class="select"><option value="high">Urgent</option><option value="medium" selected>Moyen</option><option value="low">Faible</option></select></div>
-        <div><div class="label">Échéance</div><input id="task-due" class="field" type="date" /></div>
-        <div><div class="label">Statut initial</div><select id="task-status" class="select"><option value="todo">À faire</option><option value="inprog">En cours</option></select></div>
-      </div>
-      <div style="margin-top:10px"><div class="label">Description</div><textarea id="task-desc" class="textarea"></textarea></div>
-      <div class="row" style="margin-top:10px"><button class="btn-p" id="task-create">Créer la tâche</button></div>
-    </div>
-
-    <div class="list" style="margin-top:12px">
-      ${list.map(t => `
-        <div class="item">
-          <div class="item-top">
-            <div>
-              <b>${esc(t.title)}</b>
-              <div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)} · créé ${fmtDateTime(t.createdAt)}</div>
+  const subset = getTaskSubset();
+  return `
+    <div class="split">
+      <div class="card card-pad">
+        <div class="section-title">Tâches & Projets</div>
+        <div class="section-sub">Vue liste opérationnelle</div>
+        <div class="task-list" style="margin-top:14px">
+          ${subset.map(t=>`
+            <div class="task">
+              <div style="display:flex;justify-content:space-between;gap:12px">
+                <div>
+                  <div class="task-title">${escapeHtml(t.title)}</div>
+                  <div class="meta" style="margin-top:8px">${escapeHtml(t.owner)} · ${escapeHtml(t.dept)} · échéance ${escapeHtml(t.due || '—')}</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:flex-start">
+                  <span class="badge ${t.priority==='High'?'red':'amber'}">${escapeHtml(t.priority)}</span>
+                  <span class="badge gray">${escapeHtml(t.status)}</span>
+                </div>
+              </div>
             </div>
-            <div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)} ${deptBadge(t.dept)}</div>
-          </div>
-          <div class="small" style="margin-top:7px">${esc(t.description || '')}</div>
-          <div class="row" style="margin-top:10px">
-            ${t.status!=='todo' ? '' : `<button class="btn-s" data-move="${t.id}" data-status="inprog">Prendre en charge</button>`}
-            ${t.status!=='done' ? `<button class="btn-s btn-success" data-move="${t.id}" data-status="done">Terminer</button>` : ''}
-            <button class="btn-s" data-comment="${t.id}">Commenter</button>
-            ${(isAdmin() || t.assigneeUid===currentUser.uid || t.assigneeName===profile.displayName) ? `<button class="btn-s btn-danger" data-delete="${t.id}">Supprimer</button>` : ''}
-          </div>
-          ${(t.comments||[]).length ? `<hr class="sep"/><div class="tiny"><b>Commentaires</b></div><div class="timeline" style="margin-top:6px">${(t.comments||[]).slice(-3).map(c=>`<div class="item"><b>${esc(c.author)}</b><div class="tiny">${fmtDateTime(c.at)}</div><div class="small">${esc(c.text)}</div></div>`).join('')}</div>` : ''}
+          `).join('')}
         </div>
-      `).join('') || `<div class="empty">Aucune tâche.</div>`}
-    </div>
-  `;
-
-  [...$('view').querySelectorAll('[data-filter]')].forEach(btn => btn.addEventListener('click', ()=>{filters.task = btn.dataset.filter; renderTasks();}));
-  $('task-create').addEventListener('click', createTask);
-  [...$('view').querySelectorAll('[data-move]')].forEach(btn => btn.addEventListener('click', ()=>updateTaskStatus(btn.dataset.move, btn.dataset.status)));
-  [...$('view').querySelectorAll('[data-delete]')].forEach(btn => btn.addEventListener('click', ()=>deleteEntity(COLLECTIONS.tasks, btn.dataset.delete, 'Tâche supprimée')));
-  [...$('view').querySelectorAll('[data-comment]')].forEach(btn => btn.addEventListener('click', ()=>openTaskComment(btn.dataset.comment)));
-}
-
-async function createTask(){
-  const title = $('task-title').value.trim();
-  if(!title){ notify('Titre requis.'); return; }
-  const payload = {
-    title,
-    dept:$('task-dept').value,
-    assigneeName:$('task-assignee').value.trim() || '—',
-    assigneeUid:'',
-    priority:$('task-priority').value,
-    status:$('task-status').value,
-    dueDate:$('task-due').value || null,
-    description:$('task-desc').value.trim(),
-    comments:[],
-    attachments:[],
-    createdBy:currentUser.uid,
-    createdByName:profile.displayName,
-    createdAt:serverTimestamp(),
-    updatedAt:serverTimestamp()
-  };
-  await addDoc(collection(db, COLLECTIONS.tasks), payload);
-  await audit('create','tasks',{title});
-  await createNotification({title:'Nouvelle tâche',body:`${title} a été créée.`,deptScope:payload.dept});
-  notify('Tâche créée.', 'ok');
-  ['task-title','task-assignee','task-desc','task-due'].forEach(id => $(id).value='');
-}
-async function updateTaskStatus(id,status){
-  await updateDoc(doc(db, COLLECTIONS.tasks, id), {status, updatedAt:serverTimestamp()});
-  await audit('update_status','tasks',{id,status});
-  notify('Statut mis à jour.', 'ok');
-}
-function openTaskComment(id){
-  const t = cache.tasks.find(x=>x.id===id);
-  if(!t) return;
-  openModal('Commenter la tâche', `
-    <div class="small"><b>${esc(t.title)}</b></div>
-    <div class="tiny" style="margin-top:4px">Ajoute un commentaire traçable dans l’historique.</div>
-    <div style="margin-top:10px"><textarea id="comment-text" class="textarea"></textarea></div>
-    <div class="row" style="margin-top:10px"><button class="btn-p" id="save-comment">Enregistrer</button></div>
-  `);
-  $('save-comment').addEventListener('click', async () => {
-    const text = $('comment-text').value.trim();
-    if(!text) return;
-    const comments = [...(t.comments||[]), {author:profile.displayName, uid:currentUser.uid, text, at:new Date().toISOString()}];
-    await updateDoc(doc(db, COLLECTIONS.tasks, id), {comments, updatedAt:serverTimestamp()});
-    await audit('comment','tasks',{id});
-    closeModal();
-    notify('Commentaire ajouté.', 'ok');
-  });
-}
-
-function renderCommunication(){
-  setPage('Communication', 'Annonces internes par département ou à l’échelle de l’entreprise');
-  const list = scopedAnnouncements();
-  $('view').innerHTML = `
-    <div class="card">
-      <h3>Publier une annonce</h3>
-      <div class="form-grid">
-        <div><div class="label">Auteur</div><input id="ann-author" class="field" value="${esc(profile.displayName)}" /></div>
-        <div><div class="label">Portée</div><select id="ann-scope" class="select"><option value="company">Toute l’entreprise</option>${DEPTS.filter(d=>d!=='Admin').map(d=>`<option value="${d}">${d}</option>`).join('')}</select></div>
       </div>
-      <div style="margin-top:10px"><div class="label">Message</div><textarea id="ann-body" class="textarea"></textarea></div>
-      <div class="row" style="margin-top:10px"><button class="btn-p" id="ann-create">Publier</button></div>
-    </div>
-    <div class="list" style="margin-top:12px">
-      ${list.map(a => `
-        <div class="item">
-          <div class="item-top">
-            <div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)} · ${esc(a.targetDept || 'Entreprise')}</div></div>
-            ${deptBadge(a.dept)}
-          </div>
-          <div class="small" style="margin-top:8px">${esc(a.body)}</div>
+
+      <div class="card card-pad">
+        <div class="section-title">Kanban simplifié</div>
+        <div class="section-sub">Organisation comme un workspace</div>
+        <div class="kanban" style="margin-top:14px">
+          ${['Open','In Progress','Done'].map(col=>`
+            <div class="kanban-col">
+              <div class="kanban-head">
+                <div class="kanban-title">${col}</div>
+                <span class="badge gray">${subset.filter(x => (col==='Open' && ['Open','Pending','Review'].includes(x.status)) || (col==='In Progress' && x.status==='In Progress') || (col==='Done' && x.status==='Done')).length}</span>
+              </div>
+              ${subset.filter(x => (col==='Open' && ['Open','Pending','Review'].includes(x.status)) || (col==='In Progress' && x.status==='In Progress') || (col==='Done' && x.status==='Done')).map(t=>`
+                <div class="task" style="margin-bottom:10px">
+                  <div class="task-title">${escapeHtml(t.title)}</div>
+                  <div class="meta" style="margin-top:8px">${escapeHtml(t.owner)} · ${escapeHtml(t.due || '')}</div>
+                </div>
+              `).join('') || '<div class="empty">Aucun élément</div>'}
+            </div>
+          `).join('')}
         </div>
-      `).join('') || `<div class="empty">Aucune annonce.</div>`}
+      </div>
     </div>
   `;
-  $('ann-create').addEventListener('click', async ()=>{
-    const body = $('ann-body').value.trim();
-    if(!body){ notify('Message requis.'); return; }
-    const scope = $('ann-scope').value;
-    const targetDept = scope === 'company' ? null : scope;
-    await addDoc(collection(db, COLLECTIONS.announcements), {
-      authorName:$('ann-author').value.trim() || profile.displayName,
-      dept:profile.department,
-      body, scope: scope === 'company' ? 'company' : 'department',
-      targetDept, publishedAt:serverTimestamp()
-    });
-    await audit('publish','announcements',{scope});
-    await createNotification({title:'Nouvelle annonce',body:body.slice(0,120),deptScope:targetDept || 'company'});
-    $('ann-body').value='';
-    notify('Annonce publiée.', 'ok');
-  });
 }
 
 function renderCRM(){
-  if(!canAccess('crm')) return renderNoAccess();
-  setPage('CRM', 'Pipeline commercial, prochaines actions et priorités');
-  const list = scopedLeads().filter(l => filters.lead==='all' ? true : l.stage===filters.lead);
-  $('view').innerHTML = `
-    <div class="card">
-      <div class="toolbar">
-        <h3>Nouveau lead</h3>
-        <div class="filters">
-          ${['all','Prospection','Qualification','Proposition','Négociation','Gagné'].map(s => `<button class="${filters.lead===s?'active':''}" data-lead="${s}">${s==='all'?'Tous':s}</button>`).join('')}
-        </div>
-      </div>
-      <div class="form-grid-3">
-        <div><div class="label">Entreprise</div><input id="lead-company" class="field"></div>
-        <div><div class="label">Contact</div><input id="lead-contact" class="field"></div>
-        <div><div class="label">Service</div><input id="lead-service" class="field"></div>
-        <div><div class="label">Valeur USD</div><input id="lead-value" class="field" type="number"></div>
-        <div><div class="label">Étape</div><select id="lead-stage" class="select"><option>Prospection</option><option>Qualification</option><option>Proposition</option><option>Négociation</option><option>Gagné</option></select></div>
-        <div><div class="label">Probabilité %</div><input id="lead-prob" class="field" type="number" min="0" max="100" value="30"></div>
-        <div><div class="label">Prochaine action</div><input id="lead-next" class="field"></div>
-        <div><div class="label">Date prochaine action</div><input id="lead-next-date" class="field" type="date"></div>
-        <div><div class="label">Source</div><input id="lead-source" class="field" value="Direct"></div>
-      </div>
-      <div class="row" style="margin-top:10px"><button class="btn-p" id="lead-create">Créer le lead</button></div>
-    </div>
-
-    <div class="list" style="margin-top:12px">
-      ${list.map(l => `
-        <div class="item">
-          <div class="item-top">
-            <div><b>${esc(l.company)}</b><div class="meta">${esc(l.contact)} · ${esc(l.service)} · owner ${esc(l.owner || '—')}</div></div>
-            <div class="row">${leadStageBadge(l.stage)} <span class="meta"><b>${money(l.value)}</b></span></div>
-          </div>
-          <div class="small" style="margin-top:8px">Prochaine action: ${esc(l.nextAction || '—')} — ${fmtDate(l.nextActionDate)}</div>
-          <div class="small">Probabilité: ${esc(l.probability)}% · Source: ${esc(l.source || '—')}</div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn-s" data-advance="${l.id}">Avancer l’étape</button>
-            <button class="btn-s" data-deletelead="${l.id}">Supprimer</button>
-          </div>
-        </div>
-      `).join('') || `<div class="empty">Aucun lead.</div>`}
-    </div>
-  `;
-  [...$('view').querySelectorAll('[data-lead]')].forEach(btn => btn.addEventListener('click', ()=>{filters.lead = btn.dataset.lead; renderCRM();}));
-  $('lead-create').addEventListener('click', createLead);
-  [...$('view').querySelectorAll('[data-advance]')].forEach(btn => btn.addEventListener('click', ()=>advanceLead(btn.dataset.advance)));
-  [...$('view').querySelectorAll('[data-deletelead]')].forEach(btn => btn.addEventListener('click', ()=>deleteEntity(COLLECTIONS.leads, btn.dataset.deletelead, 'Lead supprimé')));
-}
-async function createLead(){
-  const company = $('lead-company').value.trim();
-  if(!company){ notify('Entreprise requise.'); return; }
-  await addDoc(collection(db, COLLECTIONS.leads), {
-    company, contact:$('lead-contact').value.trim(), service:$('lead-service').value.trim(),
-    value:Number($('lead-value').value||0), stage:$('lead-stage').value,
-    probability:Number($('lead-prob').value||0), nextAction:$('lead-next').value.trim(),
-    nextActionDate:$('lead-next-date').value || null, source:$('lead-source').value.trim() || 'Direct',
-    owner:profile.displayName, notes:'', createdAt:serverTimestamp(), updatedAt:serverTimestamp()
-  });
-  await audit('create','leads',{company});
-  notify('Lead créé.', 'ok');
-}
-async function advanceLead(id){
-  const stages = ['Prospection','Qualification','Proposition','Négociation','Gagné'];
-  const lead = cache.leads.find(x=>x.id===id); if(!lead) return;
-  const idx = stages.indexOf(lead.stage);
-  const stage = idx >= 0 && idx < stages.length - 1 ? stages[idx+1] : lead.stage;
-  await updateDoc(doc(db, COLLECTIONS.leads, id), {stage, updatedAt:serverTimestamp()});
-  await audit('advance_stage','leads',{id,stage});
-  notify('Lead mis à jour.', 'ok');
-}
-
-function renderSupport(){
-  if(!canAccess('support')) return renderNoAccess();
-  setPage('Support', 'Tickets, SLA, catégories, notes et assignation');
-  const list = scopedTickets().filter(t => filters.ticket==='all' ? true : t.status===filters.ticket);
-  $('view').innerHTML = `
-    <div class="card">
-      <div class="toolbar">
-        <h3>Nouveau ticket</h3>
-        <div class="filters">${['all','open','inprog','resolved'].map(s => `<button class="${filters.ticket===s?'active':''}" data-ticket="${s}">${s==='all'?'Tous':s==='open'?'Ouverts':s==='inprog'?'En cours':'Résolus'}</button>`).join('')}</div>
-      </div>
-      <div class="form-grid-3">
-        <div><div class="label">Titre</div><input id="ticket-title" class="field"></div>
-        <div><div class="label">Département</div><select id="ticket-dept" class="select">${['Technical','Support','Finance','HR','Sales & Marketing'].map(d=>`<option>${d}</option>`).join('')}</select></div>
-        <div><div class="label">Priorité</div><select id="ticket-priority" class="select"><option value="high">Urgent</option><option value="medium" selected>Moyen</option><option value="low">Faible</option></select></div>
-        <div><div class="label">Catégorie</div><input id="ticket-cat" class="field" placeholder="Network / Security / Training"></div>
-        <div><div class="label">SLA</div><input id="ticket-sla" class="field" placeholder="4h / 24h"></div>
-        <div><div class="label">Demandeur</div><input id="ticket-requester" class="field" value="${esc(profile.displayName)}"></div>
-      </div>
-      <div style="margin-top:10px"><div class="label">Description</div><textarea id="ticket-desc" class="textarea"></textarea></div>
-      <div class="row" style="margin-top:10px"><button class="btn-p" id="ticket-create">Créer le ticket</button></div>
-    </div>
-
-    <div class="list" style="margin-top:12px">
-      ${list.map(t => `
-        <div class="item">
-          <div class="item-top">
-            <div><b>${esc(t.title)}</b><div class="meta">${esc(t.requester || '—')} · ${esc(t.category || '—')} · SLA ${esc(t.sla || '—')}</div></div>
-            <div class="row">${ticketStatusBadge(t.status)} ${priorityBadge(t.priority)} ${deptBadge(t.dept)}</div>
-          </div>
-          <div class="small" style="margin-top:7px">${esc(t.description || '')}</div>
-          <div class="small" style="margin-top:6px">Assigné: <b>${esc(t.assigneeName || '—')}</b> · maj ${fmtDateTime(t.updatedAt)}</div>
-          <div class="row" style="margin-top:10px">
-            ${t.status==='open' ? `<button class="btn-s" data-tstatus="${t.id}" data-to="inprog">Prendre en charge</button>` : ''}
-            ${t.status!=='resolved' ? `<button class="btn-s btn-success" data-tstatus="${t.id}" data-to="resolved">Résoudre</button>` : ''}
-            <button class="btn-s" data-note="${t.id}">Note interne</button>
-          </div>
-          ${(t.internalNotes||[]).length ? `<hr class="sep"/><div class="tiny"><b>Notes internes</b></div><div class="timeline" style="margin-top:6px">${(t.internalNotes||[]).slice(-3).map(n=>`<div class="item"><b>${esc(n.author)}</b><div class="tiny">${fmtDateTime(n.at)}</div><div class="small">${esc(n.text)}</div></div>`).join('')}</div>` : ''}
-        </div>
-      `).join('') || `<div class="empty">Aucun ticket.</div>`}
-    </div>
-  `;
-  [...$('view').querySelectorAll('[data-ticket]')].forEach(btn => btn.addEventListener('click', ()=>{filters.ticket = btn.dataset.ticket; renderSupport();}));
-  $('ticket-create').addEventListener('click', createTicket);
-  [...$('view').querySelectorAll('[data-tstatus]')].forEach(btn => btn.addEventListener('click', ()=>updateTicketStatus(btn.dataset.tstatus, btn.dataset.to)));
-  [...$('view').querySelectorAll('[data-note]')].forEach(btn => btn.addEventListener('click', ()=>openTicketNote(btn.dataset.note)));
-}
-async function createTicket(){
-  const title = $('ticket-title').value.trim();
-  if(!title){ notify('Titre requis.'); return; }
-  const dept = $('ticket-dept').value;
-  await addDoc(collection(db, COLLECTIONS.tickets), {
-    title, dept, priority:$('ticket-priority').value, status:'open',
-    requester:$('ticket-requester').value.trim() || profile.displayName,
-    requesterUid:currentUser.uid, category:$('ticket-cat').value.trim(), sla:$('ticket-sla').value.trim(),
-    description:$('ticket-desc').value.trim(), assigneeName:'—', internalNotes:[],
-    createdAt:serverTimestamp(), updatedAt:serverTimestamp()
-  });
-  await audit('create','tickets',{title});
-  await createNotification({title:'Nouveau ticket',body:title,deptScope:dept});
-  notify('Ticket créé.', 'ok');
-}
-async function updateTicketStatus(id,status){
-  const patch = {status, updatedAt:serverTimestamp()};
-  if(status==='inprog') patch.assigneeName = profile.displayName;
-  await updateDoc(doc(db, COLLECTIONS.tickets, id), patch);
-  await audit('update_status','tickets',{id,status});
-  notify('Ticket mis à jour.', 'ok');
-}
-function openTicketNote(id){
-  const t = cache.tickets.find(x=>x.id===id); if(!t) return;
-  openModal('Ajouter une note interne', `
-    <div class="small"><b>${esc(t.title)}</b></div>
-    <div style="margin-top:10px"><textarea id="ticket-note-text" class="textarea"></textarea></div>
-    <div class="row" style="margin-top:10px"><button class="btn-p" id="save-ticket-note">Enregistrer</button></div>
-  `);
-  $('save-ticket-note').addEventListener('click', async ()=>{
-    const text = $('ticket-note-text').value.trim(); if(!text) return;
-    const internalNotes = [...(t.internalNotes||[]), {author:profile.displayName, uid:currentUser.uid, text, at:new Date().toISOString()}];
-    await updateDoc(doc(db, COLLECTIONS.tickets, id), {internalNotes, updatedAt:serverTimestamp()});
-    await audit('note','tickets',{id});
-    closeModal();
-    notify('Note ajoutée.', 'ok');
-  });
-}
-
-function renderOnboarding(){
-  if(!canAccess('onboarding')) return renderNoAccess();
-  setPage('Onboarding', 'Dossiers d’intégration, progression et validation');
-  const list = scopedOnboarding();
-  $('view').innerHTML = `
-    <div class="card">
-      <h3>Nouveau dossier d’onboarding</h3>
-      <div class="form-grid-3">
-        <div><div class="label">Nom complet</div><input id="ob-name" class="field"></div>
-        <div><div class="label">Département</div><select id="ob-dept" class="select">${DEPTS.filter(d=>d!=='Admin').map(d=>`<option>${d}</option>`).join('')}</select></div>
-        <div><div class="label">Date de début</div><input id="ob-start" class="field" type="date"></div>
-        <div><div class="label">Manager</div><input id="ob-manager" class="field"></div>
-        <div><div class="label">Email</div><input id="ob-email" class="field" type="email"></div>
-        <div><div class="label">Checklist initiale</div><input id="ob-checks" class="field" placeholder="compte email, matériel, briefing sécurité"></div>
-      </div>
-      <div class="row" style="margin-top:10px"><button class="btn-p" id="ob-create">Créer</button></div>
-    </div>
-    <div class="list" style="margin-top:12px">
-      ${list.map(o => `
-        <div class="item">
-          <div class="item-top">
-            <div><b>${esc(o.employeeName)}</b><div class="meta">${esc(o.dept)} · ${esc(o.managerName || '—')} · début ${fmtDate(o.startDate)}</div></div>
-            <div class="row">${badge(o.status || 'in_progress', o.status==='completed'?'bgr':'ba')} <span class="meta"><b>${pctOnboarding(o)}%</b></span></div>
-          </div>
-          <div class="progress" style="margin-top:8px"><div style="width:${pctOnboarding(o)}%"></div></div>
-          <div class="timeline" style="margin-top:10px">
-            ${(o.checklist||[]).map((c,i) => `
-              <div class="item row">
-                <input type="checkbox" ${c.done?'checked':''} data-ob="${o.id}" data-idx="${i}" />
-                <div>${esc(c.label)}</div>
+  const leads = getLeadSubset();
+  return `
+    <div class="split">
+      <div class="card card-pad">
+        <div class="section-title">CRM Pipeline</div>
+        <div class="section-sub">Vue commerciale type Bitrix</div>
+        <div class="crm-list" style="margin-top:14px">
+          ${leads.map(l=>`
+            <div class="crm-card">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+                <div>
+                  <div class="crm-title">${escapeHtml(l.company)}</div>
+                  <div class="meta" style="margin-top:8px">${escapeHtml(l.owner)} · ${escapeHtml(l.stage)}</div>
+                </div>
+                <span class="badge amber">${escapeHtml(l.value)}</span>
               </div>
-            `).join('')}
-          </div>
+              <div style="margin-top:12px" class="progress"><span style="width:${l.probability}%"></span></div>
+              <div class="meta" style="margin-top:8px">${l.probability}% de probabilité</div>
+            </div>
+          `).join('')}
         </div>
-      `).join('') || `<div class="empty">Aucun onboarding.</div>`}
-    </div>
-  `;
-  $('ob-create').addEventListener('click', createOnboarding);
-  [...$('view').querySelectorAll('[data-ob]')].forEach(chk => chk.addEventListener('change', ()=>toggleOnboardingCheck(chk.dataset.ob, Number(chk.dataset.idx), chk.checked)));
-}
-async function createOnboarding(){
-  const employeeName = $('ob-name').value.trim();
-  if(!employeeName){ notify('Nom requis.'); return; }
-  const checklist = ($('ob-checks').value || '').split(',').map(s=>s.trim()).filter(Boolean).map(label => ({label, done:false}));
-  await addDoc(collection(db, COLLECTIONS.onboarding), {
-    employeeName, dept:$('ob-dept').value, managerName:$('ob-manager').value.trim(),
-    startDate:$('ob-start').value || null, email:$('ob-email').value.trim(),
-    status:'in_progress', checklist, createdAt:serverTimestamp(), updatedAt:serverTimestamp()
-  });
-  await audit('create','onboarding',{employeeName});
-  notify('Dossier créé.', 'ok');
-}
-async function toggleOnboardingCheck(id, idx, done){
-  const ob = cache.onboarding.find(x=>x.id===id); if(!ob) return;
-  const checklist = [...(ob.checklist||[])];
-  checklist[idx] = {...checklist[idx], done};
-  const completed = checklist.length && checklist.every(x=>x.done);
-  await updateDoc(doc(db, COLLECTIONS.onboarding, id), {checklist, status: completed ? 'completed' : 'in_progress', updatedAt:serverTimestamp()});
-  await audit('update_checklist','onboarding',{id,idx,done});
-}
-
-function renderDocuments(){
-  setPage('Documents', 'Bibliothèque interne, politiques, runbooks et modèles');
-  const list = scopedDocs().filter(d => filters.doc==='all' ? true : d.ownerDept===filters.doc);
-  $('view').innerHTML = `
-    <div class="card">
-      <div class="toolbar">
-        <h3>Ajouter un document</h3>
-        <div class="filters">${['all','HR','Support','Sales & Marketing','Technical','Finance'].map(f => `<button class="${filters.doc===f?'active':''}" data-docfilter="${f}">${f==='all'?'Tous':f}</button>`).join('')}</div>
       </div>
-      <div class="form-grid-3">
-        <div><div class="label">Titre</div><input id="doc-title" class="field"></div>
-        <div><div class="label">Catégorie</div><input id="doc-cat" class="field" placeholder="Policy / Runbook / Template"></div>
-        <div><div class="label">Département propriétaire</div><select id="doc-owner" class="select">${DEPTS.filter(d=>d!=='Admin').map(d=>`<option ${d===profile.department?'selected':''}>${d}</option>`).join('')}</select></div>
-        <div><div class="label">URL</div><input id="doc-url" class="field" placeholder="https://..."></div>
-        <div><div class="label">Accès</div><input id="doc-access" class="field" placeholder="Technical,Support,Admin ou company"></div>
-        <div><div class="label">Résumé</div><input id="doc-summary" class="field"></div>
-      </div>
-      <div class="row" style="margin-top:10px"><button class="btn-p" id="doc-create">Ajouter</button></div>
-    </div>
 
-    <div class="list" style="margin-top:12px">
-      ${list.map(d => `
-        <div class="item">
-          <div class="item-top">
-            <div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')} · propriétaire ${esc(d.ownerDept || '—')}</div></div>
-            <div class="row">${deptBadge(d.ownerDept || 'Admin')}</div>
-          </div>
-          <div class="small" style="margin-top:8px">${esc(d.summary || '')}</div>
-          <div class="small" style="margin-top:6px">Accès: ${esc(Array.isArray(d.access)?d.access.join(', '):'company')}</div>
-          <div class="row" style="margin-top:10px">
-            ${d.url ? `<a class="btn-s" href="${esc(d.url)}" target="_blank" rel="noopener">Ouvrir</a>` : ''}
-            <button class="btn-s btn-danger" data-docdelete="${d.id}">Supprimer</button>
-          </div>
-        </div>
-      `).join('') || `<div class="empty">Aucun document.</div>`}
-    </div>
-  `;
-  [...$('view').querySelectorAll('[data-docfilter]')].forEach(btn => btn.addEventListener('click', ()=>{filters.doc = btn.dataset.docfilter; renderDocuments();}));
-  $('doc-create').addEventListener('click', createDocument);
-  [...$('view').querySelectorAll('[data-docdelete]')].forEach(btn => btn.addEventListener('click', ()=>deleteEntity(COLLECTIONS.documents, btn.dataset.docdelete, 'Document supprimé')));
-}
-async function createDocument(){
-  const title = $('doc-title').value.trim();
-  if(!title){ notify('Titre requis.'); return; }
-  const accessRaw = $('doc-access').value.trim();
-  const access = !accessRaw ? ['company'] : accessRaw.split(',').map(s=>s.trim()).filter(Boolean);
-  await addDoc(collection(db, COLLECTIONS.documents), {
-    title, category:$('doc-cat').value.trim(), ownerDept:$('doc-owner').value,
-    url:$('doc-url').value.trim(), summary:$('doc-summary').value.trim(),
-    access, createdAt:serverTimestamp(), updatedAt:serverTimestamp()
-  });
-  await audit('create','documents',{title});
-  notify('Document ajouté.', 'ok');
-}
-
-function renderReports(){
-  if(!canAccess('reports')) return renderNoAccess();
-  setPage('Rapports', 'Indicateurs temps réel basés sur Firestore');
-  const byDept = DEPTS.filter(d=>d!=='Admin').map(d => ({
-    dept:d,
-    tasks:cache.tasks.filter(t=>t.dept===d).length,
-    tickets:cache.tickets.filter(t=>t.dept===d).length,
-    docs:cache.docs.filter(x=>x.ownerDept===d).length
-  }));
-  const totalRevenue = cache.leads.filter(l=>l.stage==='Gagné').reduce((a,b)=>a+Number(b.value||0),0);
-  const pipeline = cache.leads.reduce((a,b)=>a+Number(b.value||0),0);
-  $('view').innerHTML = `
-    <div class="grid grid-4">
-      <div class="kpi"><div class="kpi-value">${money(totalRevenue)}</div><div class="kpi-label">Deals gagnés</div></div>
-      <div class="kpi"><div class="kpi-value">${money(pipeline)}</div><div class="kpi-label">Pipeline total</div></div>
-      <div class="kpi"><div class="kpi-value">${cache.tickets.filter(t=>t.status==='resolved').length}</div><div class="kpi-label">Tickets résolus</div></div>
-      <div class="kpi"><div class="kpi-value">${cache.users.filter(u=>u.isActive!==false).length}</div><div class="kpi-label">Utilisateurs actifs</div></div>
-    </div>
-    <div class="grid grid-2" style="margin-top:12px">
-      <div class="card">
-        <h3>Charges par département</h3>
-        <table class="table">
-          <thead><tr><th>Département</th><th>Tâches</th><th>Tickets</th><th>Docs</th></tr></thead>
+      <div class="card card-pad">
+        <div class="section-title">Focus Sales</div>
+        <div class="section-sub">Yael est configurée comme Sales Manager</div>
+        <div class="notice info" style="margin-top:14px">Yael pilote les opportunités Sales & Marketing, supervise les relances et suit les comptes stratégiques avec Tariq (MD).</div>
+        <table class="table-lite" style="margin-top:8px">
+          <thead>
+            <tr><th>Owner</th><th>Role</th><th>Dashboard</th></tr>
+          </thead>
           <tbody>
-            ${byDept.map(r => `<tr><td>${esc(r.dept)}</td><td>${r.tasks}</td><td>${r.tickets}</td><td>${r.docs}</td></tr>`).join('')}
+            <tr><td>Yael</td><td>Sales Manager</td><td>Sales</td></tr>
+            <tr><td>Tariq Tondi</td><td>MD</td><td>Executive Global</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="card">
-        <h3>Journal d’activité récent</h3>
-        <div class="timeline">
-          ${cache.audit.slice(0,12).map(a => `
-            <div class="item">
-              <b>${esc(a.actorName || '—')}</b> — ${esc(a.action)} <span class="tiny">(${esc(a.module)})</span>
-              <div class="tiny">${fmtDateTime(a.createdAt)}</div>
+    </div>
+  `;
+}
+
+function renderHR(){
+  return `
+    <div class="split">
+      <div class="card card-pad">
+        <div class="section-title">Annuaire & structure</div>
+        <div class="section-sub">Profils détectés dans la base</div>
+        <div class="user-list" style="margin-top:14px">
+          ${allUsers.map(u=>`
+            <div class="user-row">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+                <div style="display:flex;gap:10px">
+                  <div class="avatar" style="background:${deptColor(u.department)}">${initials(u.displayName)}</div>
+                  <div>
+                    <div class="user-title">${escapeHtml(u.displayName || '—')}</div>
+                    <div class="meta" style="margin-top:7px">${escapeHtml(u.email || '—')} · ${escapeHtml(u.department || '—')} · ${escapeHtml(u.role || '—')}</div>
+                    <div class="meta" style="margin-top:6px">Manager: ${escapeHtml(u.managerName || '—')}</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+                  <span class="badge primary">${escapeHtml(u.dashboard || 'Workspace')}</span>
+                  <span class="badge ${u.status==='active' || u.isActive ? 'green' : 'amber'}">${u.status==='active' || u.isActive ? 'Actif' : 'Pending'}</span>
+                </div>
+              </div>
             </div>
-          `).join('') || `<div class="empty">Aucune activité.</div>`}
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="section-title">Validation d’accès</div>
+        <div class="section-sub">Workflow RH / Admin / MD / CTO</div>
+        <div class="approval-list" style="margin-top:14px">
+          ${pendingUsers.length ? pendingUsers.map(u=>`
+            <div class="approval">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+                <div>
+                  <div class="feed-title">Nouvelle demande d’accès</div>
+                  <div class="hero-text" style="margin-top:8px">${escapeHtml(u.displayName || u.email)} a demandé l’accès au portail (${escapeHtml(u.department || '—')} · ${escapeHtml(u.role || '—')}).</div>
+                  <div class="meta" style="margin-top:8px">${escapeHtml(u.email || '')}</div>
+                </div>
+                <span class="badge blue">approval</span>
+              </div>
+              <div class="approval-actions">
+                ${isValidator()?`<button class="btn btn-success" onclick="approveUser('${u.uid || u.id}')">Approuver</button>`:''}
+                ${isValidator()?`<button class="btn btn-danger" onclick="rejectUser('${u.uid || u.id}')">Refuser</button>`:''}
+              </div>
+            </div>
+          `).join('') : `<div class="empty">Aucune demande en attente.</div>`}
         </div>
       </div>
     </div>
   `;
 }
 
-function renderOrg(){
-  setPage('Organigramme', 'Structure organisationnelle et rôles');
-  const nodes = [...cache.org].sort((a,b)=>(a.level||0)-(b.level||0) || (a.sortOrder||0)-(b.sortOrder||0));
-  const byManager = new Map();
-  nodes.forEach(n => {
-    const key = n.managerId || 'root';
-    if(!byManager.has(key)) byManager.set(key, []);
-    byManager.get(key).push(n);
-  });
-  const renderTree = (managerId='root') => `
-    <div class="list">
-      ${(byManager.get(managerId)||[]).map(n => `
-        <div class="item">
-          <div class="item-top">
-            <div><b>${esc(n.name)}</b><div class="meta">${esc(n.role)} · niveau ${esc(n.level || 0)}</div></div>
-            ${deptBadge(n.dept)}
+function renderSupport(){
+  const tickets = getTicketSubset();
+  return `
+    <div class="split">
+      <div class="card card-pad">
+        <div class="section-title">Support Center</div>
+        <div class="section-sub">Tickets et incidents visibles</div>
+        <div class="ticket-list" style="margin-top:14px">
+          ${tickets.map(t=>`
+            <div class="ticket">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+                <div>
+                  <div class="ticket-title">${escapeHtml(t.title)}</div>
+                  <div class="meta" style="margin-top:8px">${escapeHtml(t.requester)} · ${escapeHtml(t.dept)}</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <span class="badge ${t.severity==='High'?'red':t.severity==='Medium'?'amber':'gray'}">${escapeHtml(t.severity)}</span>
+                  <span class="badge gray">${escapeHtml(t.status)}</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="section-title">SLA Snapshot</div>
+        <div class="section-sub">Vue rapide des opérations support</div>
+        <div class="stat-stack" style="margin-top:14px">
+          <div class="stat-row"><div class="muted">Critiques</div><div class="bar"><span style="width:64%"></span></div><div>64%</div></div>
+          <div class="stat-row"><div class="muted">En cours</div><div class="bar"><span style="width:48%"></span></div><div>48%</div></div>
+          <div class="stat-row"><div class="muted">Résolus</div><div class="bar"><span style="width:82%"></span></div><div>82%</div></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDocuments(){
+  return `
+    <div class="card card-pad">
+      <div class="section-title">Document Hub</div>
+      <div class="section-sub">Politiques, SOPs, templates et procédures</div>
+      <div class="doc-list" style="margin-top:14px">
+        ${staticData.documents.map(d=>`
+          <div class="doc">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+              <div>
+                <div class="doc-title">${escapeHtml(d.title)}</div>
+                <div class="meta" style="margin-top:8px">${escapeHtml(d.owner)} · ${escapeHtml(d.type)}</div>
+              </div>
+              <button class="btn btn-soft">Ouvrir</button>
+            </div>
           </div>
-          ${renderTree(n.id)}
-        </div>
-      `).join('')}
-    </div>
-  `;
-  $('view').innerHTML = `
-    <div class="card">
-      <h3>Ajouter un poste</h3>
-      <div class="form-grid-3">
-        <div><div class="label">Nom</div><input id="org-name" class="field"></div>
-        <div><div class="label">Rôle</div><input id="org-role" class="field"></div>
-        <div><div class="label">Département</div><select id="org-dept" class="select">${DEPTS.map(d=>`<option>${d}</option>`).join('')}</select></div>
-        <div><div class="label">Manager</div><select id="org-manager" class="select"><option value="">Aucun (racine)</option>${nodes.map(n=>`<option value="${n.id}">${esc(n.name)} — ${esc(n.role)}</option>`).join('')}</select></div>
-        <div><div class="label">Niveau</div><input id="org-level" class="field" type="number" value="1"></div>
-        <div><div class="label">Ordre</div><input id="org-sort" class="field" type="number" value="1"></div>
+        `).join('')}
       </div>
-      <div class="row" style="margin-top:10px"><button class="btn-p" id="org-create">Ajouter</button></div>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <h3>Arborescence</h3>
-      ${renderTree()}
     </div>
   `;
-  $('org-create').addEventListener('click', async ()=>{
-    const name = $('org-name').value.trim(); if(!name){ notify('Nom requis.'); return; }
-    await addDoc(collection(db, COLLECTIONS.org), {
-      name, role:$('org-role').value.trim(), dept:$('org-dept').value,
-      managerId:$('org-manager').value || null, level:Number($('org-level').value||0),
-      sortOrder:Number($('org-sort').value||1), createdAt:serverTimestamp()
-    });
-    await audit('create','org',{name});
-    notify('Poste ajouté.', 'ok');
-  });
 }
 
-function renderSearch(){
-  globalSearchQuery = $('global-search-input').value.trim() || globalSearchQuery || '';
-  setPage('Recherche globale', globalSearchQuery ? `Résultats pour “${globalSearchQuery}”` : 'Recherche transversale sur tous les modules');
-  const q = globalSearchQuery.toLowerCase().trim();
-  const searchIn = (obj, fields) => fields.some(f => String(obj?.[f] || '').toLowerCase().includes(q));
-  const results = q ? [
-    ...scopedTasks().filter(x=>searchIn(x,['title','description','assigneeName'])).map(x=>({module:'Tâche', title:x.title, meta:`${x.dept} · ${x.assigneeName || '—'}`, body:x.description || ''})),
-    ...scopedTickets().filter(x=>searchIn(x,['title','description','requester','category'])).map(x=>({module:'Ticket', title:x.title, meta:`${x.dept} · ${x.requester || '—'}`, body:x.description || ''})),
-    ...scopedLeads().filter(x=>searchIn(x,['company','contact','service','nextAction'])).map(x=>({module:'Lead', title:x.company, meta:`${x.service} · ${money(x.value)}`, body:x.nextAction || ''})),
-    ...scopedAnnouncements().filter(x=>searchIn(x,['authorName','body'])).map(x=>({module:'Annonce', title:x.authorName, meta:x.targetDept || 'Entreprise', body:x.body || ''})),
-    ...scopedDocs().filter(x=>searchIn(x,['title','summary','category'])).map(x=>({module:'Document', title:x.title, meta:x.ownerDept || '—', body:x.summary || ''})),
-    ...cache.users.filter(x=>isAdmin() && searchIn(x,['displayName','email','department','role'])).map(x=>({module:'Utilisateur', title:x.displayName, meta:`${x.role} · ${x.department}`, body:x.email || ''}))
-  ] : [];
-  $('view').innerHTML = `
-    <div class="card">
-      <div class="toolbar">
-        <h3>Recherche</h3>
-        <div class="row">
-          <input id="search-inline" class="field" value="${esc(globalSearchQuery)}" placeholder="Tape un mot-clé..." style="min-width:300px">
-          <button class="btn-p" id="search-run">Chercher</button>
+function renderAnalytics(){
+  const byDept = DEPTS.map(d => ({dept:d, value:allUsers.filter(x => x.department===d).length || Math.floor(Math.random()*4)+1}));
+  return `
+    <div class="panel-grid">
+      <div class="card card-pad">
+        <div class="section-title">Executive Analytics</div>
+        <div class="section-sub">Répartition des effectifs et charges visibles</div>
+        <div class="stat-stack" style="margin-top:16px">
+          ${byDept.map(x=>`
+            <div class="stat-row">
+              <div class="muted">${escapeHtml(x.dept)}</div>
+              <div class="bar"><span style="width:${x.value*16}%"></span></div>
+              <div>${x.value}</div>
+            </div>
+          `).join('')}
         </div>
       </div>
-      ${q ? `<div class="tiny">${results.length} résultat(s)</div>` : `<div class="tiny">Recherche sur tâches, tickets, annonces, documents, leads et utilisateurs.</div>`}
-    </div>
-    <div class="list" style="margin-top:12px">
-      ${q ? (results.map(r => `
-        <div class="item">
-          <div class="item-top"><div><b>${esc(r.title)}</b><div class="meta">${esc(r.module)} · ${esc(r.meta)}</div></div></div>
-          <div class="small" style="margin-top:7px">${esc(r.body)}</div>
+      <div class="card card-pad">
+        <div class="section-title">KPIs Management</div>
+        <div class="section-sub">Vue style board</div>
+        <div class="kpi-grid" style="grid-template-columns:1fr 1fr;margin-top:14px">
+          ${kpiCard('12','Actions ouvertes','pilotage','var(--primary)')}
+          ${kpiCard('$275k','Pipeline','commercial','var(--amber)')}
+          ${kpiCard('3','Risques majeurs','à surveiller','var(--red)')}
+          ${kpiCard('4','Approvals','en attente','var(--blue)')}
         </div>
-      `).join('') || `<div class="empty">Aucun résultat.</div>`) : `<div class="empty">Entre une recherche pour afficher les résultats.</div>`}
+      </div>
     </div>
   `;
-  $('search-run').addEventListener('click', ()=>{
-    globalSearchQuery = $('search-inline').value.trim();
-    $('global-search-input').value = globalSearchQuery;
-    renderSearch();
-  });
 }
 
 function renderNotifications(){
-  setPage('Notifications', 'Centre de notifications, alertes métier et suivi');
-  const list = cache.notifications.filter(scopeNotif);
-  $('view').innerHTML = `
-    <div class="card">
-      <div class="toolbar">
-        <h3>Créer une notification</h3>
-        <div class="tiny">${unreadNotifications().length} non lue(s)</div>
-      </div>
-      <div class="form-grid-3">
-        <div><div class="label">Titre</div><input id="notif-title" class="field"></div>
-        <div><div class="label">Portée</div><select id="notif-scope" class="select"><option value="company">Entreprise</option>${DEPTS.filter(d=>d!=='Admin').map(d=>`<option value="${d}">${d}</option>`).join('')}</select></div>
-        <div><div class="label">Type</div><select id="notif-type" class="select"><option value="info">Info</option><option value="warning">Warning</option><option value="system">System</option></select></div>
-      </div>
-      <div style="margin-top:10px"><div class="label">Message</div><textarea id="notif-body" class="textarea"></textarea></div>
-      <div class="row" style="margin-top:10px"><button class="btn-p" id="notif-create">Envoyer</button></div>
-    </div>
-    <div class="list" style="margin-top:12px">
-      ${list.map(n => {
-        const unread = !Array.isArray(n.readBy) || !n.readBy.includes(currentUser.uid);
-        return `
-          <div class="item">
-            <div class="item-top">
-              <div><b>${esc(n.title)}</b> ${unread ? badge('Nouveau','bp') : ''}<div class="meta">${fmtDateTime(n.createdAt)} · ${esc(n.deptScope || '—')}</div></div>
-              ${badge(n.type || 'info', n.type==='warning'?'ba':n.type==='system'?'bbl':'bg')}
+  return `
+    <div class="card card-pad">
+      <div class="section-title">Centre de notifications</div>
+      <div class="section-sub">Inclut les demandes d’accès à approuver</div>
+      <div class="approval-list" style="margin-top:16px">
+        ${notifications.map(n=>`
+          <div class="approval">
+            <div style="display:flex;justify-content:space-between;gap:12px">
+              <div>
+                <div class="feed-title">${escapeHtml(n.title)}</div>
+                <div class="hero-text" style="margin-top:8px">${escapeHtml(n.body || n.text || '')}</div>
+                <div class="meta" style="margin-top:8px">${escapeHtml(n.time || '')}</div>
+              </div>
+              <span class="badge ${n.category==='approval'?'blue':'gray'}">${escapeHtml(n.category || 'info')}</span>
             </div>
-            <div class="small" style="margin-top:8px">${esc(n.body)}</div>
-            ${unread ? `<div class="row" style="margin-top:10px"><button class="btn-s" data-read="${n.id}">Marquer comme lu</button></div>` : ''}
           </div>
-        `;
-      }).join('') || `<div class="empty">Aucune notification.</div>`}
+        `).join('')}
+      </div>
     </div>
   `;
-  $('notif-create').addEventListener('click', async ()=>{
-    const title = $('notif-title').value.trim(); const body = $('notif-body').value.trim();
-    if(!title || !body){ notify('Titre et message requis.'); return; }
-    await createNotification({title, body, deptScope:$('notif-scope').value, type:$('notif-type').value});
-    await audit('create','notifications',{title});
-    notify('Notification envoyée.', 'ok');
-  });
-  [...$('view').querySelectorAll('[data-read]')].forEach(btn => btn.addEventListener('click', async ()=>{ await markNotificationRead(btn.dataset.read); notify('Marquée comme lue.', 'ok'); }));
 }
 
 function renderAdmin(){
-  if(!canAccess('admin')) return renderNoAccess();
-  const pendingUsers = cache.users.filter(u => !u.isActive || u.approvalStatus === 'pending');
-  const activeUsers = cache.users.filter(u => u.isActive);
-  setPage('Administration', 'Validation des accès, profils, rôles, dashboards et audit');
-
-  const pendingHtml = pendingUsers.length ? `
-    <table class="table">
-      <thead><tr><th>Nom</th><th>Email</th><th>Département</th><th>Rôle</th><th>Dashboard</th><th></th></tr></thead>
-      <tbody>
-        ${pendingUsers.map(u => `
-          <tr>
-            <td>${esc(u.displayName || '—')}</td>
-            <td>${esc(u.email || '—')}</td>
-            <td>${esc(u.department || '—')}</td>
-            <td>${esc(u.role || 'Employee')}</td>
-            <td>${esc(u.dashboard || roleToDashboard(u.role, u.department))}</td>
-            <td class="row">
-              <button class="btn-success btn-s" data-approve-user="${u.id}">Valider</button>
-              <button class="btn-s" data-edit-user="${u.id}">Modifier</button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  ` : `<div class="empty">Aucune demande en attente.</div>`;
-
-  const activeHtml = activeUsers.length ? `
-    <table class="table">
-      <thead><tr><th>Nom</th><th>Email</th><th>Département</th><th>Rôle</th><th>Dashboard</th><th></th></tr></thead>
-      <tbody>
-        ${activeUsers.map(u => `
-          <tr>
-            <td>${esc(u.displayName || '—')}</td>
-            <td>${esc(u.email || '—')}</td>
-            <td>${esc(u.department || '—')}</td>
-            <td>${esc(u.role || 'Employee')}</td>
-            <td>${esc(u.dashboard || roleToDashboard(u.role, u.department))}</td>
-            <td><button class="btn-s" data-edit-user="${u.id}">Modifier</button></td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  ` : `<div class="empty">Aucun profil actif.</div>`;
-
-  $('view').innerHTML = `
-    <div class="grid">
-      <div class="card">
-        <div class="toolbar">
-          <h3>Demandes d’accès en attente</h3>
-          <span class="badge ${pendingUsers.length ? 'ba' : 'bt'}">${pendingUsers.length} en attente</span>
-        </div>
-        ${pendingHtml}
-      </div>
-
-      <div class="grid grid-2">
-        <div class="card">
-          <h3>Profils actifs</h3>
-          ${activeHtml}
-        </div>
-        <div class="card">
-          <h3>Audit récent</h3>
-          <div class="timeline">
-            ${cache.audit.slice(0,20).map(a => `
-              <div class="item">
-                <b>${esc(a.actorName || '—')}</b> a fait <b>${esc(a.action)}</b> dans <b>${esc(a.module)}</b>
-                <div class="tiny">${fmtDateTime(a.createdAt)}</div>
-              </div>
-            `).join('') || `<div class="empty">Aucun audit.</div>`}
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  [...$('view').querySelectorAll('[data-edit-user]')].forEach(btn => btn.addEventListener('click', ()=>openUserEditor(btn.dataset.editUser)));
-  [...$('view').querySelectorAll('[data-approve-user]')].forEach(btn => btn.addEventListener('click', ()=>approveUser(btn.dataset.approveUser)));
-}
-function openUserEditor(id){
-  const user = cache.users.find(x=>x.id===id); if(!user) return;
-  openModal('Modifier utilisateur', `
-    <div class="form-grid">
-      <div><div class="label">Nom</div><input id="edit-user-name" class="field" value="${esc(user.displayName || '')}"></div>
-      <div><div class="label">Département</div><select id="edit-user-dept" class="select">${DEPTS.map(d=>`<option ${user.department===d?'selected':''}>${d}</option>`).join('')}</select></div>
-      <div><div class="label">Rôle</div><select id="edit-user-role" class="select">${['Employee','Engineer','Sales Executive','HR Officer','HR Manager','Finance Officer','Finance Manager','Support Agent','Manager','Admin','CEO','MD','CTO'].map(r=>`<option ${user.role===r?'selected':''}>${r}</option>`).join('')}</select></div>
-      <div><div class="label">Dashboard</div><input id="edit-user-dashboard" class="field" value="${esc(user.dashboard || roleToDashboard(user.role, user.department))}"></div>
-      <div><div class="label">Manager</div><input id="edit-user-manager" class="field" value="${esc(user.managerName || '')}"></div>
-      <div><div class="label">Statut</div><select id="edit-user-status" class="select">
-        <option value="active" ${(user.isActive || user.approvalStatus==='active')?'selected':''}>Actif</option>
-        <option value="pending" ${(!user.isActive || user.approvalStatus==='pending')?'selected':''}>Pending</option>
-      </select></div>
-    </div>
-    <div class="row" style="margin-top:10px"><button class="btn-p" id="save-user-profile">Enregistrer</button></div>
-  `);
-  $('save-user-profile').addEventListener('click', async ()=>{
-    const role = $('edit-user-role').value;
-    const department = $('edit-user-dept').value;
-    const status = $('edit-user-status').value;
-    await updateDoc(doc(db, COLLECTIONS.users, id), {
-      displayName:$('edit-user-name').value.trim(),
-      department,
-      role,
-      dashboard:$('edit-user-dashboard').value.trim() || roleToDashboard(role, department),
-      managerName:$('edit-user-manager').value.trim(),
-      isActive: status === 'active',
-      approvalStatus: status,
-      updatedAt:serverTimestamp()
-    });
-    await audit('update','users',{id});
-    closeModal();
-    notify('Profil mis à jour.', 'ok');
-  });
-}
-
-async function approveUser(id){
-  const user = cache.users.find(x=>x.id===id); if(!user) return;
-  const dashboard = user.dashboard || roleToDashboard(user.role, user.department);
-  await updateDoc(doc(db, COLLECTIONS.users, id), {
-    isActive:true,
-    approvalStatus:'active',
-    dashboard,
-    approvedAt:serverTimestamp(),
-    approvedBy: currentUser.uid,
-    updatedAt:serverTimestamp()
-  });
-  await createNotification({
-    title:'Accès validé',
-    body:`Ton accès IMPROTECH a été validé. Dashboard attribué : ${dashboard}.`,
-    userUid:id,
-    type:'approval'
-  });
-  await audit('approve','users',{id});
-  notify('Utilisateur validé.', 'ok');
-}
-
-function renderAI(){
-  setPage('Assistant IA', 'Assistant interne avec backend sécurisé requis');
-  $('view').innerHTML = `
-    <div class="card notice notice-info">
-      Pour la production, branche ce module sur un backend sécurisé, par exemple <code>/api/ai</code>, qui injecte la clé API et applique les contrôles d’accès.
-    </div>
-    <div class="chat-box" id="ai-chat">
-      ${aiMsgs.length ? aiMsgs.map(m => `<div class="${m.role==='user'?'mu':'ma'}">${esc(m.text)}</div>`).join('') : `
-        <div class="empty">Exemples: “rédige un email de suivi client”, “résume les tickets urgents”, “prépare un compte-rendu de réunion”.</div>
-      `}
-    </div>
-    <div class="row">
-      <input id="ai-input" class="field" placeholder="Pose ta question..." style="flex:1">
-      <button class="btn-p" id="ai-send">Envoyer</button>
-    </div>
-  `;
-  $('ai-send').addEventListener('click', sendAI);
-  $('ai-input').addEventListener('keydown', e => { if(e.key==='Enter') sendAI(); });
-}
-async function sendAI(){
-  const input = $('ai-input');
-  if(!input) return;
-  const text = input.value.trim();
-  if(!text) return;
-  aiMsgs.push({role:'user', text});
-  input.value = '';
-  renderAI();
-
-  try{
-    const res = await fetch('/api/ai', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        prompt:text,
-        context:{
-          user:profile.displayName,
-          dept:profile.department,
-          role:profile.role,
-          tasks:scopedTasks().slice(0,10),
-          tickets:scopedTickets().slice(0,10),
-          announcements:scopedAnnouncements().slice(0,5)
-        }
-      })
-    });
-    const data = await res.json();
-    aiMsgs.push({role:'assistant', text:data.reply || "Aucune réponse du backend IA."});
-  }catch(e){
-    aiMsgs.push({role:'assistant', text:"Le backend IA n'est pas encore branché. Remplace /api/ai par une fonction serverless sécurisée."});
+  if (!(isValidator() || isExecutive())) {
+    return `<div class="card card-pad"><div class="empty">Accès restreint.</div></div>`;
   }
-  renderAI();
+  return `
+    <div class="split">
+      <div class="card card-pad">
+        <div class="section-title">Administration · Approbations</div>
+        <div class="section-sub">HR / Admin / MD / CTO peuvent valider les comptes</div>
+        <div class="approval-list" style="margin-top:14px">
+          ${pendingUsers.length ? pendingUsers.map(u=>`
+            <div class="approval">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+                <div>
+                  <div class="feed-title">Demande d’accès</div>
+                  <div class="hero-text" style="margin-top:8px">${escapeHtml(u.displayName || u.email)} · ${escapeHtml(u.department || '—')} · ${escapeHtml(u.role || '—')}</div>
+                  <div class="meta" style="margin-top:8px">${escapeHtml(u.email || '')} · Manager: ${escapeHtml(u.managerName || '—')}</div>
+                </div>
+                <span class="badge blue">pending</span>
+              </div>
+              <div class="approval-actions">
+                <button class="btn btn-success" onclick="approveUser('${u.uid || u.id}')">Approuver</button>
+                <button class="btn btn-danger" onclick="rejectUser('${u.uid || u.id}')">Refuser</button>
+              </div>
+            </div>
+          `).join('') : '<div class="empty">Aucune demande à traiter.</div>'}
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="section-title">Rôles clés Improtech</div>
+        <div class="section-sub">Préconfiguration de la gouvernance</div>
+        <table class="table-lite" style="margin-top:10px">
+          <thead><tr><th>Nom</th><th>Rôle</th><th>Dashboard</th><th>Pouvoir valider</th></tr></thead>
+          <tbody>
+            <tr><td>Othniel Atse</td><td>CTO</td><td>Executive Tech</td><td>Oui</td></tr>
+            <tr><td>Tariq Tondi</td><td>MD</td><td>Executive Global</td><td>Oui</td></tr>
+            <tr><td>Yael</td><td>Sales Manager</td><td>Sales</td><td>Non</td></tr>
+            <tr><td>Kassum</td><td>HR Manager</td><td>HR</td><td>Oui</td></tr>
+            <tr><td>Gilles Bourgeois</td><td>Engineer</td><td>Tech</td><td>Non</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
 }
 
-// ------------------------------------------------------------
-// COMMON
-// ------------------------------------------------------------
-function renderNoAccess(){
-  $('view').innerHTML = `<div class="empty">Accès restreint pour votre rôle.</div>`;
+function renderProfile(){
+  return `
+    <div class="card card-pad">
+      <div class="section-title">Mon profil</div>
+      <div class="section-sub">Identité et autorisations effectives</div>
+      <div style="display:flex;gap:14px;align-items:center;margin-top:18px">
+        <div class="avatar" style="width:62px;height:62px;background:${deptColor(profile.department)};font-size:22px">${initials(profile.displayName)}</div>
+        <div>
+          <div style="font-size:24px;font-weight:900;letter-spacing:-.6px">${escapeHtml(profile.displayName || '')}</div>
+          <div class="meta" style="margin-top:8px">${escapeHtml(profile.email || '')} · ${escapeHtml(profile.department || '')} · ${escapeHtml(profile.role || '')}</div>
+          <div class="meta" style="margin-top:8px">Dashboard: ${escapeHtml(profile.dashboard || 'Workspace')} · Manager: ${escapeHtml(profile.managerName || '—')}</div>
+        </div>
+      </div>
+      <div class="quick-actions">
+        <span class="badge ${profile.status==='active' || profile.isActive ? 'green' : 'amber'}">${profile.status==='active' || profile.isActive ? 'Compte actif' : 'En attente'}</span>
+        ${isValidator()?'<span class="badge blue">Peut valider des utilisateurs</span>':''}
+      </div>
+    </div>
+  `;
 }
-function openModal(title, body){
-  $('modal-title').textContent = title;
-  $('modal-body').innerHTML = body;
-  $('modal-backdrop').style.display = 'flex';
+
+window.renderView = function(view, btn){
+  currentView = view;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelector(`[data-view="${view}"]`)?.classList.add('active');
+
+  let html = '';
+  if (view === 'home') html = renderHome();
+  if (view === 'feed') html = renderFeed();
+  if (view === 'tasks') html = renderTasks();
+  if (view === 'crm') html = renderCRM();
+  if (view === 'hr') html = renderHR();
+  if (view === 'support') html = renderSupport();
+  if (view === 'documents') html = renderDocuments();
+  if (view === 'analytics') html = renderAnalytics();
+  if (view === 'notifications') html = renderNotifications();
+  if (view === 'admin') html = renderAdmin();
+  if (view === 'profile') html = renderProfile();
+
+  $('page').innerHTML = html;
+};
+
+window.checkMyApproval = async function(){
+  if (!currentUser) return;
+  profile = await ensureUserProfile(currentUser);
+  if (profile.status === 'active' || profile.isActive) {
+    await fetchUsersAndNotifications();
+    showApp();
+  } else {
+    showPending();
+  }
+};
+
+window.approveUser = async function(uid){
+  try{
+    if (!uid) return alert("UID introuvable.");
+    if (!isValidator()) return alert("Vous n'êtes pas autorisé à approuver.");
+    await updateDoc(doc(db, 'users', uid), {
+      status:'active',
+      isActive:true,
+      validatedBy: profile.displayName || profile.email,
+      validatedByUid: currentUser.uid,
+      validatedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    await addDoc(collection(db, 'auditLogs'), {
+      type:'approval',
+      targetUid:uid,
+      validatedBy:profile.displayName || profile.email,
+      validatedByUid:currentUser.uid,
+      createdAt:serverTimestamp()
+    }).catch(()=>{});
+    await fetchUsersAndNotifications();
+    buildNav();
+    renderView('admin', document.querySelector('[data-view="admin"]'));
+    alert("Utilisateur approuvé ✅");
+  }catch(e){
+    console.error('approveUser', e);
+    alert("Erreur lors de l’approbation : " + (e.message || e));
+  }
+};
+
+window.rejectUser = async function(uid){
+  try{
+    if (!uid) return alert("UID introuvable.");
+    if (!isValidator()) return alert("Vous n'êtes pas autorisé à refuser.");
+    await updateDoc(doc(db, 'users', uid), {
+      status:'rejected',
+      isActive:false,
+      validatedBy: profile.displayName || profile.email,
+      validatedByUid: currentUser.uid,
+      validatedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    await fetchUsersAndNotifications();
+    buildNav();
+    renderView('admin', document.querySelector('[data-view="admin"]'));
+    alert("Demande refusée.");
+  }catch(e){
+    console.error('rejectUser', e);
+    alert("Erreur lors du refus : " + (e.message || e));
+  }
+};
+
+function wireSearch(){
+  $('global-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    if (!q) return renderView(currentView, document.querySelector(`[data-view="${currentView}"]`));
+    const matches = [
+      ...staticData.tasks.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Task', title:x.title, meta:x.owner + ' · ' + x.dept})),
+      ...staticData.tickets.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Ticket', title:x.title, meta:x.requester + ' · ' + x.dept})),
+      ...staticData.leads.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Lead', title:x.company, meta:x.owner + ' · ' + x.stage})),
+      ...allUsers.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'User', title:x.displayName || x.email, meta:(x.department || '—') + ' · ' + (x.role || '—')})),
+      ...staticData.documents.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Document', title:x.title, meta:x.owner + ' · ' + x.type}))
+    ].slice(0,12);
+    $('page').innerHTML = `
+      <div class="card card-pad">
+        <div class="section-title">Résultats de recherche</div>
+        <div class="section-sub">Recherche globale type workspace</div>
+        <div class="simple-list" style="margin-top:14px">
+          ${matches.length ? matches.map(m=>`
+            <div class="list-item">
+              <div style="display:flex;justify-content:space-between;gap:12px">
+                <div>
+                  <div class="task-title">${escapeHtml(m.title)}</div>
+                  <div class="meta" style="margin-top:8px">${escapeHtml(m.meta)}</div>
+                </div>
+                <span class="badge gray">${escapeHtml(m.type)}</span>
+              </div>
+            </div>
+          `).join('') : '<div class="empty">Aucun résultat.</div>'}
+        </div>
+      </div>
+    `;
+  });
 }
-function closeModal(){
-  $('modal-backdrop').style.display = 'none';
-  $('modal-body').innerHTML = '';
-}
-async function deleteEntity(col, id, successMsg='Supprimé'){
-  if(!confirm('Confirmer la suppression ?')) return;
-  await deleteDoc(doc(db, col, id));
-  await audit('delete',col,{id});
-  notify(successMsg, 'ok');
-}
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    currentUser = null;
+    profile = null;
+    showAuth();
+    return;
+  }
+  currentUser = user;
+  try{
+    await refreshProfile(user);
+    await fetchUsersAndNotifications();
+    $('loading-screen').classList.add('hidden');
+    if (profile.status === 'active' || profile.isActive) {
+      showApp();
+      wireSearch();
+    } else {
+      showPending();
+    }
+  }catch(e){
+    console.error(e);
+    showAuth();
+  }
+});
+
+populateRegisterFields();
 </script>
 </body>
 </html>
