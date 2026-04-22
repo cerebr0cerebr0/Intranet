@@ -25,6 +25,10 @@ button,input,select,textarea{font-family:inherit}
 .login-logo{font-size:32px;font-weight:700;text-align:center;margin-bottom:4px}.login-logo b{color:var(--purple)}
 .login-tagline{font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px}
 .login-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:30px}
+.auth-switch{display:flex;gap:8px;margin-bottom:14px}
+.auth-switch button{flex:1}
+.panel-muted{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.badge-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:4px 8px;border-radius:999px;background:var(--purple-l);color:#26215C;font-weight:700}
 .login-lbl{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px}
 .login-input, .field, .textarea, .select{
   width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);
@@ -130,15 +134,82 @@ hr.sep{border:none;border-top:1px solid var(--border);margin:10px 0}
 <div id="login-screen" class="hidden">
   <div class="login-wrap">
     <div class="login-logo"><b>IMPRO</b>TECH</div>
-    <div class="login-tagline">Intranet Enterprise · Firebase + Firestore</div>
+    <div class="login-tagline">Portail entreprise · Accès unique pour toute la compagnie</div>
     <div class="login-box">
-      <div id="login-err" class="login-err hidden"></div>
-      <label class="login-lbl">Adresse email</label>
-      <input id="login-email" class="login-input" type="email" placeholder="prenom.nom@improtechsystems.com" autocomplete="email"/>
-      <label class="login-lbl">Mot de passe</label>
-      <input id="login-pwd" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password" />
-      <button id="login-btn" class="login-btn">Se connecter</button>
-      <div class="tiny" style="margin-top:10px">Les comptes doivent exister dans Firebase Authentication.</div>
+      <div class="auth-switch">
+        <button id="show-login-tab" class="btn-p" type="button">Se connecter</button>
+        <button id="show-signup-tab" class="btn-s" type="button">Créer mon compte</button>
+      </div>
+      <div id="login-panel">
+        <div id="login-err" class="login-err hidden"></div>
+        <label class="login-lbl">Adresse email</label>
+        <input id="login-email" class="login-input" type="email" placeholder="prenom.nom@improtechsystems.com" autocomplete="email"/>
+        <label class="login-lbl">Mot de passe</label>
+        <input id="login-pwd" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password" />
+        <button id="login-btn" class="login-btn">Se connecter</button>
+        <div class="tiny" style="margin-top:10px">Utilise ton email professionnel Improtech. Les comptes en attente restent bloqués jusqu’à validation Admin/HR.</div>
+      </div>
+      <div id="signup-panel" class="hidden">
+        <div id="signup-err" class="login-err hidden"></div>
+        <div id="signup-ok" class="notice notice-ok hidden"></div>
+        <label class="login-lbl">Nom complet</label>
+        <input id="signup-name" class="login-input" type="text" placeholder="Ex: Gilles Kouassi" autocomplete="name"/>
+        <label class="login-lbl">Adresse email professionnelle</label>
+        <input id="signup-email" class="login-input" type="email" placeholder="prenom.nom@improtechsystems.com" autocomplete="email"/>
+        <label class="login-lbl">Mot de passe</label>
+        <input id="signup-pwd" class="login-input" type="password" placeholder="Minimum 8 caractères" autocomplete="new-password"/>
+        <div class="form-grid">
+          <div>
+            <label class="login-lbl">Département</label>
+            <select id="signup-dept" class="select">
+              <option>Technical</option>
+              <option>Sales & Marketing</option>
+              <option>HR</option>
+              <option>Finance</option>
+              <option>Support</option>
+            </select>
+          </div>
+          <div>
+            <label class="login-lbl">Fonction</label>
+            <select id="signup-role" class="select">
+              <option>Engineer</option>
+              <option>Sales Executive</option>
+              <option>HR Officer</option>
+              <option>Finance Officer</option>
+              <option>Support Agent</option>
+              <option>Employee</option>
+            </select>
+          </div>
+          <div>
+            <label class="login-lbl">Manager</label>
+            <input id="signup-manager" class="field" type="text" placeholder="Ex: Othniel"/>
+          </div>
+          <div>
+            <label class="login-lbl">Localisation</label>
+            <input id="signup-location" class="field" type="text" placeholder="Ex: Accra HQ"/>
+          </div>
+        </div>
+        <button id="signup-btn" class="login-btn" style="margin-top:12px">Créer mon compte</button>
+        <div class="tiny" style="margin-top:10px">Le dashboard est attribué automatiquement selon le département et le rôle. Les rôles exécutifs sont réservés à l’administration.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="pending-screen" class="hidden">
+  <div class="login-wrap">
+    <div class="login-logo"><b>IMPRO</b>TECH</div>
+    <div class="login-tagline">Compte en attente de validation</div>
+    <div class="login-box">
+      <div class="panel-muted">
+        <div class="badge-pill">Validation requise</div>
+        <div style="font-size:18px;font-weight:800;margin:10px 0 6px">Ton accès a bien été créé.</div>
+        <div id="pending-copy" style="line-height:1.6;color:var(--muted)">Ton profil est en attente de validation par HR ou un administrateur. Dès validation, ton dashboard sera disponible.</div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button id="pending-refresh" class="btn-s">Vérifier à nouveau</button>
+        <button id="pending-logout" class="btn-p">Se déconnecter</button>
+      </div>
     </div>
   </div>
 </div>
@@ -199,7 +270,7 @@ hr.sep{border:none;border-top:1px solid var(--border);margin:10px 0}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import {
   getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
@@ -262,22 +333,54 @@ const NAV = [
   {id:'ai', label:'Assistant IA', icon:'✧'}
 ];
 
-const DEFAULT_PROFILE = (user) => ({
-  uid: user.uid,
-  displayName: user.displayName || user.email.split('@')[0],
-  email: user.email,
-  department: 'Technical',
-  role: 'Employee',
-  managerName: '—',
-  isActive: true,
-  createdAt: new Date().toISOString()
-});
+const PROFILE_PRESETS = {
+  'gilles@improtechsystems.com': {displayName:'Gilles', department:'Technical', role:'Engineer', dashboard:'Tech', managerName:'Othniel', location:'Accra HQ', isActive:false, approvalStatus:'pending'},
+  'othniel@improtechsystems.com': {displayName:'Othniel', department:'Technical', role:'CTO', dashboard:'Executive Tech', managerName:'Tariq', location:'Accra HQ', isActive:true, approvalStatus:'active'},
+  'tariq@improtechsystems.com': {displayName:'Tariq', department:'Sales & Marketing', role:'MD', dashboard:'Executive Global', managerName:'Verlein', location:'Accra HQ', isActive:true, approvalStatus:'active'},
+  'kassum@improtechsystems.com': {displayName:'Kassum', department:'HR', role:'HR Manager', dashboard:'HR', managerName:'Tariq', location:'Accra HQ', isActive:true, approvalStatus:'active'},
+  'unclebert@improtechsystems.com': {displayName:'Unclebert', department:'Finance', role:'Finance Manager', dashboard:'Finance', managerName:'Tariq', location:'Accra HQ', isActive:true, approvalStatus:'active'}
+};
+
+function roleToDashboard(role='Employee', department='Technical'){
+  const r = String(role).toUpperCase();
+  if(r.includes('MD') || r.includes('CEO') || r.includes('ADMIN')) return 'Executive Global';
+  if(r.includes('CTO')) return 'Executive Tech';
+  if(department === 'Technical') return 'Tech';
+  if(department === 'HR') return 'HR';
+  if(department === 'Finance') return 'Finance';
+  if(department === 'Sales & Marketing') return 'Sales';
+  if(department === 'Support') return 'Support';
+  return 'General';
+}
+
+function presetForUser(user){
+  const email = String(user?.email || '').toLowerCase();
+  return PROFILE_PRESETS[email] || null;
+}
+
+const DEFAULT_PROFILE = (user) => {
+  const preset = presetForUser(user);
+  return {
+    uid: user.uid,
+    displayName: preset?.displayName || user.displayName || user.email.split('@')[0],
+    email: user.email,
+    department: preset?.department || 'Technical',
+    role: preset?.role || 'Employee',
+    dashboard: preset?.dashboard || roleToDashboard(preset?.role || 'Employee', preset?.department || 'Technical'),
+    managerName: preset?.managerName || '—',
+    location: preset?.location || 'Accra HQ',
+    isActive: typeof preset?.isActive === 'boolean' ? preset.isActive : false,
+    approvalStatus: preset?.approvalStatus || 'pending',
+    createdAt: new Date().toISOString()
+  };
+};
 
 const SEED = {
   tasks: [
     {title:"Déploiement pare-feu Ecobank",dept:"Technical",priority:"high",status:"todo",assigneeName:"Othniel",assigneeUid:"",dueDate:"2026-04-28",description:"Préparer plan d’implémentation et rollback.",watchers:["Technical"]},
     {title:"Proposition SEMLEX Group",dept:"Sales & Marketing",priority:"high",status:"inprog",assigneeName:"Tariq",assigneeUid:"",dueDate:"2026-04-25",description:"Réponse RFP Zero Trust.",watchers:["Sales & Marketing","Admin"]},
-    {title:"Onboarding Kwame Asare",dept:"HR",priority:"medium",status:"inprog",assigneeName:"Kassum",assigneeUid:"",dueDate:"2026-04-30",description:"Coordonner RH, IT et manager.",watchers:["HR","Technical"]}
+    {title:"Onboarding Kwame Asare",dept:"HR",priority:"medium",status:"inprog",assigneeName:"Kassum",assigneeUid:"",dueDate:"2026-04-30",description:"Coordonner RH, IT et manager.",watchers:["HR","Technical"]},
+    {title:"Health check clients managés",dept:"Technical",priority:"medium",status:"todo",assigneeName:"Gilles",assigneeUid:"",dueDate:"2026-04-29",description:"Contrôler sauvegardes, patching et alertes critiques.",watchers:["Technical"]}
   ],
   announcements: [
     {authorName:"Tariq (MD)",dept:"Sales & Marketing",body:"SEMLEX qualifié. RFP Zero Trust reçu. Réunion lundi 10h.",scope:"company"},
@@ -311,7 +414,8 @@ const SEED = {
     {name:"Tariq",role:"MD / GM",dept:"Admin",managerId:"seed_ceo",level:1,sortOrder:1},
     {name:"Othniel",role:"CTO",dept:"Technical",managerId:"seed_md",level:2,sortOrder:1},
     {name:"Kassum",role:"HR Manager",dept:"HR",managerId:"seed_md",level:2,sortOrder:2},
-    {name:"Unclebert",role:"Finance Manager",dept:"Finance",managerId:"seed_md",level:2,sortOrder:3}
+    {name:"Unclebert",role:"Finance Manager",dept:"Finance",managerId:"seed_md",level:2,sortOrder:3},
+    {name:"Gilles",role:"Engineer",dept:"Technical",managerId:"seed_md",level:3,sortOrder:4}
   ]
 };
 
@@ -389,6 +493,11 @@ const audit = async (action, module, detail={}) => {
 // AUTH
 // ------------------------------------------------------------
 $('login-btn').addEventListener('click', doLogin);
+$('signup-btn').addEventListener('click', doSignup);
+$('show-login-tab').addEventListener('click', ()=>setAuthMode('login'));
+$('show-signup-tab').addEventListener('click', ()=>setAuthMode('signup'));
+$('pending-refresh').addEventListener('click', async ()=>{ if(currentUser){ await ensureProfile(currentUser, true); if(profile?.isActive){ renderShell(); setView('dash'); $('pending-screen').classList.add('hidden'); $('app-screen').style.display='block'; } else { showPendingScreen(); } }});
+$('pending-logout').addEventListener('click', ()=>signOut(auth));
 $('login-pwd').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
 $('logout-btn').addEventListener('click', async () => { await signOut(auth); });
 
@@ -414,6 +523,123 @@ async function doLogin(){
   }
 }
 
+$('signup-pwd').addEventListener('keydown', e => { if(e.key === 'Enter') doSignup(); });
+
+function setAuthMode(mode='login'){
+  const login = mode === 'login';
+  $('login-panel').classList.toggle('hidden', !login);
+  $('signup-panel').classList.toggle('hidden', login);
+  $('show-login-tab').className = login ? 'btn-p' : 'btn-s';
+  $('show-signup-tab').className = login ? 'btn-s' : 'btn-p';
+}
+
+function showPendingScreen(){
+  $('loading-screen').style.display='none';
+  $('login-screen').classList.add('hidden');
+  $('app-screen').style.display='none';
+  $('pending-screen').classList.remove('hidden');
+  $('pending-copy').textContent = `Le profil ${profile?.displayName || ''} (${profile?.email || ''}) est encore en attente. Dès validation par HR/Admin, le dashboard ${profile?.dashboard || 'prévu'} sera activé.`;
+}
+
+function hideAuthAux(){
+  $('pending-screen').classList.add('hidden');
+  $('login-screen').classList.add('hidden');
+}
+
+function isImprotechEmail(email=''){
+  return /@improtechsystems\.com$/i.test(String(email).trim());
+}
+
+function buildSignupProfile(user){
+  const preset = presetForUser(user);
+  if(preset){
+    return {
+      uid:user.uid,
+      email:user.email,
+      displayName:preset.displayName || $('signup-name').value.trim() || user.email.split('@')[0],
+      department:preset.department || $('signup-dept').value,
+      role:preset.role || $('signup-role').value,
+      dashboard:preset.dashboard || roleToDashboard(preset.role || $('signup-role').value, preset.department || $('signup-dept').value),
+      managerName:preset.managerName || $('signup-manager').value.trim() || '—',
+      location:preset.location || $('signup-location').value.trim() || 'Accra HQ',
+      isActive: typeof preset.isActive === 'boolean' ? preset.isActive : false,
+      approvalStatus: preset.approvalStatus || 'pending',
+      createdAt:new Date().toISOString()
+    };
+  }
+  const dept = $('signup-dept').value;
+  const role = $('signup-role').value;
+  return {
+    uid:user.uid,
+    email:user.email,
+    displayName:$('signup-name').value.trim(),
+    department:dept,
+    role:role,
+    dashboard:roleToDashboard(role, dept),
+    managerName:$('signup-manager').value.trim() || '—',
+    location:$('signup-location').value.trim() || 'Accra HQ',
+    isActive:false,
+    approvalStatus:'pending',
+    createdAt:new Date().toISOString()
+  };
+}
+
+async function doSignup(){
+  const err = $('signup-err');
+  const ok = $('signup-ok');
+  err.classList.add('hidden');
+  ok.classList.add('hidden');
+  const name = $('signup-name').value.trim();
+  const email = $('signup-email').value.trim().toLowerCase();
+  const pwd = $('signup-pwd').value;
+  if(!name || !email || !pwd){
+    err.textContent = 'Veuillez remplir les champs requis.';
+    err.classList.remove('hidden');
+    return;
+  }
+  if(!isImprotechEmail(email)){
+    err.textContent = 'Utilise uniquement une adresse @improtechsystems.com';
+    err.classList.remove('hidden');
+    return;
+  }
+  if(pwd.length < 8){
+    err.textContent = 'Le mot de passe doit contenir au moins 8 caractères.';
+    err.classList.remove('hidden');
+    return;
+  }
+  $('signup-btn').disabled = true;
+  $('signup-btn').textContent = 'Création...';
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+    const baseProfile = buildSignupProfile(cred.user);
+    await setDoc(doc(db, COLLECTIONS.users, cred.user.uid), {
+      ...baseProfile,
+      requestedAt: serverTimestamp(),
+      lastLoginAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, {merge:true});
+    await createNotification({
+      title:'Nouvelle demande d’accès',
+      body:`${baseProfile.displayName} a demandé l’accès au portail (${baseProfile.department} · ${baseProfile.role}).`,
+      deptScope:'company',
+      type:'approval'
+    });
+    if(baseProfile.isActive){
+      notify(`Compte créé. Dashboard ${baseProfile.dashboard} activé.`, 'ok');
+    }else{
+      showPendingScreen();
+    }
+  }catch(e){
+    err.textContent = e.code === 'auth/email-already-in-use'
+      ? 'Cet email est déjà enregistré.'
+      : 'Impossible de créer le compte pour le moment.';
+    err.classList.remove('hidden');
+  }finally{
+    $('signup-btn').disabled = false;
+    $('signup-btn').textContent = 'Créer mon compte';
+  }
+}
+
 onAuthStateChanged(auth, async (user) => {
   stopListeners();
   if(user){
@@ -421,30 +647,48 @@ onAuthStateChanged(auth, async (user) => {
     await ensureProfile(user);
     await ensureSeedData();
     bindLiveData();
-    renderShell();
-    setView('dash');
-    $('app-screen').style.display='block';
-    $('login-screen').classList.add('hidden');
+    hideAuthAux();
+    if(profile?.isActive){
+      renderShell();
+      setView('dash');
+      $('app-screen').style.display='block';
+    }else{
+      showPendingScreen();
+    }
   }else{
     currentUser = null;
     profile = null;
     cache = {tasks:[],announcements:[],tickets:[],leads:[],docs:[],onboarding:[],org:[],users:[],notifications:[],audit:[]};
     $('app-screen').style.display='none';
+    $('pending-screen').classList.add('hidden');
     $('login-screen').classList.remove('hidden');
+    setAuthMode('login');
     $('login-btn').disabled = false;
     $('login-btn').textContent = 'Se connecter';
   }
   $('loading-screen').style.display='none';
 });
 
-async function ensureProfile(user){
+async function ensureProfile(user, forceRefresh=false){
   const ref = doc(db, COLLECTIONS.users, user.uid);
   const snap = await getDoc(ref);
   if(snap.exists()){
     profile = {id:snap.id, ...snap.data()};
+    const preset = presetForUser(user);
+    const patch = {
+      dashboard: profile.dashboard || roleToDashboard(profile.role, profile.department),
+      updatedAt: serverTimestamp()
+    };
+    if(forceRefresh && preset && preset.isActive && !profile.isActive){
+      patch.isActive = true;
+      patch.approvalStatus = 'active';
+    }
+    if(preset && !profile.managerName) patch.managerName = preset.managerName || '—';
+    await updateDoc(ref, {...patch, lastLoginAt: serverTimestamp()}).catch(()=>{});
+    profile = {...profile, ...patch};
   }else{
     profile = DEFAULT_PROFILE(user);
-    await setDoc(ref, {...profile, createdAt: serverTimestamp(), lastLoginAt: serverTimestamp()});
+    await setDoc(ref, {...profile, createdAt: serverTimestamp(), lastLoginAt: serverTimestamp(), updatedAt: serverTimestamp()});
   }
   await updateDoc(ref, {lastLoginAt: serverTimestamp()}).catch(()=>{});
 }
@@ -527,6 +771,7 @@ $('global-search-input').addEventListener('keydown', e => {
 });
 $('modal-close').addEventListener('click', closeModal);
 $('modal-backdrop').addEventListener('click', (e) => { if(e.target.id === 'modal-backdrop') closeModal(); });
+setAuthMode('login');
 
 function renderShell(){
   const dept = profile?.department || 'Technical';
@@ -644,125 +889,28 @@ async function createNotification({title, body, deptScope='company', userUid=nul
 // VIEWS
 // ------------------------------------------------------------
 function renderDashboard(){
-  const dept = profile.department;
-  const role = String(profile.role || '').toUpperCase();
-  const isMD = role.includes('MD');
-  const isCTO = role.includes('CTO');
-  const executiveView = isAdmin() || isMD || isCTO;
-
-  const companyTasks = cache.tasks;
-  const companyTickets = cache.tickets;
-  const companyLeads = cache.leads;
-  const companyAnnouncements = cache.announcements;
-  const companyDocs = cache.docs;
-  const companyOnboarding = cache.onboarding;
+  setPage('Dashboard', `Vue d’ensemble · ${profile.department}`);
   const myTasks = scopedTasks();
-  const myTickets = scopedTickets();
-  const myLeads = scopedLeads();
-  const myDocs = scopedDocs();
-  const myAnnouncements = scopedAnnouncements();
-  const myOnboarding = scopedOnboarding();
+  const openTickets = scopedTickets().filter(t => t.status !== 'resolved');
+  const activeOnboarding = scopedOnboarding().filter(o => o.status !== 'completed');
+  const leads = scopedLeads();
 
-  const deptUsers = cache.users.filter(u => u.department === dept).length;
-  const deptTasks = companyTasks.filter(t => t.dept === dept);
-  const deptTickets = companyTickets.filter(t => t.dept === dept || (dept === 'Technical' && t.dept === 'Support'));
-  const deptDocs = companyDocs.filter(d => d.ownerDept === dept || (Array.isArray(d.access) && d.access.includes(dept)));
-  const deptOnboarding = companyOnboarding.filter(o => o.dept === dept);
-  const deptLeads = dept === 'Sales & Marketing' ? companyLeads : [];
-
-  const totalPipeline = companyLeads.reduce((a,b)=>a + Number(b.value || 0), 0);
-  const wonDeals = companyLeads.filter(l => l.stage === 'Gagné').length;
-  const openCompanyTickets = companyTickets.filter(t => t.status !== 'resolved').length;
-  const urgentCompanyTasks = companyTasks.filter(t => t.priority === 'high' && t.status !== 'done').length;
-  const resolvedTickets = companyTickets.filter(t => t.status === 'resolved').length;
-  const resolutionRate = companyTickets.length ? Math.round((resolvedTickets / companyTickets.length) * 100) : 0;
-  const completedTasks = companyTasks.filter(t => t.status === 'done').length;
-  const taskCompletionRate = companyTasks.length ? Math.round((completedTasks / companyTasks.length) * 100) : 0;
-  const onboardingInProgress = companyOnboarding.filter(o => o.status !== 'completed').length;
-  const salesOpen = companyLeads.filter(l => !['Gagné','Perdu'].includes(l.stage)).length;
-  const technicalOpen = companyTasks.filter(t => t.dept === 'Technical' && t.status !== 'done').length;
-  const supportOpen = companyTickets.filter(t => t.status !== 'resolved').length;
-  const financeOpen = companyTasks.filter(t => t.dept === 'Finance' && t.status !== 'done').length;
-  const hrOpen = companyOnboarding.filter(o => o.status !== 'completed').length;
-
-  const deptSummary = DEPTS.filter(d => d !== 'Admin').map(d => {
-    const tasks = companyTasks.filter(t => t.dept === d);
-    const tickets = companyTickets.filter(t => t.dept === d || (d === 'Technical' && t.dept === 'Support'));
-    const leads = d === 'Sales & Marketing' ? companyLeads : [];
-    const onboarding = companyOnboarding.filter(o => o.dept === d);
-    return {
-      dept: d,
-      openTasks: tasks.filter(t => t.status !== 'done').length,
-      urgentTasks: tasks.filter(t => t.priority === 'high' && t.status !== 'done').length,
-      tickets: tickets.filter(t => t.status !== 'resolved').length,
-      pipeline: leads.reduce((a,b)=>a + Number(b.value || 0), 0),
-      onboarding: onboarding.filter(o => o.status !== 'completed').length
-    };
-  });
-
-  const executiveTitle = isMD ? 'Dashboard Exécutif — MD' : isCTO ? 'Dashboard Exécutif — CTO' : 'Dashboard Exécutif';
-  const executiveSubtitle = isMD
-    ? 'Vue complète de l’entreprise : direction, opérations, revenus, RH et service.'
-    : isCTO
-      ? 'Vue complète orientée delivery, infrastructure, support, projets critiques et charge opérationnelle.'
-      : `Vue complète de l’entreprise · ${profile.department}`;
-
-  const departmentTitles = {
-    'Technical': ['Dashboard Technical', 'Pilotage des projets techniques, delivery, incidents et charge ingénierie.'],
-    'Sales & Marketing': ['Dashboard Sales & Marketing', 'Suivi du pipeline, des offres, des campagnes et des relances commerciales.'],
-    'HR': ['Dashboard RH', 'Suivi de l’onboarding, de l’effectif, des actions RH et de la communication interne.'],
-    'Finance': ['Dashboard Finance', 'Suivi des priorités financières, clôtures, demandes et reporting opérationnel.'],
-    'Support': ['Dashboard Support', 'Suivi du help desk, des tickets ouverts, des SLA et des résolutions.']
-  };
-
-  const [deptTitle, deptSubtitle] = departmentTitles[dept] || ['Dashboard Département', `Vue d’ensemble · ${dept}`];
-  setPage(executiveView ? executiveTitle : deptTitle, executiveView ? executiveSubtitle : deptSubtitle);
-
-  const executiveTop = `
+  $('view').innerHTML = `
     <div class="grid grid-4">
-      <div class="kpi"><div class="kpi-value">${companyTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Tâches ouvertes</div><div class="kpi-sub" style="color:var(--purple)">${urgentCompanyTasks} urgentes</div></div>
-      <div class="kpi"><div class="kpi-value">${openCompanyTickets}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">${resolutionRate}% taux de résolution</div></div>
-      <div class="kpi"><div class="kpi-value">${money(totalPipeline)}</div><div class="kpi-label">Pipeline global</div><div class="kpi-sub" style="color:var(--amber)">${salesOpen} opportunités actives</div></div>
-      <div class="kpi"><div class="kpi-value">${unreadNotifications().length}</div><div class="kpi-label">Notifications</div><div class="kpi-sub" style="color:var(--blue)">${onboardingInProgress} onboardings actifs</div></div>
+      <div class="kpi"><div class="kpi-value">${myTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Tâches ouvertes</div><div class="kpi-sub" style="color:var(--purple)">à suivre</div></div>
+      <div class="kpi"><div class="kpi-value">${openTickets.length}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">support</div></div>
+      <div class="kpi"><div class="kpi-value">${unreadNotifications().length}</div><div class="kpi-label">Notifications non lues</div><div class="kpi-sub" style="color:var(--blue)">in-app</div></div>
+      <div class="kpi"><div class="kpi-value">${leads.length ? money(leads.reduce((a,b)=>a+Number(b.value||0),0)) : '—'}</div><div class="kpi-label">Pipeline commercial</div><div class="kpi-sub" style="color:var(--amber)">si autorisé</div></div>
     </div>
 
     <div class="grid grid-2" style="margin-top:12px">
       <div class="card">
-        <div class="toolbar"><h3>Vue consolidée par département</h3><button class="btn-link" id="go-reports">Rapports</button></div>
+        <div class="toolbar"><h3>Priorités de la semaine</h3><button class="btn-link" id="go-tasks">Voir tout</button></div>
         <div class="list">
-          ${deptSummary.map(row => `
+          ${myTasks.filter(t=>t.status!=='done').slice(0,5).map(t => `
             <div class="item">
               <div class="item-top">
-                <div><b>${esc(row.dept)}</b><div class="meta">${row.openTasks} tâches ouvertes · ${row.tickets} tickets · ${row.onboarding} onboarding</div></div>
-                ${deptBadge(row.dept)}
-              </div>
-              <div class="row" style="margin-top:8px;justify-content:space-between;gap:8px;flex-wrap:wrap">
-                <span class="meta">Urgent: <b>${row.urgentTasks}</b></span>
-                <span class="meta">Pipeline: <b>${row.pipeline ? money(row.pipeline) : '—'}</b></span>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="toolbar"><h3>${isCTO ? 'Focus Delivery & Support' : 'Indicateurs stratégiques'}</h3><button class="btn-link" id="go-support">Support</button></div>
-        <div class="list">
-          <div class="item"><div class="item-top"><div><b>Direction générale</b><div class="meta">Taux de complétion tâches global</div></div><span class="meta"><b>${taskCompletionRate}%</b></span></div></div>
-          <div class="item"><div class="item-top"><div><b>Technical</b><div class="meta">Charge delivery et projets critiques</div></div><span class="meta"><b>${technicalOpen}</b> ouverts</span></div></div>
-          <div class="item"><div class="item-top"><div><b>Support</b><div class="meta">Backlog incidents et demandes</div></div><span class="meta"><b>${supportOpen}</b> ouverts</span></div></div>
-          <div class="item"><div class="item-top"><div><b>Sales & Marketing</b><div class="meta">Deals gagnés et pipeline actif</div></div><span class="meta"><b>${wonDeals}</b> gagnés</span></div></div>
-          <div class="item"><div class="item-top"><div><b>Finance / RH</b><div class="meta">Clôtures, validations et onboarding</div></div><span class="meta"><b>${financeOpen + hrOpen}</b> actions</span></div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="toolbar"><h3>Priorités cross-départements</h3><button class="btn-link" id="go-tasks">Tâches</button></div>
-        <div class="list">
-          ${companyTasks.filter(t=>t.status!=='done').sort((a,b)=> (a.priority==='high'?0:1) - (b.priority==='high'?0:1)).slice(0,6).map(t => `
-            <div class="item">
-              <div class="item-top">
-                <div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · ${esc(t.dept)} · échéance ${fmtDate(t.dueDate)}</div></div>
+                <div><div><b>${esc(t.title)}</b></div><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div>
                 <div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div>
               </div>
               <div class="small" style="margin-top:7px">${esc(t.description || '')}</div>
@@ -772,110 +920,56 @@ function renderDashboard(){
       </div>
 
       <div class="card">
-        <div class="toolbar"><h3>Annonces & décisions récentes</h3><button class="btn-link" id="go-comm">Communication</button></div>
+        <div class="toolbar"><h3>Annonces récentes</h3><button class="btn-link" id="go-comm">Voir tout</button></div>
         <div class="list">
-          ${companyAnnouncements.slice(0,5).map(a => `
+          ${scopedAnnouncements().slice(0,4).map(a => `
             <div class="item">
               <div class="item-top">
                 <div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)} · ${a.targetDept || 'Entreprise'}</div></div>
-                ${deptBadge(a.dept || 'Admin')}
+                ${deptBadge(a.dept)}
               </div>
-              <div class="small" style="margin-top:7px">${esc(a.body || '')}</div>
+              <div class="small" style="margin-top:7px">${esc(a.body)}</div>
             </div>
           `).join('') || `<div class="empty">Aucune annonce.</div>`}
         </div>
       </div>
-    </div>`;
 
-  const departmentTop = {
-    'Technical': `
-      <div class="grid grid-4">
-        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Projets / tâches ouverts</div><div class="kpi-sub" style="color:var(--purple)">${deptTasks.filter(t=>t.priority==='high' && t.status!=='done').length} urgents</div></div>
-        <div class="kpi"><div class="kpi-value">${deptTickets.filter(t=>t.status!=='resolved').length}</div><div class="kpi-label">Tickets à traiter</div><div class="kpi-sub" style="color:var(--red)">support & technique</div></div>
-        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Effectif technique</div><div class="kpi-sub" style="color:var(--blue)">équipe visible</div></div>
-        <div class="kpi"><div class="kpi-value">${myDocs.length}</div><div class="kpi-label">Docs utiles</div><div class="kpi-sub" style="color:var(--green)">procédures & runbooks</div></div>
+      <div class="card">
+        <div class="toolbar"><h3>Documents utiles</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div>
+        <div class="list">
+          ${scopedDocs().slice(0,4).map(d => `
+            <div class="item">
+              <div class="item-top">
+                <div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')} · ${esc(d.ownerDept || '—')}</div></div>
+                ${deptBadge(d.ownerDept || 'Admin')}
+              </div>
+              <div class="small" style="margin-top:7px">${esc(d.summary || '')}</div>
+            </div>
+          `).join('') || `<div class="empty">Aucun document.</div>`}
+        </div>
       </div>
-      <div class="grid grid-2" style="margin-top:12px">
-        <div class="card"><div class="toolbar"><h3>Charge delivery</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.filter(t=>t.status!=='done').slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune tâche technique.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Incidents / Support</h3><button class="btn-link" id="go-support">Tickets</button></div><div class="list">${deptTickets.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.requesterName || t.requesterUid || '—')} · ${fmtDate(t.createdAt)}</div></div>${ticketStatusBadge(t.status)}</div><div class="small" style="margin-top:7px">${esc(t.description || '')}</div></div>`).join('') || `<div class="empty">Aucun ticket.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Runbooks & documents</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')} · ${esc(d.ownerDept || '—')}</div></div>${deptBadge(d.ownerDept || 'Technical')}</div></div>`).join('') || `<div class="empty">Aucun document technique.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Annonces techniques</h3><button class="btn-link" id="go-comm">Communication</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
-      </div>`,
-    'Sales & Marketing': `
-      <div class="grid grid-4">
-        <div class="kpi"><div class="kpi-value">${deptLeads.filter(l=>!['Gagné','Perdu'].includes(l.stage)).length}</div><div class="kpi-label">Leads actifs</div><div class="kpi-sub" style="color:var(--amber)">pipeline à suivre</div></div>
-        <div class="kpi"><div class="kpi-value">${money(deptLeads.reduce((a,b)=>a+Number(b.value||0),0))}</div><div class="kpi-label">Pipeline commercial</div><div class="kpi-sub" style="color:var(--purple)">valeur totale</div></div>
-        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Actions commerciales</div><div class="kpi-sub" style="color:var(--blue)">offres et suivis</div></div>
-        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Équipe visible</div><div class="kpi-sub" style="color:var(--green)">sales & marketing</div></div>
-      </div>
-      <div class="grid grid-2" style="margin-top:12px">
-        <div class="card"><div class="toolbar"><h3>Pipeline prioritaire</h3><button class="btn-link" id="go-crm">CRM</button></div><div class="list">${deptLeads.slice(0,6).map(l => `<div class="item"><div class="item-top"><div><b>${esc(l.company)}</b><div class="meta">${esc(l.contactName || '—')} · ${esc(l.service || '—')}</div></div>${leadStageBadge(l.stage)}</div><div class="row" style="margin-top:7px;justify-content:space-between"><span class="meta">${money(l.value || 0)}</span><span class="meta">proba ${esc(l.probability || 0)}%</span></div></div>`).join('') || `<div class="empty">Aucun lead.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Actions à lancer</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune action.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Documents commerciaux</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')}</div></div>${deptBadge(d.ownerDept || dept)}</div></div>`).join('') || `<div class="empty">Aucun document.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Annonces & campagnes</h3><button class="btn-link" id="go-comm">Communication</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
-      </div>`,
-    'HR': `
-      <div class="grid grid-4">
-        <div class="kpi"><div class="kpi-value">${deptOnboarding.filter(o=>o.status!=='completed').length}</div><div class="kpi-label">Onboardings actifs</div><div class="kpi-sub" style="color:var(--green)">intégration en cours</div></div>
-        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Équipe RH visible</div><div class="kpi-sub" style="color:var(--purple)">structure RH</div></div>
-        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Actions RH</div><div class="kpi-sub" style="color:var(--amber)">priorités du moment</div></div>
-        <div class="kpi"><div class="kpi-value">${myAnnouncements.length}</div><div class="kpi-label">Comms RH</div><div class="kpi-sub" style="color:var(--blue)">annonces ciblées</div></div>
-      </div>
-      <div class="grid grid-2" style="margin-top:12px">
-        <div class="card"><div class="toolbar"><h3>Suivi onboarding</h3><button class="btn-link" id="go-ob">Onboarding</button></div><div class="list">${deptOnboarding.slice(0,6).map(o => `<div class="item"><div class="item-top"><div><b>${esc(o.employeeName)}</b><div class="meta">début ${fmtDate(o.startDate)} · ${esc(o.managerName || '—')}</div></div><span class="meta"><b>${pctOnboarding(o)}%</b></span></div><div class="progress" style="margin-top:8px"><div style="width:${pctOnboarding(o)}%"></div></div></div>`).join('') || `<div class="empty">Aucun onboarding.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Actions RH</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune tâche RH.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Documents RH</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')}</div></div>${deptBadge(d.ownerDept || dept)}</div></div>`).join('') || `<div class="empty">Aucun document RH.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Communication interne</h3><button class="btn-link" id="go-comm">Annonces</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
-      </div>`,
-    'Finance': `
-      <div class="grid grid-4">
-        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Actions financières</div><div class="kpi-sub" style="color:var(--blue)">clôture et suivi</div></div>
-        <div class="kpi"><div class="kpi-value">${money(totalPipeline)}</div><div class="kpi-label">Visibilité pipeline</div><div class="kpi-sub" style="color:var(--amber)">référence business</div></div>
-        <div class="kpi"><div class="kpi-value">${resolutionRate}%</div><div class="kpi-label">Taux de résolution</div><div class="kpi-sub" style="color:var(--green)">impact service</div></div>
-        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Équipe Finance visible</div><div class="kpi-sub" style="color:var(--purple)">coordination</div></div>
-      </div>
-      <div class="grid grid-2" style="margin-top:12px">
-        <div class="card"><div class="toolbar"><h3>Priorités Finance</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune tâche Finance.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Reporting synthétique</h3><button class="btn-link" id="go-reports">Rapports</button></div><div class="list"><div class="item"><div class="item-top"><div><b>Pipeline commercial</b><div class="meta">Valeur consolidée</div></div><span class="meta"><b>${money(totalPipeline)}</b></span></div></div><div class="item"><div class="item-top"><div><b>Tâches globales</b><div class="meta">Complétion entreprise</div></div><span class="meta"><b>${taskCompletionRate}%</b></span></div></div><div class="item"><div class="item-top"><div><b>Support</b><div class="meta">Taux de résolution</div></div><span class="meta"><b>${resolutionRate}%</b></span></div></div></div></div>
-        <div class="card"><div class="toolbar"><h3>Documents Finance</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')}</div></div>${deptBadge(d.ownerDept || dept)}</div></div>`).join('') || `<div class="empty">Aucun document Finance.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Infos d’entreprise</h3><button class="btn-link" id="go-comm">Communication</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
-      </div>`,
-    'Support': `
-      <div class="grid grid-4">
-        <div class="kpi"><div class="kpi-value">${deptTickets.filter(t=>t.status!=='resolved').length}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">help desk</div></div>
-        <div class="kpi"><div class="kpi-value">${resolutionRate}%</div><div class="kpi-label">Taux de résolution</div><div class="kpi-sub" style="color:var(--green)">référence globale</div></div>
-        <div class="kpi"><div class="kpi-value">${deptTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Actions support</div><div class="kpi-sub" style="color:var(--amber)">backlog équipe</div></div>
-        <div class="kpi"><div class="kpi-value">${deptUsers || '—'}</div><div class="kpi-label">Équipe support visible</div><div class="kpi-sub" style="color:var(--blue)">service desk</div></div>
-      </div>
-      <div class="grid grid-2" style="margin-top:12px">
-        <div class="card"><div class="toolbar"><h3>Backlog support</h3><button class="btn-link" id="go-support">Tickets</button></div><div class="list">${deptTickets.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.requesterName || t.requesterUid || '—')} · ${fmtDate(t.createdAt)}</div></div>${ticketStatusBadge(t.status)}</div><div class="small" style="margin-top:7px">${esc(t.description || '')}</div></div>`).join('') || `<div class="empty">Aucun ticket.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Actions équipe</h3><button class="btn-link" id="go-tasks">Tâches</button></div><div class="list">${deptTasks.slice(0,6).map(t => `<div class="item"><div class="item-top"><div><b>${esc(t.title)}</b><div class="meta">${esc(t.assigneeName || '—')} · échéance ${fmtDate(t.dueDate)}</div></div><div class="row">${priorityBadge(t.priority)} ${taskStatusBadge(t.status)}</div></div></div>`).join('') || `<div class="empty">Aucune tâche support.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Base documentaire</h3><button class="btn-link" id="go-docs">Bibliothèque</button></div><div class="list">${myDocs.slice(0,5).map(d => `<div class="item"><div class="item-top"><div><b>${esc(d.title)}</b><div class="meta">${esc(d.category || '—')}</div></div>${deptBadge(d.ownerDept || dept)}</div></div>`).join('') || `<div class="empty">Aucun document support.</div>`}</div></div>
-        <div class="card"><div class="toolbar"><h3>Annonces opérationnelles</h3><button class="btn-link" id="go-comm">Communication</button></div><div class="list">${myAnnouncements.slice(0,4).map(a => `<div class="item"><div class="item-top"><div><b>${esc(a.authorName)}</b><div class="meta">${fmtDateTime(a.publishedAt)}</div></div>${deptBadge(a.dept || dept)}</div><div class="small" style="margin-top:7px">${esc(a.body || '')}</div></div>`).join('') || `<div class="empty">Aucune annonce.</div>`}</div></div>
-      </div>`
-  };
 
-  $('view').innerHTML = executiveView ? executiveTop : (departmentTop[dept] || `
-    <div class="grid grid-4">
-      <div class="kpi"><div class="kpi-value">${myTasks.filter(t=>t.status!=='done').length}</div><div class="kpi-label">Tâches ouvertes</div><div class="kpi-sub" style="color:var(--purple)">à suivre</div></div>
-      <div class="kpi"><div class="kpi-value">${myTickets.filter(t=>t.status!=='resolved').length}</div><div class="kpi-label">Tickets ouverts</div><div class="kpi-sub" style="color:var(--red)">support</div></div>
-      <div class="kpi"><div class="kpi-value">${unreadNotifications().length}</div><div class="kpi-label">Notifications non lues</div><div class="kpi-sub" style="color:var(--blue)">in-app</div></div>
-      <div class="kpi"><div class="kpi-value">${myLeads.length ? money(myLeads.reduce((a,b)=>a+Number(b.value||0),0)) : '—'}</div><div class="kpi-label">Pipeline</div><div class="kpi-sub" style="color:var(--amber)">si autorisé</div></div>
+      <div class="card">
+        <div class="toolbar"><h3>Onboarding</h3><button class="btn-link" id="go-ob">Détails</button></div>
+        <div class="list">
+          ${activeOnboarding.slice(0,4).map(o => `
+            <div class="item">
+              <div class="item-top">
+                <div><b>${esc(o.employeeName)}</b><div class="meta">${esc(o.dept)} · début ${fmtDate(o.startDate)}</div></div>
+                <span class="meta"><b>${pctOnboarding(o)}%</b></span>
+              </div>
+              <div class="progress" style="margin-top:8px"><div style="width:${pctOnboarding(o)}%"></div></div>
+            </div>
+          `).join('') || `<div class="empty">Aucun onboarding en cours.</div>`}
+        </div>
+      </div>
     </div>
-  `);
+  `;
 
-  const linkMap = {
-    'go-reports':'reports',
-    'go-support':'support',
-    'go-tasks':'tasks',
-    'go-comm':'comm',
-    'go-docs':'docs',
-    'go-ob':'onboarding',
-    'go-crm':'crm'
-  };
-  Object.entries(linkMap).forEach(([id, view]) => {
-    $(id)?.addEventListener('click', ()=>setView(view));
-  });
+  $('go-tasks')?.addEventListener('click', ()=>setView('tasks'));
+  $('go-comm')?.addEventListener('click', ()=>setView('comm'));
+  $('go-docs')?.addEventListener('click', ()=>setView('docs'));
+  $('go-ob')?.addEventListener('click', ()=>setView('onboarding'));
 }
 
 function renderTasks(){
@@ -1476,41 +1570,80 @@ function renderNotifications(){
 
 function renderAdmin(){
   if(!canAccess('admin')) return renderNoAccess();
-  setPage('Administration', 'Gestion des profils, rôles, paramètres et audit');
+  const pendingUsers = cache.users.filter(u => !u.isActive || u.approvalStatus === 'pending');
+  const activeUsers = cache.users.filter(u => u.isActive);
+  setPage('Administration', 'Validation des accès, profils, rôles, dashboards et audit');
+
+  const pendingHtml = pendingUsers.length ? `
+    <table class="table">
+      <thead><tr><th>Nom</th><th>Email</th><th>Département</th><th>Rôle</th><th>Dashboard</th><th></th></tr></thead>
+      <tbody>
+        ${pendingUsers.map(u => `
+          <tr>
+            <td>${esc(u.displayName || '—')}</td>
+            <td>${esc(u.email || '—')}</td>
+            <td>${esc(u.department || '—')}</td>
+            <td>${esc(u.role || 'Employee')}</td>
+            <td>${esc(u.dashboard || roleToDashboard(u.role, u.department))}</td>
+            <td class="row">
+              <button class="btn-success btn-s" data-approve-user="${u.id}">Valider</button>
+              <button class="btn-s" data-edit-user="${u.id}">Modifier</button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  ` : `<div class="empty">Aucune demande en attente.</div>`;
+
+  const activeHtml = activeUsers.length ? `
+    <table class="table">
+      <thead><tr><th>Nom</th><th>Email</th><th>Département</th><th>Rôle</th><th>Dashboard</th><th></th></tr></thead>
+      <tbody>
+        ${activeUsers.map(u => `
+          <tr>
+            <td>${esc(u.displayName || '—')}</td>
+            <td>${esc(u.email || '—')}</td>
+            <td>${esc(u.department || '—')}</td>
+            <td>${esc(u.role || 'Employee')}</td>
+            <td>${esc(u.dashboard || roleToDashboard(u.role, u.department))}</td>
+            <td><button class="btn-s" data-edit-user="${u.id}">Modifier</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  ` : `<div class="empty">Aucun profil actif.</div>`;
+
   $('view').innerHTML = `
-    <div class="grid grid-2">
+    <div class="grid">
       <div class="card">
-        <h3>Utilisateurs</h3>
-        <table class="table">
-          <thead><tr><th>Nom</th><th>Email</th><th>Département</th><th>Rôle</th><th></th></tr></thead>
-          <tbody>
-            ${cache.users.map(u => `
-              <tr>
-                <td>${esc(u.displayName || '—')}</td>
-                <td>${esc(u.email || '—')}</td>
-                <td>${esc(u.department || '—')}</td>
-                <td>${esc(u.role || 'Employee')}</td>
-                <td><button class="btn-s" data-edit-user="${u.id}">Modifier</button></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        <div class="tiny" style="margin-top:8px">La création des comptes Auth se fait dans Firebase Authentication. Ici, on administre les profils et rôles.</div>
+        <div class="toolbar">
+          <h3>Demandes d’accès en attente</h3>
+          <span class="badge ${pendingUsers.length ? 'ba' : 'bt'}">${pendingUsers.length} en attente</span>
+        </div>
+        ${pendingHtml}
       </div>
-      <div class="card">
-        <h3>Audit récent</h3>
-        <div class="timeline">
-          ${cache.audit.slice(0,20).map(a => `
-            <div class="item">
-              <b>${esc(a.actorName || '—')}</b> a fait <b>${esc(a.action)}</b> dans <b>${esc(a.module)}</b>
-              <div class="tiny">${fmtDateTime(a.createdAt)}</div>
-            </div>
-          `).join('') || `<div class="empty">Aucun audit.</div>`}
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Profils actifs</h3>
+          ${activeHtml}
+        </div>
+        <div class="card">
+          <h3>Audit récent</h3>
+          <div class="timeline">
+            ${cache.audit.slice(0,20).map(a => `
+              <div class="item">
+                <b>${esc(a.actorName || '—')}</b> a fait <b>${esc(a.action)}</b> dans <b>${esc(a.module)}</b>
+                <div class="tiny">${fmtDateTime(a.createdAt)}</div>
+              </div>
+            `).join('') || `<div class="empty">Aucun audit.</div>`}
+          </div>
         </div>
       </div>
     </div>
   `;
   [...$('view').querySelectorAll('[data-edit-user]')].forEach(btn => btn.addEventListener('click', ()=>openUserEditor(btn.dataset.editUser)));
+  [...$('view').querySelectorAll('[data-approve-user]')].forEach(btn => btn.addEventListener('click', ()=>approveUser(btn.dataset.approveUser)));
 }
 function openUserEditor(id){
   const user = cache.users.find(x=>x.id===id); if(!user) return;
@@ -1518,23 +1651,55 @@ function openUserEditor(id){
     <div class="form-grid">
       <div><div class="label">Nom</div><input id="edit-user-name" class="field" value="${esc(user.displayName || '')}"></div>
       <div><div class="label">Département</div><select id="edit-user-dept" class="select">${DEPTS.map(d=>`<option ${user.department===d?'selected':''}>${d}</option>`).join('')}</select></div>
-      <div><div class="label">Rôle</div><select id="edit-user-role" class="select">${['Employee','Admin','CEO','MD','CTO','Manager'].map(r=>`<option ${user.role===r?'selected':''}>${r}</option>`).join('')}</select></div>
+      <div><div class="label">Rôle</div><select id="edit-user-role" class="select">${['Employee','Engineer','Sales Executive','HR Officer','HR Manager','Finance Officer','Finance Manager','Support Agent','Manager','Admin','CEO','MD','CTO'].map(r=>`<option ${user.role===r?'selected':''}>${r}</option>`).join('')}</select></div>
+      <div><div class="label">Dashboard</div><input id="edit-user-dashboard" class="field" value="${esc(user.dashboard || roleToDashboard(user.role, user.department))}"></div>
       <div><div class="label">Manager</div><input id="edit-user-manager" class="field" value="${esc(user.managerName || '')}"></div>
+      <div><div class="label">Statut</div><select id="edit-user-status" class="select">
+        <option value="active" ${(user.isActive || user.approvalStatus==='active')?'selected':''}>Actif</option>
+        <option value="pending" ${(!user.isActive || user.approvalStatus==='pending')?'selected':''}>Pending</option>
+      </select></div>
     </div>
     <div class="row" style="margin-top:10px"><button class="btn-p" id="save-user-profile">Enregistrer</button></div>
   `);
   $('save-user-profile').addEventListener('click', async ()=>{
+    const role = $('edit-user-role').value;
+    const department = $('edit-user-dept').value;
+    const status = $('edit-user-status').value;
     await updateDoc(doc(db, COLLECTIONS.users, id), {
       displayName:$('edit-user-name').value.trim(),
-      department:$('edit-user-dept').value,
-      role:$('edit-user-role').value,
+      department,
+      role,
+      dashboard:$('edit-user-dashboard').value.trim() || roleToDashboard(role, department),
       managerName:$('edit-user-manager').value.trim(),
+      isActive: status === 'active',
+      approvalStatus: status,
       updatedAt:serverTimestamp()
     });
     await audit('update','users',{id});
     closeModal();
     notify('Profil mis à jour.', 'ok');
   });
+}
+
+async function approveUser(id){
+  const user = cache.users.find(x=>x.id===id); if(!user) return;
+  const dashboard = user.dashboard || roleToDashboard(user.role, user.department);
+  await updateDoc(doc(db, COLLECTIONS.users, id), {
+    isActive:true,
+    approvalStatus:'active',
+    dashboard,
+    approvedAt:serverTimestamp(),
+    approvedBy: currentUser.uid,
+    updatedAt:serverTimestamp()
+  });
+  await createNotification({
+    title:'Accès validé',
+    body:`Ton accès IMPROTECH a été validé. Dashboard attribué : ${dashboard}.`,
+    userUid:id,
+    type:'approval'
+  });
+  await audit('approve','users',{id});
+  notify('Utilisateur validé.', 'ok');
 }
 
 function renderAI(){
