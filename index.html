@@ -284,7 +284,7 @@ a{text-decoration:none;color:inherit}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, serverTimestamp, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCa5ZAo-YDPUu6Kchl_chbHHm9iaLZVS6Q",
@@ -338,27 +338,27 @@ const COMPANY_STRUCTURE = {
   pmo: {name:'Project Coordinator', role:'Project Coordinator', dept:'Technical', subDepartment:'Projects'}
 };
 
-const staticData = {
+const seedData = {
   tasks: [
-    {title:'Review Stanbic architecture', owner:'Othniel Atse', dept:'Technical', status:'In Progress', priority:'High', due:'Apr 24'},
+    {title:'Review Stanbic architecture', owner:'Othniel Atse', dept:'Technical', subDepartment:'IT', status:'In Progress', priority:'High', due:'Apr 24'},
     {title:'SEMLEX proposal review', owner:'Yael', dept:'Sales & Marketing', status:'Review', priority:'High', due:'Apr 23'},
     {title:'Gilles onboarding checklist', owner:'Kassum', dept:'HR', status:'Pending', priority:'Medium', due:'Apr 25'},
     {title:'Q2 budget preparation', owner:'Unclebert', dept:'Finance', status:'Done', priority:'Medium', due:'Apr 21'},
-    {title:'VIP support review', owner:'Support Lead', dept:'Support', status:'Open', priority:'High', due:'Today'},
-    {title:'Cross-team delivery review', owner:'Project Coordinator', dept:'PMO', status:'In Progress', priority:'High', due:'Apr 26'},
-    {title:'Engineer backlog review', owner:'Desmond', dept:'Technical', status:'In Progress', priority:'High', due:'Apr 24'},
-    {title:'Project milestone tracker update', owner:'Project Coordinator', dept:'PMO', status:'Review', priority:'Medium', due:'Apr 25'}
+    {title:'VIP support review', owner:'Support Lead', dept:'Support', status:'Open', priority:'High', due:'Today'}
   ],
   tickets: [
     {title:'Stanbic VPN disconnects', requester:'Stanbic IT', severity:'High', status:'Open', dept:'Technical'},
     {title:'Training room projector issue', requester:'Training Team', severity:'Medium', status:'In Progress', dept:'Support'},
     {title:'Student portal access blocked', requester:'Student #12', severity:'Low', status:'Open', dept:'Support'}
   ],
-  leads: [
-    {company:'Orange CI', value:'$95k', stage:'Negotiation', owner:'Yael', probability:74},
-    {company:'SEMLEX Group', value:'$60k', stage:'Proposal', owner:'Yael', probability:61},
-    {company:'MTN Ghana', value:'$120k', stage:'Qualification', owner:'Tariq Tondi', probability:47},
-    {company:'Ecobank', value:'$48k', stage:'Discovery', owner:'Gilles Bourgeois', probability:39}
+  deals: [
+    {company:'Orange CI', value:95000, stage:'Negotiation', owner:'Yael', probability:74, dept:'Sales & Marketing'},
+    {company:'SEMLEX Group', value:60000, stage:'Proposal', owner:'Yael', probability:61, dept:'Sales & Marketing'},
+    {company:'MTN Ghana', value:120000, stage:'Qualification', owner:'Tariq Tondi', probability:47, dept:'Sales & Marketing'}
+  ],
+  projects: [
+    {name:'Bank Deployment', manager:'Project Coordinator', status:'In Progress', progress:65, deadline:'2026-05-10', dept:'Technical', subDepartment:'Projects'},
+    {name:'Campus Refresh', manager:'Othniel Atse', status:'Planning', progress:20, deadline:'2026-06-15', dept:'Technical', subDepartment:'IT'}
   ],
   documents: [
     {title:'Employee onboarding policy', type:'Policy', owner:'HR'},
@@ -369,6 +369,7 @@ const staticData = {
   ],
   spotlight: {name:'Yael', role:'Sales Manager', note:'Top commercial execution and strongest client follow-up this month.', dept:'Sales & Marketing'}
 };
+let appData = { tasks: [], tickets: [], deals: [], projects: [], documents: seedData.documents, spotlight: seedData.spotlight };
 
 let currentUser = null;
 let profile = null;
@@ -404,6 +405,99 @@ function hasFullAccess(){ return isSuperAdmin(); }
 function canEditOrg(){ return isSuperAdmin() || isValidator() || isExecutive(); }
 function showNotice(message, type='info'){ $('auth-notice').innerHTML = `<div class="notice ${type}">${message}</div>`; }
 function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+function currency(n){ return '$' + Number(n || 0).toLocaleString(); }
+async function fetchCollectionData(name){
+  try {
+    const snap = await getDocs(query(collection(db, name), orderBy('createdAt', 'desc')));
+    return snap.docs.map(d => ({ id:d.id, ...d.data() }));
+  } catch (e) {
+    try {
+      const snap = await getDocs(collection(db, name));
+      return snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    } catch (err) {
+      console.error('fetchCollectionData', name, err);
+      return [];
+    }
+  }
+}
+async function ensureSeedCollection(name, items){
+  const existing = await fetchCollectionData(name);
+  if (existing.length) return existing;
+  for (const item of items) {
+    await addDoc(collection(db, name), { ...item, createdAt: serverTimestamp(), seeded: true }).catch(()=>{});
+  }
+  return await fetchCollectionData(name);
+}
+async function loadBusinessData(){
+  appData.tasks = await ensureSeedCollection('tasks', seedData.tasks);
+  appData.tickets = await ensureSeedCollection('tickets', seedData.tickets);
+  appData.deals = await ensureSeedCollection('deals', seedData.deals);
+  appData.projects = await ensureSeedCollection('projects', seedData.projects);
+  appData.documents = seedData.documents;
+  appData.spotlight = seedData.spotlight;
+}
+window.createTaskRecord = async function(){
+  try {
+    const title = $('new-task-title')?.value?.trim();
+    const owner = $('new-task-owner')?.value?.trim() || profile.displayName;
+    const dept = $('new-task-dept')?.value || profile.department;
+    const subDepartment = $('new-task-subdept')?.value || '';
+    const status = $('new-task-status')?.value || 'Open';
+    const priority = $('new-task-priority')?.value || 'Medium';
+    const due = $('new-task-due')?.value || '—';
+    if (!title) return alert('Task title is required.');
+    await addDoc(collection(db, 'tasks'), { title, owner, dept, subDepartment, status, priority, due, createdAt: serverTimestamp(), createdBy: profile.displayName || profile.email });
+    await loadBusinessData();
+    renderView('tasks', document.querySelector('[data-view="tasks"]'));
+    alert('Task created.');
+  } catch (e) { console.error(e); alert('Could not create task: ' + (e.message || e)); }
+};
+window.createDealRecord = async function(){
+  try {
+    const company = $('new-deal-company')?.value?.trim();
+    const value = Number($('new-deal-value')?.value || 0);
+    const stage = $('new-deal-stage')?.value || 'Discovery';
+    const owner = $('new-deal-owner')?.value?.trim() || profile.displayName;
+    const probability = Number($('new-deal-probability')?.value || 0);
+    const dept = $('new-deal-dept')?.value || profile.department;
+    const subDepartment = $('new-deal-subdept')?.value || '';
+    if (!company) return alert('Company is required.');
+    await addDoc(collection(db, 'deals'), { company, value, stage, owner, probability, dept, subDepartment, createdAt: serverTimestamp(), createdBy: profile.displayName || profile.email });
+    await loadBusinessData();
+    renderView('crm', document.querySelector('[data-view="crm"]'));
+    alert('Deal created.');
+  } catch (e) { console.error(e); alert('Could not create deal: ' + (e.message || e)); }
+};
+window.createTicketRecord = async function(){
+  try {
+    const title = $('new-ticket-title')?.value?.trim();
+    const requester = $('new-ticket-requester')?.value?.trim() || profile.displayName;
+    const severity = $('new-ticket-severity')?.value || 'Medium';
+    const status = $('new-ticket-status')?.value || 'Open';
+    const dept = $('new-ticket-dept')?.value || profile.department;
+    if (!title) return alert('Ticket title is required.');
+    await addDoc(collection(db, 'tickets'), { title, requester, severity, status, dept, createdAt: serverTimestamp(), createdBy: profile.displayName || profile.email });
+    await loadBusinessData();
+    renderView('support', document.querySelector('[data-view="support"]'));
+    alert('Ticket created.');
+  } catch (e) { console.error(e); alert('Could not create ticket: ' + (e.message || e)); }
+};
+window.createProjectRecord = async function(){
+  try {
+    const name = $('new-project-name')?.value?.trim();
+    const manager = $('new-project-manager')?.value?.trim() || profile.displayName;
+    const status = $('new-project-status')?.value || 'Planning';
+    const progress = Number($('new-project-progress')?.value || 0);
+    const deadline = $('new-project-deadline')?.value || '';
+    const dept = $('new-project-dept')?.value || profile.department;
+    const subDepartment = $('new-project-subdept')?.value || 'Projects';
+    if (!name) return alert('Project name is required.');
+    await addDoc(collection(db, 'projects'), { name, manager, status, progress, deadline, dept, subDepartment, createdAt: serverTimestamp(), createdBy: profile.displayName || profile.email });
+    await loadBusinessData();
+    renderView('projects', document.querySelector('[data-view="projects"]'));
+    alert('Project created.');
+  } catch (e) { console.error(e); alert('Could not create project: ' + (e.message || e)); }
+};
 async function loadOrgStructure(){
   try {
     const snap = await getDoc(doc(db, 'settings', 'companyStructure'));
@@ -692,6 +786,7 @@ async function loadUsers(){
     pendingUsers = [];
   }
   await loadOrgStructure();
+  await loadBusinessData();
 }
 function showAuth(){ $('loading-screen').classList.add('hidden'); $('pending-screen').classList.add('hidden'); $('app-screen').classList.add('hidden'); $('auth-screen').classList.remove('hidden'); showAuthTab('login'); }
 function showPending(){ $('loading-screen').classList.add('hidden'); $('auth-screen').classList.add('hidden'); $('app-screen').classList.add('hidden'); $('pending-screen').classList.remove('hidden'); }
@@ -717,6 +812,7 @@ function buildNav(){
     {id:'people', label:'People', icon:'👥'},
     {id:'requests', label:'Requests', icon:'📨', count:pendingCount},
     {id:'tasks', label:'Tasks', icon:'✅'},
+    {id:'projects', label:'Projects', icon:'📋'},
     {id:'crm', label:'CRM', icon:'💼'},
     {id:'support', label:'Support', icon:'🎧'},
     {id:'documents', label:'Documents', icon:'📁'},
@@ -731,9 +827,10 @@ function buildNav(){
 }
 
 function kpi(n,l,s,color='var(--primary)'){ return `<div class="kpi"><div class="num" style="color:${color}">${n}</div><div class="lbl">${l}</div><div class="sub" style="color:${color}">${s}</div></div>`; }
-function myTasks(){ return isExecutive() ? staticData.tasks : staticData.tasks.filter(t => t.dept===profile.department || t.owner===profile.displayName || ((profile.role==='Project Coordinator' || profile.subDepartment==='Projects') && ['Technical','Sales & Marketing','HR','Finance','Support','PMO'].includes(t.dept))); }
-function myTickets(){ return (isExecutive() || profile.department==='Support' || profile.department==='Technical') ? staticData.tickets : staticData.tickets.filter(t=>t.dept===profile.department); }
-function myLeads(){ return (isExecutive() || profile.department==='Sales & Marketing') ? staticData.leads : []; }
+function myTasks(){ return isExecutive() ? appData.tasks : appData.tasks.filter(t => t.dept===profile.department || t.owner===profile.displayName || ((profile.role==='Project Coordinator' || profile.subDepartment==='Projects') && ['Technical','Sales & Marketing','HR','Finance','Support','PMO'].includes(t.dept))); }
+function myTickets(){ return (isExecutive() || profile.department==='Support' || profile.department==='Technical') ? appData.tickets : appData.tickets.filter(t=>t.dept===profile.department); }
+function myLeads(){ return (isExecutive() || profile.department==='Sales & Marketing' || profile.subDepartment==='Pre-Sales') ? appData.deals : []; }
+function myProjects(){ return (isExecutive() || profile.role==='Project Coordinator' || profile.subDepartment==='Projects') ? appData.projects : appData.projects.filter(p => p.manager===profile.displayName || p.dept===profile.department); }
 
 function renderHome(){
   let title = 'Workspace overview';
@@ -868,10 +965,10 @@ function renderHome(){
       <div class="card rank-card">
         <div class="section-title">Employee of the month</div>
         <div class="section-sub">Recognition and internal spotlight</div>
-        <div class="rank-photo" style="background:${deptColor(staticData.spotlight.dept)};margin-top:18px">${initials(staticData.spotlight.name)}</div>
-        <div style="font-size:22px;font-weight:950;margin-top:14px">${esc(staticData.spotlight.name)}</div>
-        <div class="muted" style="margin-top:6px">${esc(staticData.spotlight.role)}</div>
-        <div style="max-width:320px;margin:14px auto 0;color:#304158;line-height:1.6">${esc(staticData.spotlight.note)}</div>
+        <div class="rank-photo" style="background:${deptColor(appData.spotlight.dept)};margin-top:18px">${initials(appData.spotlight.name)}</div>
+        <div style="font-size:22px;font-weight:950;margin-top:14px">${esc(appData.spotlight.name)}</div>
+        <div class="muted" style="margin-top:6px">${esc(appData.spotlight.role)}</div>
+        <div style="max-width:320px;margin:14px auto 0;color:#304158;line-height:1.6">${esc(appData.spotlight.note)}</div>
       </div>
     </div>
   `;
@@ -962,115 +1059,168 @@ function renderRequests(){
 }
 
 function renderTasks(){
-  const tasks = isExecutive() ? staticData.tasks : staticData.tasks.filter(t => t.dept===profile.department || t.owner===profile.displayName);
+  const tasks = myTasks();
   return `
     <div class="grid2">
       <div class="card card-pad">
         <div class="section-title">Tasks</div>
-        <div class="section-sub">Focused work list</div>
+        <div class="section-sub">Live Firestore task list</div>
         <div class="list" style="margin-top:14px">
           ${tasks.map(t=>`
             <div class="item">
               <div style="display:flex;justify-content:space-between;gap:12px">
                 <div>
                   <div style="font-size:14px;font-weight:900">${esc(t.title)}</div>
-                  <div class="meta" style="margin-top:8px">${esc(t.owner)} · ${esc(t.dept)} · Due ${esc(t.due)}</div>
+                  <div class="meta" style="margin-top:8px">${esc(t.owner)} · ${esc(t.dept)}${t.subDepartment ? ' · ' + esc(t.subDepartment) : ''} · Due ${esc(t.due || '—')}</div>
                 </div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-                  <span class="badge ${t.priority==='High'?'red':'amber'}">${esc(t.priority)}</span>
-                  <span class="badge gray">${esc(t.status)}</span>
+                  <span class="badge ${t.priority==='High'?'red':'amber'}">${esc(t.priority || 'Medium')}</span>
+                  <span class="badge gray">${esc(t.status || 'Open')}</span>
                 </div>
               </div>
             </div>
-          `).join('')}
+          `).join('') || '<div class="empty">No tasks yet.</div>'}
         </div>
       </div>
 
       <div class="card card-pad">
-        <div class="section-title">Task health</div>
-        <div class="section-sub">Simple execution summary</div>
-        <div class="grid3" style="margin-top:14px">
-          ${kpi(tasks.length,'Open items','visible to you','var(--primary)')}
-          ${kpi(tasks.filter(t=>t.priority==='High').length,'High priority','needs attention','var(--red)')}
-          ${kpi(tasks.filter(t=>t.status==='Done').length,'Completed','recent progress','var(--green)')}
+        <div class="section-title">Create task</div>
+        <div class="section-sub">Input real task data into Firestore</div>
+        <div class="grid2" style="margin-top:14px">
+          <div><label class="muted" style="font-size:12px">Title</label><input class="input" id="new-task-title"></div>
+          <div><label class="muted" style="font-size:12px">Owner</label><input class="input" id="new-task-owner" value="${esc(profile.displayName || '')}"></div>
+          <div><label class="muted" style="font-size:12px">Department</label><select class="select" id="new-task-dept">${DEPTS.map(d=>`<option ${profile.department===d?'selected':''}>${d}</option>`).join('')}</select></div>
+          <div><label class="muted" style="font-size:12px">Sub-department</label><select class="select" id="new-task-subdept"><option>—</option>${TECH_SUBDEPTS.map(d=>`<option ${profile.subDepartment===d?'selected':''}>${d}</option>`).join('')}</select></div>
+          <div><label class="muted" style="font-size:12px">Status</label><select class="select" id="new-task-status"><option>Open</option><option>In Progress</option><option>Review</option><option>Done</option></select></div>
+          <div><label class="muted" style="font-size:12px">Priority</label><select class="select" id="new-task-priority"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+          <div><label class="muted" style="font-size:12px">Due</label><input class="input" id="new-task-due" placeholder="2026-04-25"></div>
         </div>
+        <div class="quick" style="margin-top:14px"><button class="btn btn-primary" onclick="createTaskRecord()">Create task</button></div>
       </div>
     </div>
   `;
 }
 
 function renderCRM(){
-  const leads = (isExecutive() || profile.department==='Sales & Marketing') ? staticData.leads : [];
+  const leads = myLeads();
   return `
     <div class="grid2">
       <div class="card card-pad">
         <div class="section-title">CRM pipeline</div>
-        <div class="section-sub">Commercial workspace</div>
+        <div class="section-sub">Live Firestore deals</div>
         <div class="list" style="margin-top:14px">
           ${leads.length ? leads.map(l=>`
             <div class="item">
               <div style="display:flex;justify-content:space-between;gap:12px">
                 <div>
                   <div style="font-size:14px;font-weight:900">${esc(l.company)}</div>
-                  <div class="meta" style="margin-top:8px">${esc(l.owner)} · ${esc(l.stage)}</div>
+                  <div class="meta" style="margin-top:8px">${esc(l.owner)} · ${esc(l.stage)}${l.subDepartment ? ' · ' + esc(l.subDepartment) : ''}</div>
                 </div>
-                <span class="badge amber">${esc(l.value)}</span>
+                <span class="badge amber">${currency(l.value)}</span>
               </div>
-              <div class="progress" style="margin-top:12px"><span style="width:${l.probability}%"></span></div>
-              <div class="meta" style="margin-top:8px">${l.probability}% probability</div>
+              <div class="progress" style="margin-top:12px"><span style="width:${l.probability || 0}%"></span></div>
+              <div class="meta" style="margin-top:8px">${l.probability || 0}% probability</div>
             </div>
-          `).join('') : '<div class="empty">CRM access is limited to Sales and executive roles.</div>'}
+          `).join('') : '<div class="empty">No deals yet.</div>'}
         </div>
       </div>
 
       <div class="card card-pad">
-        <div class="section-title">Sales leadership</div>
-        <div class="section-sub">Commercial structure</div>
-        <table class="table" style="margin-top:10px">
-          <thead><tr><th>Name</th><th>Role</th><th>Dashboard</th></tr></thead>
-          <tbody>
-            <tr><td>Yael</td><td>Sales Manager</td><td>Sales</td></tr>
-            <tr><td>Tariq Tondi</td><td>MD</td><td>Executive Global</td></tr>
-          </tbody>
-        </table>
+        <div class="section-title">Create deal</div>
+        <div class="section-sub">Input real sales and pre-sales pipeline data</div>
+        <div class="grid2" style="margin-top:14px">
+          <div><label class="muted" style="font-size:12px">Company</label><input class="input" id="new-deal-company"></div>
+          <div><label class="muted" style="font-size:12px">Owner</label><input class="input" id="new-deal-owner" value="${esc(profile.displayName || '')}"></div>
+          <div><label class="muted" style="font-size:12px">Value</label><input class="input" id="new-deal-value" type="number" placeholder="60000"></div>
+          <div><label class="muted" style="font-size:12px">Stage</label><select class="select" id="new-deal-stage"><option>Discovery</option><option>Qualification</option><option>Proposal</option><option>Negotiation</option><option>Won</option></select></div>
+          <div><label class="muted" style="font-size:12px">Probability</label><input class="input" id="new-deal-probability" type="number" min="0" max="100" value="50"></div>
+          <div><label class="muted" style="font-size:12px">Department</label><select class="select" id="new-deal-dept">${DEPTS.map(d=>`<option ${profile.department===d?'selected':''}>${d}</option>`).join('')}</select></div>
+          <div><label class="muted" style="font-size:12px">Sub-department</label><select class="select" id="new-deal-subdept"><option>—</option>${TECH_SUBDEPTS.map(d=>`<option ${profile.subDepartment===d?'selected':''}>${d}</option>`).join('')}</select></div>
+        </div>
+        <div class="quick" style="margin-top:14px"><button class="btn btn-primary" onclick="createDealRecord()">Create deal</button></div>
       </div>
     </div>
   `;
 }
 
 function renderSupport(){
-  const tickets = (isExecutive() || profile.department==='Support' || profile.department==='Technical') ? staticData.tickets : [];
+  const tickets = myTickets();
   return `
     <div class="grid2">
       <div class="card card-pad">
-        <div class="section-title">Support queue</div>
-        <div class="section-sub">Visible incidents and support items</div>
+        <div class="section-title">Support</div>
+        <div class="section-sub">Live Firestore tickets</div>
         <div class="list" style="margin-top:14px">
-          ${tickets.length ? tickets.map(t=>`
+          ${tickets.map(t=>`
             <div class="item">
               <div style="display:flex;justify-content:space-between;gap:12px">
                 <div>
                   <div style="font-size:14px;font-weight:900">${esc(t.title)}</div>
                   <div class="meta" style="margin-top:8px">${esc(t.requester)} · ${esc(t.dept)}</div>
                 </div>
-                <div style="display:flex;gap:8px">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
                   <span class="badge ${t.severity==='High'?'red':t.severity==='Medium'?'amber':'gray'}">${esc(t.severity)}</span>
                   <span class="badge gray">${esc(t.status)}</span>
                 </div>
               </div>
             </div>
-          `).join('') : '<div class="empty">No support items visible.</div>'}
+          `).join('') || '<div class="empty">No tickets yet.</div>'}
         </div>
       </div>
 
       <div class="card card-pad">
-        <div class="section-title">Support snapshot</div>
-        <div class="section-sub">Fast service summary</div>
-        <div class="grid3" style="margin-top:14px">
-          ${kpi(tickets.length,'Visible tickets','workload','var(--red)')}
-          ${kpi(tickets.filter(t=>t.severity==='High').length,'High severity','attention','var(--amber)')}
-          ${kpi('82%','Resolution','recent rate','var(--green)')}
+        <div class="section-title">Create ticket</div>
+        <div class="section-sub">Input real support and IT incidents</div>
+        <div class="grid2" style="margin-top:14px">
+          <div><label class="muted" style="font-size:12px">Title</label><input class="input" id="new-ticket-title"></div>
+          <div><label class="muted" style="font-size:12px">Requester</label><input class="input" id="new-ticket-requester" value="${esc(profile.displayName || '')}"></div>
+          <div><label class="muted" style="font-size:12px">Severity</label><select class="select" id="new-ticket-severity"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+          <div><label class="muted" style="font-size:12px">Status</label><select class="select" id="new-ticket-status"><option>Open</option><option>In Progress</option><option>Resolved</option></select></div>
+          <div><label class="muted" style="font-size:12px">Department</label><select class="select" id="new-ticket-dept">${DEPTS.map(d=>`<option ${profile.department===d?'selected':''}>${d}</option>`).join('')}</select></div>
         </div>
+        <div class="quick" style="margin-top:14px"><button class="btn btn-primary" onclick="createTicketRecord()">Create ticket</button></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderProjects(){
+  const projects = myProjects();
+  return `
+    <div class="grid2">
+      <div class="card card-pad">
+        <div class="section-title">Projects</div>
+        <div class="section-sub">Live Firestore project tracking</div>
+        <div class="list" style="margin-top:14px">
+          ${projects.map(p=>`
+            <div class="item">
+              <div style="display:flex;justify-content:space-between;gap:12px">
+                <div>
+                  <div style="font-size:14px;font-weight:900">${esc(p.name)}</div>
+                  <div class="meta" style="margin-top:8px">${esc(p.manager)} · ${esc(p.dept)}${p.subDepartment ? ' · ' + esc(p.subDepartment) : ''} · deadline ${esc(p.deadline || '—')}</div>
+                </div>
+                <span class="badge blue">${esc(p.status || 'Planning')}</span>
+              </div>
+              <div class="progress" style="margin-top:12px"><span style="width:${p.progress || 0}%"></span></div>
+              <div class="meta" style="margin-top:8px">${p.progress || 0}% progress</div>
+            </div>
+          `).join('') || '<div class="empty">No projects yet.</div>'}
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="section-title">Create project</div>
+        <div class="section-sub">Input real project delivery data</div>
+        <div class="grid2" style="margin-top:14px">
+          <div><label class="muted" style="font-size:12px">Name</label><input class="input" id="new-project-name"></div>
+          <div><label class="muted" style="font-size:12px">Manager</label><input class="input" id="new-project-manager" value="${esc(profile.displayName || '')}"></div>
+          <div><label class="muted" style="font-size:12px">Status</label><select class="select" id="new-project-status"><option>Planning</option><option>In Progress</option><option>On Hold</option><option>Completed</option></select></div>
+          <div><label class="muted" style="font-size:12px">Progress</label><input class="input" id="new-project-progress" type="number" min="0" max="100" value="0"></div>
+          <div><label class="muted" style="font-size:12px">Deadline</label><input class="input" id="new-project-deadline" placeholder="2026-05-10"></div>
+          <div><label class="muted" style="font-size:12px">Department</label><select class="select" id="new-project-dept">${DEPTS.map(d=>`<option ${profile.department===d?'selected':''}>${d}</option>`).join('')}</select></div>
+          <div><label class="muted" style="font-size:12px">Sub-department</label><select class="select" id="new-project-subdept"><option>Projects</option>${TECH_SUBDEPTS.map(d=>`<option ${profile.subDepartment===d?'selected':''}>${d}</option>`).join('')}</select></div>
+        </div>
+        <div class="quick" style="margin-top:14px"><button class="btn btn-primary" onclick="createProjectRecord()">Create project</button></div>
       </div>
     </div>
   `;
@@ -1082,7 +1232,7 @@ function renderDocuments(){
       <div class="section-title">Document hub</div>
       <div class="section-sub">Policies, SOPs, templates, and workflows</div>
       <div class="list" style="margin-top:14px">
-        ${staticData.documents.map(d=>`
+        ${appData.documents.map(d=>`
           <div class="item">
             <div style="display:flex;justify-content:space-between;gap:12px">
               <div>
@@ -1231,6 +1381,7 @@ window.renderView = function(view, btn){
   if (view === 'people') html = renderPeople();
   if (view === 'requests') html = renderRequests();
   if (view === 'tasks') html = renderTasks();
+  if (view === 'projects') html = renderProjects();
   if (view === 'crm') html = renderCRM();
   if (view === 'support') html = renderSupport();
   if (view === 'documents') html = renderDocuments();
@@ -1364,11 +1515,11 @@ function wireSearch(){
     const q = e.target.value.trim().toLowerCase();
     if (!q) return renderView(currentView, document.querySelector(`[data-view="${currentView}"]`));
     const matches = [
-      ...staticData.tasks.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Task', title:x.title, meta:x.owner + ' · ' + x.dept})),
-      ...staticData.tickets.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Ticket', title:x.title, meta:x.requester + ' · ' + x.dept})),
-      ...staticData.leads.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Lead', title:x.company, meta:x.owner + ' · ' + x.stage})),
+      ...appData.tasks.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Task', title:x.title, meta:x.owner + ' · ' + x.dept})),
+      ...appData.tickets.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Ticket', title:x.title, meta:x.requester + ' · ' + x.dept})),
+      ...appData.deals.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Lead', title:x.company, meta:x.owner + ' · ' + x.stage})),
       ...allUsers.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'User', title:x.displayName || x.email, meta:(x.department || '—') + ' · ' + (x.role || '—')})),
-      ...staticData.documents.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Document', title:x.title, meta:x.owner + ' · ' + x.type}))
+      ...appData.documents.filter(x => JSON.stringify(x).toLowerCase().includes(q)).map(x => ({type:'Document', title:x.title, meta:x.owner + ' · ' + x.type}))
     ].slice(0,12);
     $('page').innerHTML = `
       <div class="card card-pad">
