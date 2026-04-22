@@ -290,17 +290,18 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const DEPTS = ['Technical','Sales & Marketing','HR','Finance','Support'];
+const DEPTS = ['Technical','Sales & Marketing','HR','Finance','Support','PMO'];
 const ROLE_OPTIONS = {
-  'Technical':['Engineer','Pre-sales Engineer','Team Lead','CTO'],
+  'Technical':['Engineer','Pre-sales Engineer','Team Lead','Project Coordinator','CTO'],
   'Sales & Marketing':['Sales Executive','Sales Manager','MD'],
   'HR':['HR Officer','HR Manager'],
   'Finance':['Finance Officer','Finance Manager'],
-  'Support':['Support Agent','Support Lead']
+  'Support':['Support Agent','Support Lead'],
+  'PMO':['Project Coordinator']
 };
 const VALIDATOR_ROLES = ['Admin','MD','CTO','HR Manager'];
 const EXEC_ROLES = ['Admin','MD','CTO'];
-const DEPT_COLOR = {'Technical':'#4f46e5','Sales & Marketing':'#c78a19','HR':'#14935b','Finance':'#2374d9','Support':'#df5d4f','Admin':'#162033'};
+const DEPT_COLOR = {'Technical':'#4f46e5','Sales & Marketing':'#c78a19','HR':'#14935b','Finance':'#2374d9','Support':'#df5d4f','PMO':'#7c3aed','Admin':'#162033'};
 
 const PRESET_PROFILES = {
   'othniel.atse@improtechsystems.com': {displayName:'Othniel Atse', department:'Technical', role:'CTO', dashboard:'Executive Tech', managerName:'—', isActive:true, status:'active', isSuperAdmin:true},
@@ -308,7 +309,8 @@ const PRESET_PROFILES = {
   'yael@improtechsystems.com': {displayName:'Yael', department:'Sales & Marketing', role:'Sales Manager', dashboard:'Sales', managerName:'Tariq Tondi', isActive:true, status:'active'},
   'kassum@improtechsystems.com': {displayName:'Kassum', department:'HR', role:'HR Manager', dashboard:'HR', managerName:'—', isActive:true, status:'active'},
   'unclebert@improtechsystems.com': {displayName:'Unclebert', department:'Finance', role:'Finance Manager', dashboard:'Finance', managerName:'—', isActive:true, status:'active'},
-  'gilles.bourgeois@improtechsystems.com': {displayName:'Gilles Bourgeois', department:'Technical', role:'Engineer', dashboard:'Tech', managerName:'Othniel Atse', isActive:false, status:'pending'}
+  'gilles.bourgeois@improtechsystems.com': {displayName:'Gilles Bourgeois', department:'Technical', role:'Engineer', dashboard:'Tech', managerName:'Othniel Atse', isActive:false, status:'pending'},
+  'project.coordinator@improtechsystems.com': {displayName:'Project Coordinator', department:'PMO', role:'Project Coordinator', dashboard:'Project Management', managerName:'Tariq Tondi', isActive:true, status:'active'}
 };
 
 const COMPANY_STRUCTURE = {
@@ -318,7 +320,8 @@ const COMPANY_STRUCTURE = {
   hr: {name:'Kassum', role:'HR Manager', dept:'HR'},
   finance: {name:'Unclebert', role:'Finance Manager', dept:'Finance'},
   sales: {name:'Yael', role:'Sales Manager', dept:'Sales & Marketing'},
-  support: {name:'Support Lead', role:'Support Lead', dept:'Support'}
+  support: {name:'Support Lead', role:'Support Lead', dept:'Support'},
+  pmo: {name:'Project Coordinator', role:'Project Coordinator', dept:'PMO'}
 };
 
 const staticData = {
@@ -327,7 +330,9 @@ const staticData = {
     {title:'SEMLEX proposal review', owner:'Yael', dept:'Sales & Marketing', status:'Review', priority:'High', due:'Apr 23'},
     {title:'Gilles onboarding checklist', owner:'Kassum', dept:'HR', status:'Pending', priority:'Medium', due:'Apr 25'},
     {title:'Q2 budget preparation', owner:'Unclebert', dept:'Finance', status:'Done', priority:'Medium', due:'Apr 21'},
-    {title:'VIP support review', owner:'Support Lead', dept:'Support', status:'Open', priority:'High', due:'Today'}
+    {title:'VIP support review', owner:'Support Lead', dept:'Support', status:'Open', priority:'High', due:'Today'},
+    {title:'Cross-team delivery review', owner:'Project Coordinator', dept:'PMO', status:'In Progress', priority:'High', due:'Apr 26'},
+    {title:'Project milestone tracker update', owner:'Project Coordinator', dept:'PMO', status:'Review', priority:'Medium', due:'Apr 25'}
   ],
   tickets: [
     {title:'Stanbic VPN disconnects', requester:'Stanbic IT', severity:'High', status:'Open', dept:'Technical'},
@@ -343,7 +348,8 @@ const staticData = {
     {title:'Employee onboarding policy', type:'Policy', owner:'HR'},
     {title:'Firewall build standard', type:'Technical SOP', owner:'Technical'},
     {title:'Sales proposal template', type:'Template', owner:'Sales'},
-    {title:'Access approval process', type:'Workflow', owner:'Admin'}
+    {title:'Access approval process', type:'Workflow', owner:'Admin'},
+    {title:'Project status report template', type:'PM Template', owner:'PMO'}
   ],
   spotlight: {name:'Yael', role:'Sales Manager', note:'Top commercial execution and strongest client follow-up this month.', dept:'Sales & Marketing'}
 };
@@ -364,6 +370,7 @@ function deptColor(d){ return DEPT_COLOR[d] || '#4f46e5'; }
 function dashboardForRole(department, role){
   if (role === 'MD') return 'Executive Global';
   if (role === 'CTO') return 'Executive Tech';
+  if (role === 'Project Coordinator' || department === 'PMO') return 'Project Management';
   if (department === 'Technical') return 'Tech';
   if (department === 'Sales & Marketing') return 'Sales';
   if (department === 'HR') return 'HR';
@@ -679,7 +686,7 @@ function buildNav(){
 }
 
 function kpi(n,l,s,color='var(--primary)'){ return `<div class="kpi"><div class="num" style="color:${color}">${n}</div><div class="lbl">${l}</div><div class="sub" style="color:${color}">${s}</div></div>`; }
-function myTasks(){ return isExecutive() ? staticData.tasks : staticData.tasks.filter(t => t.dept===profile.department || t.owner===profile.displayName); }
+function myTasks(){ return isExecutive() ? staticData.tasks : staticData.tasks.filter(t => t.dept===profile.department || t.owner===profile.displayName || (profile.role==='Project Coordinator' && ['Technical','Sales & Marketing','HR','Finance','Support','PMO'].includes(t.dept))); }
 function myTickets(){ return (isExecutive() || profile.department==='Support' || profile.department==='Technical') ? staticData.tickets : staticData.tickets.filter(t=>t.dept===profile.department); }
 function myLeads(){ return (isExecutive() || profile.department==='Sales & Marketing') ? staticData.leads : []; }
 
