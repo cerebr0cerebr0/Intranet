@@ -93,6 +93,17 @@ a{text-decoration:none;color:inherit}
 .org-wrap{overflow:auto;padding:8px 4px}
 .org-level{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:18px}
 .org-node{min-width:180px;max-width:220px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow);text-align:center}
+
+.tree-root{display:grid;gap:16px;margin-top:16px}
+.tree-branch{position:relative;padding-left:28px}
+.tree-branch.root{padding-left:0}
+.tree-branch:before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:#e7ebf3}
+.tree-branch.root:before{display:none}
+.tree-node-wrap{display:grid;gap:12px}
+.tree-children{display:grid;gap:14px}
+.tree-child{position:relative;padding-left:26px}
+.tree-child:before{content:'';position:absolute;left:0;top:28px;width:18px;height:2px;background:#e7ebf3}
+
 .org-node .name{font-size:14px;font-weight:900}
 .org-node .role{font-size:12px;color:var(--muted);margin-top:4px}
 .org-node .dept{margin-top:8px}
@@ -1014,7 +1025,7 @@ function renderOrg(){
     <div class="grid2">
       <div class="card card-pad">
         <div class="section-title">Company structure</div>
-        <div class="section-sub">Dynamic org chart based on who reports to who</div>
+        <div class="section-sub">Dynamic org chart based on reporting lines, with visible hierarchy indentation</div>
         <div class="tree-root">
           ${tree.roots.length ? tree.roots.map(r => renderTreeNode(r, tree, true)).join('') : '<div class="empty">No org structure available yet.</div>'}
         </div>
