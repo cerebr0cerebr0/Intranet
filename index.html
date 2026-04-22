@@ -292,7 +292,7 @@ const EXEC_ROLES = ['Admin','MD','CTO'];
 const DEPT_COLOR = {'Technical':'#4f46e5','Sales & Marketing':'#c78a19','HR':'#14935b','Finance':'#2374d9','Support':'#df5d4f','Admin':'#162033'};
 
 const PRESET_PROFILES = {
-  'othniel.atse@improtechsystems.com': {displayName:'Othniel Atse', department:'Technical', role:'CTO', dashboard:'Executive Tech', managerName:'—', isActive:true, status:'active'},
+  'othniel.atse@improtechsystems.com': {displayName:'Othniel Atse', department:'Technical', role:'CTO', dashboard:'Executive Tech', managerName:'—', isActive:true, status:'active', isSuperAdmin:true},
   'tariq.tondi@improtechsystems.com': {displayName:'Tariq Tondi', department:'Sales & Marketing', role:'MD', dashboard:'Executive Global', managerName:'—', isActive:true, status:'active'},
   'yael@improtechsystems.com': {displayName:'Yael', department:'Sales & Marketing', role:'Sales Manager', dashboard:'Sales', managerName:'Tariq Tondi', isActive:true, status:'active'},
   'kassum@improtechsystems.com': {displayName:'Kassum', department:'HR', role:'HR Manager', dashboard:'HR', managerName:'—', isActive:true, status:'active'},
@@ -343,6 +343,8 @@ let allUsers = [];
 let pendingUsers = [];
 let currentView = 'home';
 let navItems = [];
+let orgStructure = JSON.parse(JSON.stringify(COMPANY_STRUCTURE));
+let activeOrgKey = null;
 
 function $(id){ return document.getElementById(id); }
 function esc(s=''){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
@@ -358,9 +360,68 @@ function dashboardForRole(department, role){
   if (department === 'Support') return 'Support';
   return 'Workspace';
 }
-function isValidator(){ return !!(profile && VALIDATOR_ROLES.includes(profile.role)); }
-function isExecutive(){ return !!(profile && EXEC_ROLES.includes(profile.role)); }
+function isSuperAdmin(){ return !!(profile && profile.isSuperAdmin === true); }
+function isValidator(){ return !!(profile && (isSuperAdmin() || VALIDATOR_ROLES.includes(profile.role))); }
+function isExecutive(){ return !!(profile && (isSuperAdmin() || EXEC_ROLES.includes(profile.role))); }
+function hasFullAccess(){ return isSuperAdmin(); }
+function canEditOrg(){ return isSuperAdmin() || isValidator() || isExecutive(); }
 function showNotice(message, type='info'){ $('auth-notice').innerHTML = `<div class="notice ${type}">${message}</div>`; }
+function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+async function loadOrgStructure(){
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'companyStructure'));
+    if (snap.exists()) {
+      orgStructure = { ...clone(COMPANY_STRUCTURE), ...snap.data() };
+    } else {
+      orgStructure = clone(COMPANY_STRUCTURE);
+    }
+  } catch (e) {
+    console.error(e);
+    orgStructure = clone(COMPANY_STRUCTURE);
+  }
+}
+async function saveOrgStructure(){
+  try {
+    await setDoc(doc(db, 'settings', 'companyStructure'), { ...orgStructure, updatedAt: serverTimestamp() }, { merge: true });
+    return true;
+  } catch (e) {
+    console.error(e);
+    alert('Could not save the org chart: ' + (e.message || e));
+    return false;
+  }
+}
+window.startOrgEdit = function(key){
+  if (!canEditOrg()) return;
+  activeOrgKey = key;
+  renderView('org', document.querySelector('[data-view="org"]'));
+};
+window.cancelOrgEdit = function(){
+  activeOrgKey = null;
+  renderView('org', document.querySelector('[data-view="org"]'));
+};
+window.saveOrgNode = async function(key){
+  if (!canEditOrg()) return alert('You are not allowed to edit the org chart.');
+  const name = $('org-name')?.value?.trim();
+  const role = $('org-role')?.value?.trim();
+  const dept = $('org-dept')?.value;
+  if (!key || !name || !role || !dept) return alert('Please complete name, role, and department.');
+  orgStructure[key] = { name, role, dept };
+  const ok = await saveOrgStructure();
+  if (ok) {
+    activeOrgKey = null;
+    renderView('org', document.querySelector('[data-view="org"]'));
+  }
+};
+window.resetOrgChart = async function(){
+  if (!canEditOrg()) return alert('You are not allowed to reset the org chart.');
+  if (!confirm('Reset the org chart to the default Improtech structure?')) return;
+  orgStructure = clone(COMPANY_STRUCTURE);
+  const ok = await saveOrgStructure();
+  if (ok) {
+    activeOrgKey = null;
+    renderView('org', document.querySelector('[data-view="org"]'));
+  }
+};
 function clearNotice(){ $('auth-notice').innerHTML = ''; }
 
 window.showAuthTab = function(mode){
@@ -419,6 +480,7 @@ async function ensureUserProfile(user, extra = null){
     managerName: extra?.managerName || preset.managerName || '—',
     status: baseStatus,
     isActive: extra?.isActive !== undefined ? extra.isActive : (preset.isActive ?? baseStatus === 'active'),
+    isSuperAdmin: extra?.isSuperAdmin !== undefined ? extra.isSuperAdmin : (preset.isSuperAdmin === true),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     lastLoginAt: serverTimestamp()
@@ -492,6 +554,7 @@ async function loadUsers(){
     allUsers = [];
     pendingUsers = [];
   }
+  await loadOrgStructure();
 }
 function showAuth(){ $('loading-screen').classList.add('hidden'); $('pending-screen').classList.add('hidden'); $('app-screen').classList.add('hidden'); $('auth-screen').classList.remove('hidden'); showAuthTab('login'); }
 function showPending(){ $('loading-screen').classList.add('hidden'); $('auth-screen').classList.add('hidden'); $('app-screen').classList.add('hidden'); $('pending-screen').classList.remove('hidden'); }
@@ -504,8 +567,8 @@ function updateShell(){
   $('top-avatar').textContent = initials(profile.displayName);
   $('side-name').textContent = profile.displayName || '—';
   $('top-name').textContent = profile.displayName || '—';
-  $('side-role').textContent = `${profile.role || '—'} · ${profile.email || '—'}`;
-  $('top-role').textContent = profile.role || '—';
+  $('side-role').textContent = `${profile.role || '—'}${profile.isSuperAdmin ? ' · Super Admin' : ''} · ${profile.email || '—'}`;
+  $('top-role').textContent = `${profile.role || '—'}${profile.isSuperAdmin ? ' · Super Admin' : ''}`;
   $('side-dept').textContent = profile.department || '—';
   $('side-dashboard').textContent = profile.dashboard || 'Workspace';
 }
@@ -860,20 +923,76 @@ function renderDocuments(){
 }
 
 function renderOrg(){
-  const n = COMPANY_STRUCTURE;
-  const node = (x)=>`<div class="org-node"><div class="name">${esc(x.name)}</div><div class="role">${esc(x.role)}</div><div class="dept"><span class="badge primary">${esc(x.dept)}</span></div></div>`;
+  const n = orgStructure || COMPANY_STRUCTURE;
+  const node = (key, x)=>`
+    <div class="org-node">
+      <div class="name">${esc(x.name)}</div>
+      <div class="role">${esc(x.role)}</div>
+      <div class="dept"><span class="badge primary">${esc(x.dept)}</span></div>
+      ${canEditOrg() ? `<div class="quick" style="margin-top:12px"><button class="btn btn-soft" onclick="startOrgEdit('${key}')">Edit</button></div>` : ''}
+    </div>`;
+  const editor = activeOrgKey && n[activeOrgKey] ? `
+    <div class="card card-pad" style="margin-top:16px">
+      <div class="section-title">Edit org chart node</div>
+      <div class="section-sub">Update the selected position and save it to Firestore</div>
+      <div class="grid2" style="margin-top:14px">
+        <div>
+          <label class="muted" style="font-size:12px">Name</label>
+          <input class="input" id="org-name" value="${esc(n[activeOrgKey].name)}">
+        </div>
+        <div>
+          <label class="muted" style="font-size:12px">Role</label>
+          <input class="input" id="org-role" value="${esc(n[activeOrgKey].role)}">
+        </div>
+        <div>
+          <label class="muted" style="font-size:12px">Department</label>
+          <select class="select" id="org-dept">
+            ${['Admin', ...DEPTS].map(d=>`<option ${n[activeOrgKey].dept===d?'selected':''}>${d}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="muted" style="font-size:12px">Node key</label>
+          <input class="input" value="${esc(activeOrgKey)}" disabled>
+        </div>
+      </div>
+      <div class="quick" style="margin-top:14px">
+        <button class="btn btn-primary" onclick="saveOrgNode('${activeOrgKey}')">Save changes</button>
+        <button class="btn btn-ghost" onclick="cancelOrgEdit()">Cancel</button>
+        <button class="btn btn-danger" onclick="resetOrgChart()">Reset chart</button>
+      </div>
+    </div>
+  ` : '';
   return `
-    <div class="card card-pad">
-      <div class="section-title">Company structure</div>
-      <div class="section-sub">Improtech org chart</div>
-      <div class="org-wrap">
-        <div class="org-level">${node(n.ceo)}</div>
-        <div class="org-level">
-          ${node(n.md)} ${node(n.cto)}
+    <div class="grid2">
+      <div class="card card-pad">
+        <div class="section-title">Company structure</div>
+        <div class="section-sub">Improtech org chart</div>
+        <div class="org-wrap">
+          <div class="org-level">${node('ceo', n.ceo)}</div>
+          <div class="org-level">
+            ${node('md', n.md)} ${node('cto', n.cto)}
+          </div>
+          <div class="org-level">
+            ${node('sales', n.sales)} ${node('hr', n.hr)} ${node('finance', n.finance)} ${node('support', n.support)}
+          </div>
         </div>
-        <div class="org-level">
-          ${node(n.sales)} ${node(n.hr)} ${node(n.finance)} ${node(n.support)}
+      </div>
+      <div>
+        <div class="card card-pad">
+          <div class="section-title">Org chart controls</div>
+          <div class="section-sub">${canEditOrg() ? 'You can edit and save each node.' : 'Read-only view. Super Admin, Admin, MD, CTO, and HR Manager can edit.'}</div>
+          <div class="list" style="margin-top:14px">
+            <div class="item">
+              <div style="font-size:14px;font-weight:900">How it works</div>
+              <div class="meta" style="margin-top:8px">Select Edit on any node, update the name/role/department, then save. Changes are stored in Firestore under settings/companyStructure.</div>
+            </div>
+            <div class="item">
+              <div style="font-size:14px;font-weight:900">Current editor access</div>
+              <div class="meta" style="margin-top:8px">${canEditOrg() ? 'Granted for your role.' : 'Not granted for your role.'}</div>
+            </div>
+          </div>
         </div>
+        ${editor || ''}
       </div>
     </div>
   `;
@@ -908,10 +1027,11 @@ function renderAdmin(){
 
       <div class="card card-pad">
         <div class="section-title">Validation policy</div>
-        <div class="section-sub">Authorized approvers</div>
+        <div class="section-sub">Authorized approvers and access model</div>
         <table class="table" style="margin-top:10px">
           <thead><tr><th>Role</th><th>Can approve</th></tr></thead>
           <tbody>
+            <tr><td>Super Admin</td><td>Yes · Full control</td></tr>
             <tr><td>Admin</td><td>Yes</td></tr>
             <tr><td>MD</td><td>Yes</td></tr>
             <tr><td>CTO</td><td>Yes</td></tr>
@@ -920,6 +1040,29 @@ function renderAdmin(){
           </tbody>
         </table>
       </div>
+      ${hasFullAccess() ? `
+      <div class="card card-pad" style="margin-top:16px">
+        <div class="section-title">Super Admin controls</div>
+        <div class="section-sub">Edit, deactivate, promote, or remove any user</div>
+        <div class="list" style="margin-top:14px">
+          ${allUsers.map(u=>`
+            <div class="item">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+                <div>
+                  <div style="font-size:14px;font-weight:900">${esc(u.displayName || u.email)}</div>
+                  <div class="meta" style="margin-top:8px">${esc(u.email || '')} · ${esc(u.department || '—')} · ${esc(u.role || '—')}</div>
+                  <div class="meta" style="margin-top:6px">Dashboard: ${esc(u.dashboard || 'Workspace')} · Status: ${(u.status==='active'||u.isActive)?'Active':esc(u.status || 'Pending')} ${u.isSuperAdmin ? '· Super Admin' : ''}</div>
+                </div>
+                <div class="quick" style="justify-content:flex-end">
+                  <button class="btn btn-soft" onclick="toggleSuperAdmin('${u.uid || u.id}', ${u.isSuperAdmin ? 'false' : 'true'})">${u.isSuperAdmin ? 'Remove Super Admin' : 'Make Super Admin'}</button>
+                  <button class="btn btn-ghost" onclick="toggleUserActive('${u.uid || u.id}', ${(u.status==='active'||u.isActive) ? 'false' : 'true'})">${(u.status==='active'||u.isActive) ? 'Deactivate' : 'Activate'}</button>
+                  ${u.uid !== currentUser.uid ? `<button class="btn btn-danger" onclick="deleteUserAccount('${u.uid || u.id}')">Delete</button>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>` : ''}
     </div>
   `;
 }
@@ -940,6 +1083,7 @@ function renderProfile(){
       <div class="quick" style="margin-top:16px">
         <span class="badge ${(profile.status==='active'||profile.isActive)?'green':'amber'}">${(profile.status==='active'||profile.isActive)?'Active account':'Pending account'}</span>
         ${isValidator() ? '<span class="badge blue">Can approve users</span>' : ''}
+        ${isSuperAdmin() ? '<span class="badge red">Super Admin · Full access</span>' : ''}
       </div>
     </div>
   `;
@@ -1024,6 +1168,63 @@ window.rejectUser = async function(uid){
   } catch (e) {
     console.error(e);
     alert('Rejection failed: ' + (e.message || e));
+  }
+};
+
+
+window.toggleSuperAdmin = async function(uid, makeSuper){
+  try {
+    if (!hasFullAccess()) return alert('Only the Super Admin can change this permission.');
+    if (!uid) return alert('User UID not found.');
+    await updateDoc(doc(db, 'users', uid), {
+      isSuperAdmin: makeSuper === true || makeSuper === 'true',
+      updatedAt: serverTimestamp()
+    });
+    await loadUsers();
+    buildNav();
+    renderView('admin', document.querySelector('[data-view="admin"]'));
+    alert('Super Admin permission updated.');
+  } catch (e) {
+    console.error(e);
+    alert('Could not update Super Admin permission: ' + (e.message || e));
+  }
+};
+
+window.toggleUserActive = async function(uid, makeActive){
+  try {
+    if (!hasFullAccess()) return alert('Only the Super Admin can change account state.');
+    if (!uid) return alert('User UID not found.');
+    const active = makeActive === true || makeActive === 'true';
+    await updateDoc(doc(db, 'users', uid), {
+      status: active ? 'active' : 'inactive',
+      isActive: active,
+      updatedAt: serverTimestamp()
+    });
+    await loadUsers();
+    buildNav();
+    renderView('admin', document.querySelector('[data-view="admin"]'));
+    alert(active ? 'User activated.' : 'User deactivated.');
+  } catch (e) {
+    console.error(e);
+    alert('Could not update account state: ' + (e.message || e));
+  }
+};
+
+window.deleteUserAccount = async function(uid){
+  try {
+    if (!hasFullAccess()) return alert('Only the Super Admin can delete users.');
+    if (!uid) return alert('User UID not found.');
+    if (uid === currentUser.uid) return alert('You cannot delete your own account here.');
+    if (!confirm('Delete this user profile from Firestore?')) return;
+    const { deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js');
+    await deleteDoc(doc(db, 'users', uid));
+    await loadUsers();
+    buildNav();
+    renderView('admin', document.querySelector('[data-view="admin"]'));
+    alert('User deleted from Firestore.');
+  } catch (e) {
+    console.error(e);
+    alert('Could not delete user: ' + (e.message || e));
   }
 };
 
