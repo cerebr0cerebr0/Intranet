@@ -94,15 +94,24 @@ a{text-decoration:none;color:inherit}
 .org-level{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:18px}
 .org-node{min-width:180px;max-width:220px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow);text-align:center}
 
-.tree-root{display:grid;gap:16px;margin-top:16px}
-.tree-branch{position:relative;padding-left:28px}
-.tree-branch.root{padding-left:0}
-.tree-branch:before{content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;background:#e7ebf3}
-.tree-branch.root:before{display:none}
-.tree-node-wrap{display:grid;gap:12px}
-.tree-children{display:grid;gap:14px}
-.tree-child{position:relative;padding-left:26px}
-.tree-child:before{content:'';position:absolute;left:0;top:28px;width:18px;height:2px;background:#e7ebf3}
+.tree-root{display:flex;justify-content:center;align-items:flex-start;gap:42px;flex-wrap:wrap;margin-top:22px;overflow:auto;padding:10px 6px 20px}
+.tree-branch{display:flex;flex-direction:column;align-items:center;position:relative;min-width:220px}
+.tree-branch.root{min-width:260px}
+.tree-node-wrap{display:flex;flex-direction:column;align-items:center;gap:18px}
+.tree-children{display:flex;justify-content:center;align-items:flex-start;gap:34px;position:relative;padding-top:26px;flex-wrap:nowrap}
+.tree-children:before{content:'';position:absolute;top:0;left:12%;right:12%;height:2px;background:#d7ddea}
+.tree-child{position:relative;padding-top:24px;display:flex;flex-direction:column;align-items:center}
+.tree-child:before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:24px;background:#d7ddea}
+.tree-branch.root>.tree-node-wrap>.tree-children>.tree-child:after{content:'';position:absolute;top:-26px;left:50%;transform:translateX(-50%);width:2px;height:26px;background:#d7ddea}
+.org-card{display:flex;flex-direction:column;align-items:center;min-width:170px;max-width:190px}
+.org-avatar-ring{width:78px;height:78px;border-radius:50%;padding:5px;display:grid;place-items:center;box-shadow:0 6px 18px rgba(32,42,68,.12)}
+.org-avatar{width:68px;height:68px;border-radius:50%;background:linear-gradient(180deg,#f5f7fb,#e9eef8);display:grid;place-items:center;font-size:30px;border:4px solid #fff}
+.org-role-chip{margin-top:10px;padding:8px 16px;border-radius:10px;color:#fff;font-size:13px;font-weight:900;letter-spacing:.3px;box-shadow:var(--shadow)}
+.org-name{margin-top:10px;font-size:15px;font-weight:900;text-align:center}
+.org-sub{margin-top:6px;font-size:12px;color:var(--muted);text-align:center}
+.org-team-chip{margin-top:8px;padding:6px 12px;border-radius:999px;background:#eef0ff;color:var(--primary);font-size:12px;font-weight:800}
+.org-actions{margin-top:10px}
+@media (max-width:1100px){.tree-root{justify-content:flex-start}.tree-children{flex-wrap:wrap}}
 
 .org-node .name{font-size:14px;font-weight:900}
 .org-node .role{font-size:12px;color:var(--muted);margin-top:4px}
@@ -291,8 +300,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const DEPTS = ['Technical','Sales & Marketing','HR','Finance','Support','PMO'];
+const TECH_SUBDEPTS = ['Pre-Sales','Engineer','Projects','IT'];
 const ROLE_OPTIONS = {
-  'Technical':['Engineer','Pre-sales Engineer','Team Lead','Project Coordinator','CTO'],
+  'Technical':['CTO','Pre-Sales Manager','Pre-Sales Engineer','Engineering Manager','Engineer','Project Coordinator','IT Manager','IT Administrator'],
   'Sales & Marketing':['Sales Executive','Sales Manager','MD'],
   'HR':['HR Officer','HR Manager'],
   'Finance':['Finance Officer','Finance Manager'],
@@ -304,24 +314,27 @@ const EXEC_ROLES = ['Admin','MD','CTO'];
 const DEPT_COLOR = {'Technical':'#4f46e5','Sales & Marketing':'#c78a19','HR':'#14935b','Finance':'#2374d9','Support':'#df5d4f','PMO':'#7c3aed','Admin':'#162033'};
 
 const PRESET_PROFILES = {
-  'othniel.atse@improtechsystems.com': {displayName:'Othniel Atse', department:'Technical', role:'CTO', dashboard:'Executive Tech', managerName:'—', isActive:true, status:'active', isSuperAdmin:true},
+  'othniel.atse@improtechsystems.com': {displayName:'Othniel Atse', department:'Technical', subDepartment:'IT', role:'CTO', dashboard:'Executive Tech', managerName:'—', isActive:true, status:'active', isSuperAdmin:true},
   'tariq.tondi@improtechsystems.com': {displayName:'Tariq Tondi', department:'Sales & Marketing', role:'MD', dashboard:'Executive Global', managerName:'—', isActive:true, status:'active'},
   'yael@improtechsystems.com': {displayName:'Yael', department:'Sales & Marketing', role:'Sales Manager', dashboard:'Sales', managerName:'Tariq Tondi', isActive:true, status:'active'},
   'kassum@improtechsystems.com': {displayName:'Kassum', department:'HR', role:'HR Manager', dashboard:'HR', managerName:'—', isActive:true, status:'active'},
   'unclebert@improtechsystems.com': {displayName:'Unclebert', department:'Finance', role:'Finance Manager', dashboard:'Finance', managerName:'—', isActive:true, status:'active'},
-  'gilles.bourgeois@improtechsystems.com': {displayName:'Gilles Bourgeois', department:'Technical', role:'Engineer', dashboard:'Tech', managerName:'Othniel Atse', isActive:false, status:'pending'},
-  'project.coordinator@improtechsystems.com': {displayName:'Project Coordinator', department:'PMO', role:'Project Coordinator', dashboard:'Project Management', managerName:'Tariq Tondi', isActive:true, status:'active'}
+  'gilles.bourgeois@improtechsystems.com': {displayName:'Gilles Bourgeois', department:'Technical', subDepartment:'Pre-Sales', role:'Pre-Sales Manager', dashboard:'Pre-Sales', managerName:'Othniel Atse', isActive:true, status:'active'},
+  'desmond@improtechsystems.com': {displayName:'Desmond', department:'Technical', subDepartment:'Engineer', role:'Engineering Manager', dashboard:'Engineering', managerName:'Othniel Atse', isActive:true, status:'active'},
+  'project.coordinator@improtechsystems.com': {displayName:'Project Coordinator', department:'Technical', subDepartment:'Projects', role:'Project Coordinator', dashboard:'Project Management', managerName:'Othniel Atse', isActive:true, status:'active'}
 };
 
 const COMPANY_STRUCTURE = {
   ceo: {name:'Verlein', role:'CEO', dept:'Admin'},
   md: {name:'Tariq Tondi', role:'MD', dept:'Sales & Marketing'},
-  cto: {name:'Othniel Atse', role:'CTO', dept:'Technical'},
+  cto: {name:'Othniel Atse', role:'CTO', dept:'Technical', subDepartment:'IT'},
   hr: {name:'Kassum', role:'HR Manager', dept:'HR'},
   finance: {name:'Unclebert', role:'Finance Manager', dept:'Finance'},
   sales: {name:'Yael', role:'Sales Manager', dept:'Sales & Marketing'},
+  presales: {name:'Gilles Bourgeois', role:'Pre-Sales Manager', dept:'Technical', subDepartment:'Pre-Sales'},
+  engineering: {name:'Desmond', role:'Engineering Manager', dept:'Technical', subDepartment:'Engineer'},
   support: {name:'Support Lead', role:'Support Lead', dept:'Support'},
-  pmo: {name:'Project Coordinator', role:'Project Coordinator', dept:'PMO'}
+  pmo: {name:'Project Coordinator', role:'Project Coordinator', dept:'Technical', subDepartment:'Projects'}
 };
 
 const staticData = {
@@ -332,6 +345,7 @@ const staticData = {
     {title:'Q2 budget preparation', owner:'Unclebert', dept:'Finance', status:'Done', priority:'Medium', due:'Apr 21'},
     {title:'VIP support review', owner:'Support Lead', dept:'Support', status:'Open', priority:'High', due:'Today'},
     {title:'Cross-team delivery review', owner:'Project Coordinator', dept:'PMO', status:'In Progress', priority:'High', due:'Apr 26'},
+    {title:'Engineer backlog review', owner:'Desmond', dept:'Technical', status:'In Progress', priority:'High', due:'Apr 24'},
     {title:'Project milestone tracker update', owner:'Project Coordinator', dept:'PMO', status:'Review', priority:'Medium', due:'Apr 25'}
   ],
   tickets: [
@@ -342,7 +356,8 @@ const staticData = {
   leads: [
     {company:'Orange CI', value:'$95k', stage:'Negotiation', owner:'Yael', probability:74},
     {company:'SEMLEX Group', value:'$60k', stage:'Proposal', owner:'Yael', probability:61},
-    {company:'MTN Ghana', value:'$120k', stage:'Qualification', owner:'Tariq Tondi', probability:47}
+    {company:'MTN Ghana', value:'$120k', stage:'Qualification', owner:'Tariq Tondi', probability:47},
+    {company:'Ecobank', value:'$48k', stage:'Discovery', owner:'Gilles Bourgeois', probability:39}
   ],
   documents: [
     {title:'Employee onboarding policy', type:'Policy', owner:'HR'},
@@ -367,10 +382,13 @@ function $(id){ return document.getElementById(id); }
 function esc(s=''){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 function initials(name='?'){ const p=String(name).trim().split(' ').filter(Boolean); return p.length>1 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : (p[0]?.slice(0,2).toUpperCase()||'?'); }
 function deptColor(d){ return DEPT_COLOR[d] || '#4f46e5'; }
-function dashboardForRole(department, role){
+function dashboardForRole(department, role, subDepartment=''){ 
   if (role === 'MD') return 'Executive Global';
   if (role === 'CTO') return 'Executive Tech';
-  if (role === 'Project Coordinator' || department === 'PMO') return 'Project Management';
+  if (role === 'Project Coordinator' || department === 'PMO' || subDepartment === 'Projects') return 'Project Management';
+  if (department === 'Technical' && (role === 'Pre-Sales Manager' || role === 'Pre-Sales Engineer' || subDepartment === 'Pre-Sales')) return 'Pre-Sales';
+  if (department === 'Technical' && (role === 'Engineering Manager' || role === 'Engineer' || subDepartment === 'Engineer')) return 'Engineering';
+  if (department === 'Technical' && (role === 'IT Manager' || role === 'IT Administrator' || subDepartment === 'IT')) return 'IT Operations';
   if (department === 'Technical') return 'Tech';
   if (department === 'Sales & Marketing') return 'Sales';
   if (department === 'HR') return 'HR';
@@ -449,14 +467,38 @@ function buildReportingTree(){
 function renderTreeNode(user, tree, isRoot=false){
   const id = user.uid || user.id;
   const kids = tree.children.get(id) || [];
+  const ringColor = user.role === 'CTO' ? '#e04f8a'
+    : user.role === 'MD' || user.role === 'CEO' ? '#f0b429'
+    : user.subDepartment === 'Pre-Sales' ? '#f28c38'
+    : user.subDepartment === 'Engineer' ? '#8bc34a'
+    : user.subDepartment === 'Projects' ? '#19b7ae'
+    : user.subDepartment === 'IT' ? '#4f46e5'
+    : deptColor(user.department);
+  const roleChip = user.role === 'CTO' ? '#e04f8a'
+    : user.role === 'MD' || user.role === 'CEO' ? '#d94f7d'
+    : user.subDepartment === 'Pre-Sales' ? '#f28c38'
+    : user.subDepartment === 'Engineer' ? '#22b573'
+    : user.subDepartment === 'Projects' ? '#15b8a6'
+    : user.subDepartment === 'IT' ? '#4f46e5'
+    : deptColor(user.department);
+  const icon = user.role === 'CTO' || user.role === 'MD' || user.role === 'CEO' ? '👔'
+    : user.subDepartment === 'Pre-Sales' ? '🧑‍💼'
+    : user.subDepartment === 'Engineer' ? '🧑‍💻'
+    : user.subDepartment === 'Projects' ? '📋'
+    : user.subDepartment === 'IT' ? '🖥️'
+    : '👤';
   return `
     <div class="tree-branch ${isRoot ? 'root' : ''}">
       <div class="tree-node-wrap">
-        <div class="org-node">
-          <div class="name">${esc(getUserLabel(user))}</div>
-          <div class="role">${esc(user.role || '—')}</div>
-          <div class="dept"><span class="badge primary">${esc(user.department || '—')}</span></div>
-          <div class="meta" style="margin-top:8px">Reports to: ${esc(user.managerName || '—')}</div>
+        <div class="org-card">
+          <div class="org-avatar-ring" style="background:${ringColor}">
+            <div class="org-avatar">${icon}</div>
+          </div>
+          <div class="org-role-chip" style="background:${roleChip}">${esc(user.role || 'Team Lead')}</div>
+          <div class="org-name">${esc(getUserLabel(user))}</div>
+          <div class="org-sub">${esc(user.managerName ? 'Reports to: ' + user.managerName : 'Top level')}</div>
+          <div class="org-team-chip">${esc(user.department || '—')}${user.subDepartment ? ' · ' + esc(user.subDepartment) : ''}</div>
+          ${canManagePeople() ? `<div class="org-actions"><button class="btn btn-soft" onclick="renderView('people', document.querySelector('[data-view="people"]'))">Edit reporting</button></div>` : ''}
         </div>
         ${kids.length ? `<div class="tree-children">${kids.map(k => `<div class="tree-child">${renderTreeNode(k, tree)}</div>`).join('')}</div>` : ''}
       </div>
@@ -549,7 +591,7 @@ async function ensureUserProfile(user, extra = null){
     if (!data.uid) patch.uid = user.uid;
     if (!data.email) patch.email = user.email;
     if (!data.displayName && (extra?.displayName || preset.displayName || user.displayName)) patch.displayName = extra?.displayName || preset.displayName || user.displayName;
-    if (!data.dashboard) patch.dashboard = dashboardForRole(data.department || preset.department || 'Technical', data.role || preset.role || 'Employee');
+    if (!data.dashboard) patch.dashboard = dashboardForRole(data.department || preset.department || 'Technical', data.role || preset.role || 'Employee', data.subDepartment || preset.subDepartment || '');
     if (data.status === undefined) patch.status = data.isActive ? 'active' : (preset.status || 'pending');
     if (data.isActive === undefined && data.status === 'active') patch.isActive = true;
     if (Object.keys(patch).length) {
@@ -568,7 +610,8 @@ async function ensureUserProfile(user, extra = null){
     email: user.email,
     department: baseDept,
     role: baseRole,
-    dashboard: extra?.dashboard || preset.dashboard || dashboardForRole(baseDept, baseRole),
+    subDepartment: extra?.subDepartment || preset.subDepartment || '',
+    dashboard: extra?.dashboard || preset.dashboard || dashboardForRole(baseDept, baseRole, extra?.subDepartment || preset.subDepartment || ''),
     managerName: extra?.managerName || preset.managerName || '—',
     status: baseStatus,
     isActive: extra?.isActive !== undefined ? extra.isActive : (preset.isActive ?? baseStatus === 'active'),
@@ -603,6 +646,7 @@ window.doRegister = async function(){
   const email = $('reg-email').value.trim().toLowerCase();
   const password = $('reg-password').value;
   const department = $('reg-dept').value;
+  const subDepartment = $('reg-subdept').value;
   const role = $('reg-role').value;
   const managerName = $('reg-manager').value.trim() || '—';
   if (!displayName || !email || !password || !department || !role) return showNotice('Please complete all required fields.', 'warn');
@@ -614,12 +658,12 @@ window.doRegister = async function(){
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await ensureUserProfile(cred.user, {
-      displayName, email, department, role, managerName,
-      dashboard: dashboardForRole(department, role),
+      displayName, email, department, subDepartment, role, managerName,
+      dashboard: dashboardForRole(department, role, subDepartment),
       status:'pending', isActive:false
     });
     await addDoc(collection(db, 'auditLogs'), {
-      type:'access_request', email, displayName, department, role, createdAt:serverTimestamp()
+      type:'access_request', email, displayName, department, subDepartment, role, createdAt:serverTimestamp()
     }).catch(()=>{});
     showNotice('Your access request was submitted and is waiting for approval.', 'ok');
   } catch (e) {
@@ -686,7 +730,7 @@ function buildNav(){
 }
 
 function kpi(n,l,s,color='var(--primary)'){ return `<div class="kpi"><div class="num" style="color:${color}">${n}</div><div class="lbl">${l}</div><div class="sub" style="color:${color}">${s}</div></div>`; }
-function myTasks(){ return isExecutive() ? staticData.tasks : staticData.tasks.filter(t => t.dept===profile.department || t.owner===profile.displayName || (profile.role==='Project Coordinator' && ['Technical','Sales & Marketing','HR','Finance','Support','PMO'].includes(t.dept))); }
+function myTasks(){ return isExecutive() ? staticData.tasks : staticData.tasks.filter(t => t.dept===profile.department || t.owner===profile.displayName || ((profile.role==='Project Coordinator' || profile.subDepartment==='Projects') && ['Technical','Sales & Marketing','HR','Finance','Support','PMO'].includes(t.dept))); }
 function myTickets(){ return (isExecutive() || profile.department==='Support' || profile.department==='Technical') ? staticData.tickets : staticData.tickets.filter(t=>t.dept===profile.department); }
 function myLeads(){ return (isExecutive() || profile.department==='Sales & Marketing') ? staticData.leads : []; }
 
@@ -726,6 +770,33 @@ function renderHome(){
       kpi('5', 'Urgent follow-ups', 'today', 'var(--primary)'),
       kpi('2', 'Hot deals', 'negotiation', 'var(--red)'),
       kpi('74%', 'Average probability', 'deal quality', 'var(--green)')
+    ];
+  } else if (profile.department === 'Technical' && profile.subDepartment === 'Pre-Sales') {
+    title = 'Pre-Sales dashboard';
+    text = 'Solution shaping, proposal readiness, technical qualification, and bid support.';
+    cards = [
+      kpi('4', 'Active opportunities', 'technical input', 'var(--amber)'),
+      kpi('3', 'Pending proposals', 'to complete', 'var(--primary)'),
+      kpi('2', 'Customer workshops', 'planned', 'var(--blue)'),
+      kpi('91%', 'Win support score', 'current cycle', 'var(--green)')
+    ];
+  } else if (profile.department === 'Technical' && profile.subDepartment === 'Engineer') {
+    title = 'Engineering dashboard';
+    text = 'Delivery workload, escalations, technical quality, and active execution.';
+    cards = [
+      kpi('8', 'Engineering tasks', 'assigned', 'var(--primary)'),
+      kpi('2', 'Critical issues', 'need follow-up', 'var(--red)'),
+      kpi('3', 'Deployments', 'this week', 'var(--blue)'),
+      kpi('95%', 'Delivery quality', 'team average', 'var(--green)')
+    ];
+  } else if (profile.department === 'Technical' && profile.subDepartment === 'IT') {
+    title = 'IT operations dashboard';
+    text = 'Internal systems, access, infrastructure readiness, and technical governance.';
+    cards = [
+      kpi('12', 'Internal requests', 'open', 'var(--primary)'),
+      kpi('3', 'Access reviews', 'today', 'var(--amber)'),
+      kpi('1', 'Major risk', 'to monitor', 'var(--red)'),
+      kpi('98%', 'System health', 'stable', 'var(--green)')
     ];
   } else if (profile.department === 'HR') {
     title = 'HR dashboard';
@@ -820,7 +891,7 @@ function renderPeople(){
                   <div class="avatar" style="background:${deptColor(u.department)}">${initials(u.displayName)}</div>
                   <div>
                     <div style="font-size:14px;font-weight:900">${esc(u.displayName || '—')}</div>
-                    <div class="meta" style="margin-top:8px">${esc(u.email || '—')} · ${esc(u.department || '—')} · ${esc(u.role || '—')}</div>
+                    <div class="meta" style="margin-top:8px">${esc(u.email || '—')} · ${esc(u.department || '—')}${u.subDepartment ? ' · ' + esc(u.subDepartment) : ''} · ${esc(u.role || '—')}</div>
                     <div class="meta" style="margin-top:6px">Manager: ${esc(u.managerName || '—')}</div>
                   </div>
                 </div>
@@ -1032,7 +1103,7 @@ function renderOrg(){
     <div class="grid2">
       <div class="card card-pad">
         <div class="section-title">Company structure</div>
-        <div class="section-sub">Dynamic org chart based on reporting lines, with visible hierarchy indentation</div>
+        <div class="section-sub">Executive-style visual org chart based on reporting lines</div>
         <div class="tree-root">
           ${tree.roots.length ? tree.roots.map(r => renderTreeNode(r, tree, true)).join('') : '<div class="empty">No org structure available yet.</div>'}
         </div>
@@ -1048,7 +1119,7 @@ function renderOrg(){
             </div>
             <div class="item">
               <div style="font-size:14px;font-weight:900">Best practice</div>
-              <div class="meta" style="margin-top:8px">Keep names consistent in the directory. Example: Gilles Bourgeois → reports to Othniel Atse.</div>
+              <div class="meta" style="margin-top:8px">Keep names consistent in the directory. Example: Gilles Bourgeois → reports to Othniel Atse, and Desmond → reports to Othniel Atse.</div>
             </div>
           </div>
         </div>
@@ -1135,7 +1206,7 @@ function renderProfile(){
         <div class="avatar" style="width:64px;height:64px;background:${deptColor(profile.department)};font-size:22px">${initials(profile.displayName)}</div>
         <div>
           <div style="font-size:24px;font-weight:950">${esc(profile.displayName || '')}</div>
-          <div class="meta" style="margin-top:8px">${esc(profile.email || '')} · ${esc(profile.department || '')} · ${esc(profile.role || '')}</div>
+          <div class="meta" style="margin-top:8px">${esc(profile.email || '')} · ${esc(profile.department || '')}${profile.subDepartment ? ' · ' + esc(profile.subDepartment) : ''} · ${esc(profile.role || '')}</div>
           <div class="meta" style="margin-top:8px">Dashboard: ${esc(profile.dashboard || 'Workspace')} · Manager: ${esc(profile.managerName || '—')}</div>
         </div>
       </div>
