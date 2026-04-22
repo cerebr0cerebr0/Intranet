@@ -390,6 +390,71 @@ async function saveOrgStructure(){
     return false;
   }
 }
+
+function getUserLabel(u){
+  return u?.displayName || u?.email || 'Unknown';
+}
+function canManagePeople(){
+  return isSuperAdmin() || isValidator() || isExecutive();
+}
+function normalizeName(s=''){
+  return String(s).trim().toLowerCase();
+}
+function buildReportingTree(){
+  const users = (allUsers || []).filter(u => u.displayName || u.email).map(u => ({
+    ...u,
+    _name: getUserLabel(u),
+    _manager: u.managerName || ''
+  }));
+  const byName = new Map();
+  users.forEach(u => byName.set(normalizeName(u._name), u));
+  const children = new Map();
+  users.forEach(u => children.set(u.uid || u.id, []));
+  const roots = [];
+  users.forEach(u => {
+    const m = byName.get(normalizeName(u._manager));
+    if (m && (m.uid || m.id) !== (u.uid || u.id)) {
+      children.get(m.uid || m.id)?.push(u);
+    } else {
+      roots.push(u);
+    }
+  });
+  return { users, roots, children };
+}
+function renderTreeNode(user, tree){
+  const id = user.uid || user.id;
+  const kids = tree.children.get(id) || [];
+  return `
+    <div class="tree-node-wrap">
+      <div class="org-node">
+        <div class="name">${esc(getUserLabel(user))}</div>
+        <div class="role">${esc(user.role || '—')}</div>
+        <div class="dept"><span class="badge primary">${esc(user.department || '—')}</span></div>
+        <div class="meta" style="margin-top:8px">Reports to: ${esc(user.managerName || '—')}</div>
+      </div>
+      ${kids.length ? `<div class="tree-children">${kids.map(k => renderTreeNode(k, tree)).join('')}</div>` : ''}
+    </div>
+  `;
+}
+window.updateReportingManager = async function(uid){
+  try {
+    if (!canManagePeople()) return alert('You are not allowed to change reporting lines.');
+    if (!uid) return alert('User UID not found.');
+    const sel = document.getElementById('mgr-' + uid);
+    if (!sel) return alert('Manager selector not found.');
+    const managerName = sel.value || '—';
+    await updateDoc(doc(db, 'users', uid), {
+      managerName,
+      updatedAt: serverTimestamp()
+    });
+    await loadUsers();
+    renderView('people', document.querySelector('[data-view="people"]'));
+    alert('Reporting line updated.');
+  } catch (e) {
+    console.error(e);
+    alert('Could not update reporting line: ' + (e.message || e));
+  }
+};
 window.startOrgEdit = function(key){
   if (!canEditOrg()) return;
   activeOrgKey = key;
@@ -714,6 +779,7 @@ function renderHome(){
 }
 
 function renderPeople(){
+  const managerOptions = ['—', ...allUsers.map(u => getUserLabel(u)).filter(Boolean)].filter((v, i, a) => a.indexOf(v) === i);
   return `
     <div class="grid2">
       <div class="card card-pad">
@@ -736,6 +802,17 @@ function renderPeople(){
                   <span class="badge ${(u.status==='active'||u.isActive)?'green':'amber'}">${(u.status==='active'||u.isActive)?'Active':'Pending'}</span>
                 </div>
               </div>
+              ${canManagePeople() ? `
+                <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px;align-items:end">
+                  <div>
+                    <label class="muted" style="font-size:12px">Reports to</label>
+                    <select class="select" id="mgr-${u.uid || u.id}">
+                      ${managerOptions.map(name => `<option ${(u.managerName||'—')===name?'selected':''}>${esc(name)}</option>`).join('')}
+                    </select>
+                  </div>
+                  <button class="btn btn-soft" onclick="updateReportingManager('${u.uid || u.id}')">Save reporting line</button>
+                </div>
+              ` : ''}
             </div>
           `).join('') || '<div class="empty">No users found.</div>'}
         </div>
@@ -923,76 +1000,31 @@ function renderDocuments(){
 }
 
 function renderOrg(){
-  const n = orgStructure || COMPANY_STRUCTURE;
-  const node = (key, x)=>`
-    <div class="org-node">
-      <div class="name">${esc(x.name)}</div>
-      <div class="role">${esc(x.role)}</div>
-      <div class="dept"><span class="badge primary">${esc(x.dept)}</span></div>
-      ${canEditOrg() ? `<div class="quick" style="margin-top:12px"><button class="btn btn-soft" onclick="startOrgEdit('${key}')">Edit</button></div>` : ''}
-    </div>`;
-  const editor = activeOrgKey && n[activeOrgKey] ? `
-    <div class="card card-pad" style="margin-top:16px">
-      <div class="section-title">Edit org chart node</div>
-      <div class="section-sub">Update the selected position and save it to Firestore</div>
-      <div class="grid2" style="margin-top:14px">
-        <div>
-          <label class="muted" style="font-size:12px">Name</label>
-          <input class="input" id="org-name" value="${esc(n[activeOrgKey].name)}">
-        </div>
-        <div>
-          <label class="muted" style="font-size:12px">Role</label>
-          <input class="input" id="org-role" value="${esc(n[activeOrgKey].role)}">
-        </div>
-        <div>
-          <label class="muted" style="font-size:12px">Department</label>
-          <select class="select" id="org-dept">
-            ${['Admin', ...DEPTS].map(d=>`<option ${n[activeOrgKey].dept===d?'selected':''}>${d}</option>`).join('')}
-          </select>
-        </div>
-        <div>
-          <label class="muted" style="font-size:12px">Node key</label>
-          <input class="input" value="${esc(activeOrgKey)}" disabled>
-        </div>
-      </div>
-      <div class="quick" style="margin-top:14px">
-        <button class="btn btn-primary" onclick="saveOrgNode('${activeOrgKey}')">Save changes</button>
-        <button class="btn btn-ghost" onclick="cancelOrgEdit()">Cancel</button>
-        <button class="btn btn-danger" onclick="resetOrgChart()">Reset chart</button>
-      </div>
-    </div>
-  ` : '';
+  const tree = buildReportingTree();
   return `
     <div class="grid2">
       <div class="card card-pad">
         <div class="section-title">Company structure</div>
-        <div class="section-sub">Improtech org chart</div>
-        <div class="org-wrap">
-          <div class="org-level">${node('ceo', n.ceo)}</div>
-          <div class="org-level">
-            ${node('md', n.md)} ${node('cto', n.cto)}
-          </div>
-          <div class="org-level">
-            ${node('sales', n.sales)} ${node('hr', n.hr)} ${node('finance', n.finance)} ${node('support', n.support)}
-          </div>
+        <div class="section-sub">Dynamic org chart based on who reports to who</div>
+        <div class="tree-root">
+          ${tree.roots.length ? tree.roots.map(r => renderTreeNode(r, tree)).join('') : '<div class="empty">No org structure available yet.</div>'}
         </div>
       </div>
       <div>
         <div class="card card-pad">
-          <div class="section-title">Org chart controls</div>
-          <div class="section-sub">${canEditOrg() ? 'You can edit and save each node.' : 'Read-only view. Super Admin, Admin, MD, CTO, and HR Manager can edit.'}</div>
+          <div class="section-title">How to manage reporting lines</div>
+          <div class="section-sub">${canManagePeople() ? 'Go to People, assign “Reports to” for each employee, and the chart will update automatically.' : 'Read-only view. Admin, MD, CTO, HR Manager, and Super Admin can manage reporting lines from People.'}</div>
           <div class="list" style="margin-top:14px">
             <div class="item">
-              <div style="font-size:14px;font-weight:900">How it works</div>
-              <div class="meta" style="margin-top:8px">Select Edit on any node, update the name/role/department, then save. Changes are stored in Firestore under settings/companyStructure.</div>
+              <div style="font-size:14px;font-weight:900">Live hierarchy</div>
+              <div class="meta" style="margin-top:8px">This chart is built from user profiles in Firestore using each person’s managerName value.</div>
             </div>
             <div class="item">
-              <div style="font-size:14px;font-weight:900">Current editor access</div>
-              <div class="meta" style="margin-top:8px">${canEditOrg() ? 'Granted for your role.' : 'Not granted for your role.'}</div>
+              <div style="font-size:14px;font-weight:900">Best practice</div>
+              <div class="meta" style="margin-top:8px">Keep names consistent in the directory. Example: Gilles Bourgeois → reports to Othniel Atse.</div>
             </div>
           </div>
         </div>
-        ${editor || ''}
       </div>
     </div>
   `;
