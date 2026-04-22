@@ -400,19 +400,26 @@ function canManagePeople(){
 function normalizeName(s=''){
   return String(s).trim().toLowerCase();
 }
+function namesMatch(managerName, userName){
+  const a = normalizeName(managerName);
+  const b = normalizeName(userName);
+  if (!a || !b) return false;
+  return a === b || a.startsWith(b) || b.startsWith(a) || a.includes(b) || b.includes(a);
+}
+function findManagerUser(managerName, users){
+  return users.find(u => namesMatch(managerName, getUserLabel(u))) || null;
+}
 function buildReportingTree(){
   const users = (allUsers || []).filter(u => u.displayName || u.email).map(u => ({
     ...u,
     _name: getUserLabel(u),
     _manager: u.managerName || ''
   }));
-  const byName = new Map();
-  users.forEach(u => byName.set(normalizeName(u._name), u));
   const children = new Map();
   users.forEach(u => children.set(u.uid || u.id, []));
   const roots = [];
   users.forEach(u => {
-    const m = byName.get(normalizeName(u._manager));
+    const m = findManagerUser(u._manager, users);
     if (m && (m.uid || m.id) !== (u.uid || u.id)) {
       children.get(m.uid || m.id)?.push(u);
     } else {
@@ -421,18 +428,20 @@ function buildReportingTree(){
   });
   return { users, roots, children };
 }
-function renderTreeNode(user, tree){
+function renderTreeNode(user, tree, isRoot=false){
   const id = user.uid || user.id;
   const kids = tree.children.get(id) || [];
   return `
-    <div class="tree-node-wrap">
-      <div class="org-node">
-        <div class="name">${esc(getUserLabel(user))}</div>
-        <div class="role">${esc(user.role || '—')}</div>
-        <div class="dept"><span class="badge primary">${esc(user.department || '—')}</span></div>
-        <div class="meta" style="margin-top:8px">Reports to: ${esc(user.managerName || '—')}</div>
+    <div class="tree-branch ${isRoot ? 'root' : ''}">
+      <div class="tree-node-wrap">
+        <div class="org-node">
+          <div class="name">${esc(getUserLabel(user))}</div>
+          <div class="role">${esc(user.role || '—')}</div>
+          <div class="dept"><span class="badge primary">${esc(user.department || '—')}</span></div>
+          <div class="meta" style="margin-top:8px">Reports to: ${esc(user.managerName || '—')}</div>
+        </div>
+        ${kids.length ? `<div class="tree-children">${kids.map(k => `<div class="tree-child">${renderTreeNode(k, tree)}</div>`).join('')}</div>` : ''}
       </div>
-      ${kids.length ? `<div class="tree-children">${kids.map(k => renderTreeNode(k, tree)).join('')}</div>` : ''}
     </div>
   `;
 }
@@ -1007,7 +1016,7 @@ function renderOrg(){
         <div class="section-title">Company structure</div>
         <div class="section-sub">Dynamic org chart based on who reports to who</div>
         <div class="tree-root">
-          ${tree.roots.length ? tree.roots.map(r => renderTreeNode(r, tree)).join('') : '<div class="empty">No org structure available yet.</div>'}
+          ${tree.roots.length ? tree.roots.map(r => renderTreeNode(r, tree, true)).join('') : '<div class="empty">No org structure available yet.</div>'}
         </div>
       </div>
       <div>
